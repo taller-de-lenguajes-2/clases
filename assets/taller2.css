@@ -1,0 +1,69 @@
+/* ============================================================
+   taller2.css — capa de estilo de la cátedra Taller de Lenguajes 2
+   Se carga DESPUÉS de deck.css (Spktro/slidedeck) y usa sus
+   variables (--accent, --panel, --border, --text, --muted...).
+
+   Atribución: varias ideas de diseño (portada hero con gradiente,
+   tarjetas con borde de acento, números grandes de sección,
+   timeline horizontal) están adaptadas de
+   https://github.com/zarazhangrui/frontend-slides (Zara Zhang).
+   ============================================================ */
+
+/* --- Portada hero (idea adaptada de frontend-slides) --- */
+.slide.title-slide.hero {
+  background:
+    radial-gradient(ellipse at 15% 0%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 55%),
+    radial-gradient(ellipse at 95% 100%, color-mix(in srgb, var(--accent-2) 12%, transparent), transparent 50%),
+    var(--panel);
+}
+.hero .title { letter-spacing: -0.02em; }
+.hero .hero-meta {
+  display: flex; gap: 1.2em; flex-wrap: wrap;
+  margin-top: 1.6em; color: var(--muted); font-size: 0.62em;
+}
+.hero .hero-meta strong { color: var(--text); font-weight: 600; }
+
+/* --- Tarjetas con acento superior (idea adaptada de frontend-slides) --- */
+.card.accent-top { border-top: 3px solid var(--accent); }
+.card.accent-top.alt { border-top-color: var(--accent-2); }
+
+/* Tarjeta de persona (equipo docente) */
+.card .person-role {
+  display: block; font-size: 0.72em; color: var(--accent);
+  font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+  margin-bottom: 0.2em;
+}
+.card .person-name { font-weight: 700; font-size: 1.05em; }
+
+/* --- Número grande de bloque/sección (idea adaptada de frontend-slides) --- */
+.bignum {
+  font-size: 2.1em; font-weight: 800; line-height: 1;
+  color: color-mix(in srgb, var(--accent) 55%, var(--muted));
+  margin-bottom: 0.15em;
+}
+
+/* --- Timeline horizontal simple --- */
+.timeline { display: flex; gap: 0.6em; align-items: stretch; margin-top: 0.8em; }
+.timeline .milestone {
+  flex: 1; background: var(--panel-2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 0.7em 0.8em; position: relative;
+}
+.timeline .milestone .when {
+  font-size: 0.68em; font-weight: 700; color: var(--accent);
+  text-transform: uppercase; letter-spacing: 0.05em;
+}
+.timeline .milestone .what { font-size: 0.8em; margin-top: 0.25em; }
+.timeline .milestone.key { border-color: var(--accent); }
+
+/* --- Diagramas SVG inline (theme-aware vía var(--...)) --- */
+.diagram { display: flex; justify-content: center; margin: 0.6em 0; }
+.diagram svg { max-width: 100%; height: auto; }
+.diagram text { font-family: inherit; }
+.diagram .mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+
+/* --- Placeholder visible para datos a completar --- */
+.todo-placeholder {
+  display: inline-block; padding: 0.05em 0.5em; border-radius: 6px;
+  border: 1.5px dashed var(--yellow); color: var(--yellow);
+  font-weight: 600; font-size: 0.9em;
+}

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 01 — POO: Abstracción y ocultamiento de información · Taller de Lenguajes 2</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <p class="slide-eyebrow">Tema 01 · POO — primera parte</p>
+      <h1 class="title">Abstracción y <span class="accent">ocultamiento</span> de información</h1>
+      <p class="subtitle">Pilares de la POO · miembros de una clase · encapsulamiento · métodos y constructores</p>
+    </section>
+
+    <!-- 2 · Pilares de la POO -->
+    <section class="slide" data-chapter="Pilares" data-topic="Los 4 pilares">
+      <h2 class="slide-title">Pilares de la <span class="accent">POO</span></h2>
+      <div class="columns four">
+        <div class="card accent-top">
+          <h3>Abstracción</h3>
+          <p>Expresa las características <strong>esenciales</strong> de un objeto, las que lo distinguen de los demás.</p>
+        </div>
+        <div class="card accent-top">
+          <h3>Encapsulamiento</h3>
+          <p>Controla <strong>quién puede ver y usar</strong> los módulos internos de nuestro sistema.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Herencia</h3>
+          <p>Una clase <em>derivada</em> obtiene propiedades y funcionalidades de una clase <em>base</em>, pudiendo sustituirlas.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Polimorfismo</h3>
+          <p>Decide <strong>en forma dinámica</strong> qué método ejecutar según el objeto sobre el que se invoca.</p>
+        </div>
+      </div>
+      <div class="callout">Hoy: <strong>abstracción</strong> y <strong>encapsulamiento</strong>. Herencia y polimorfismo llegan en el Tema 03.</div>
+    </section>
+
+    <!-- 3 · Abstracción -->
+    <section class="slide" data-chapter="Abstracción" data-topic="¿Qué es abstraer?">
+      <h2 class="slide-title"><span class="accent">Abstracción</span></h2>
+      <div class="columns">
+        <div>
+          <p>Al abstraer <strong>omitimos los detalles que no son relevantes</strong> y representamos solo los que sí lo son. Tres preguntas guían el recorte:</p>
+          <ul class="bullets">
+            <li><strong>¿Qué es?</strong> — la entidad del mundo real que modelamos</li>
+            <li><strong>¿Qué representa?</strong> — el rol que cumple en <em>nuestro</em> sistema</li>
+            <li><strong>¿En qué contexto?</strong> — el mismo objeto se abstrae distinto en sistemas distintos</li>
+          </ul>
+          <div class="callout">Para manejar no hace falta saber cómo funciona el motor: el <strong>volante</strong> es la abstracción del auto.</div>
+        </div>
+        <div class="diagram">
+          <svg viewBox="0 0 470 290" width="470" role="img" aria-label="El volante como abstracción del auto">
+            <!-- volante -->
+            <circle cx="130" cy="150" r="82" fill="none" stroke="var(--accent)" stroke-width="13"/>
+            <circle cx="130" cy="150" r="24" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="4"/>
+            <line x1="130" y1="174" x2="130" y2="226" stroke="var(--accent)" stroke-width="9"/>
+            <line x1="108" y1="140" x2="55" y2="122" stroke="var(--accent)" stroke-width="9"/>
+            <line x1="152" y1="140" x2="205" y2="122" stroke="var(--accent)" stroke-width="9"/>
+            <!-- interfaz visible -->
+            <text x="155" y="38" text-anchor="middle" fill="var(--text)" font-size="17" font-weight="700">Lo que el conductor ve</text>
+            <text x="155" y="60" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="600" class="mono">Acelerar() · Frenar() · Girar()</text>
+            <!-- lo oculto -->
+            <rect x="300" y="78" width="150" height="150" rx="12" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="7 6"/>
+            <text x="375" y="105" text-anchor="middle" fill="var(--muted)" font-size="15" font-weight="700">Oculto</text>
+            <text x="375" y="135" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">velocidad</text>
+            <text x="375" y="160" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">coordenadas</text>
+            <text x="375" y="185" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">cambio</text>
+            <text x="375" y="210" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">inyección…</text>
+            <line x1="216" y1="150" x2="296" y2="150" stroke="var(--muted)" stroke-width="2" stroke-dasharray="7 6"/>
+          </svg>
+        </div>
+      </div>
+      <p class="small-note">Un <em>empleado</em> en un sistema de sueldos no es la misma abstracción que en un sistema de control de accesos.</p>
+    </section>
+
+    <!-- 4 · Abstracción en código -->
+    <section class="slide" data-chapter="Abstracción" data-topic="De la abstracción a la clase">
+      <h2 class="slide-title">De la abstracción a la <span class="accent">clase</span></h2>
+      <p>Nuestro sistema identifica empleados de una empresa: necesitamos una abstracción de ellos.</p>
+      <div class="columns">
+        <div class="card">
+          <h3>Representando la abstracción</h3>
+          <table class="tbl">
+            <tr><th colspan="2">Empleado</th></tr>
+            <tr><td>+ Nombre</td><td><code>string</code></td></tr>
+            <tr><td>+ DNI</td><td><code>string</code></td></tr>
+            <tr><td>+ Cargo</td><td><code>string</code></td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <h3>Utilizando la abstracción</h3>
+<pre class="code"><span class="k">public class</span> <span class="t">Empleado</span>
+{
+    <span class="c">// atributos, propiedades…</span>
+    <span class="c">// métodos…</span>
+}
+
+<span class="t">Empleado</span> empleadoA = <span class="k">new</span> <span class="t">Empleado</span>();
+<span class="k">var</span> empleadoB = <span class="k">new</span> <span class="t">Empleado</span>();</pre>
+        </div>
+      </div>
+      <p class="small-note">La <strong>clase</strong> es el plano; cada <code>new</code> crea un <strong>objeto</strong> (una instancia) distinto.</p>
+    </section>
+
+    <!-- 5 · Miembros de una clase -->
+    <section class="slide" data-chapter="Clases" data-topic="Miembros de una clase">
+      <h2 class="slide-title">Miembros de una <span class="accent">clase</span></h2>
+      <div class="columns three">
+        <div class="card accent-top">
+          <h3>Atributos</h3>
+          <p>Características que <strong>diferencian un objeto de otro</strong>: su apariencia, estado u otras cualidades. Se guardan en variables <em>de instancia</em>; cada objeto tiene sus propios valores.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Métodos</h3>
+          <p>Funciones definidas dentro de la clase que representan el <strong>comportamiento</strong>: cambiar el estado, calcular un valor, interactuar con otros objetos.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Propiedades</h3>
+          <p>Identificadores con un tipo de dato que <strong>acceden a un campo</strong>, en forma directa o a través de un método (<code>get</code> / <code>set</code>).</p>
+        </div>
+      </div>
+      <div class="callout">Anatomía de una clase — <strong>datos</strong> (campos) · <strong>comportamiento</strong> (métodos) · <strong>acceso a los datos</strong> (propiedades).</div>
+    </section>
+
+    <!-- 6 · Encapsulamiento -->
+    <section class="slide" data-chapter="Encapsulamiento" data-topic="Ocultamiento de información">
+      <h2 class="slide-title">Encapsulamiento y <span class="accent">ocultamiento</span></h2>
+      <div class="columns">
+        <div>
+          <p>El encapsulamiento <strong>envuelve datos y acciones como una unidad</strong>, exponiendo métodos y propiedades y ocultando los atributos.</p>
+          <ul class="bullets">
+            <li><strong>Ocultamos / bloqueamos</strong> lo que no debe verse desde afuera: el estado interno, los detalles de implementación</li>
+            <li><strong>Presentamos / exponemos</strong> lo que el resto de las clases sí puede ver y utilizar: la interfaz pública</li>
+          </ul>
+          <div class="callout">Esto es el <strong>principio de ocultamiento de información</strong>: cada clase decide qué muestra y qué guarda para sí.</div>
+        </div>
+        <div class="diagram">
+          <svg viewBox="0 0 440 280" width="440" role="img" aria-label="La clase como cápsula">
+            <!-- cápsula -->
+            <rect x="120" y="55" width="290" height="170" rx="85" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="4"/>
+            <line x1="215" y1="58" x2="215" y2="222" stroke="var(--accent)" stroke-width="3" stroke-dasharray="6 6"/>
+            <text x="265" y="30" text-anchor="middle" fill="var(--text)" font-size="17" font-weight="700">La clase es una cápsula</text>
+            <!-- interior privado -->
+            <text x="312" y="115" text-anchor="middle" fill="var(--muted)" font-size="14" font-weight="700">private</text>
+            <text x="312" y="143" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">sueldo</text>
+            <text x="312" y="168" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">legajo</text>
+            <!-- puerta pública -->
+            <text x="167" y="132" text-anchor="middle" fill="var(--accent)" font-size="14" font-weight="700">public</text>
+            <text x="167" y="158" text-anchor="middle" fill="var(--accent)" font-size="22">⇄</text>
+            <!-- mensajes desde afuera -->
+            <line x1="18" y1="115" x2="108" y2="130" stroke="var(--accent-2)" stroke-width="3"/>
+            <polygon points="118,132 104,124 106,138" fill="var(--accent-2)"/>
+            <line x1="18" y1="185" x2="108" y2="160" stroke="var(--accent-2)" stroke-width="3"/>
+            <polygon points="118,158 104,152 105,166" fill="var(--accent-2)"/>
+            <text x="14" y="102" fill="var(--accent-2)" font-size="14" class="mono">Nombre</text>
+            <text x="14" y="207" fill="var(--accent-2)" font-size="13" class="mono">CalcularAguinaldo()</text>
+            <text x="265" y="258" text-anchor="middle" fill="var(--muted)" font-size="14">El resto del sistema entra solo por la puerta pública</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · Modificadores de acceso -->
+    <section class="slide" data-chapter="Encapsulamiento" data-topic="Modificadores de acceso">
+      <h2 class="slide-title">Modificadores de <span class="accent">acceso</span></h2>
+      <div class="columns">
+        <div>
+          <ul class="bullets">
+            <li><code>public</code> — el miembro es <strong>visible desde cualquier clase</strong></li>
+            <li><code>private</code> — el miembro solo es visible <strong>dentro de su propia clase</strong></li>
+          </ul>
+          <div class="callout">Regla práctica: <strong>campos privados</strong>, accedidos mediante <strong>propiedades o métodos públicos</strong>. Así la información se mantiene consistente y aumenta la cohesión.</div>
+        </div>
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Empleado</span>
+{
+    <span class="k">private decimal</span> sueldo;      <span class="c">// oculto</span>
+
+    <span class="k">public string</span> Nombre { <span class="k">get</span>; <span class="k">set</span>; }
+
+    <span class="k">public decimal</span> CalcularAguinaldo()
+    {
+        <span class="k">return</span> sueldo / <span class="n">2</span>;
+    }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 · Instancia vs estáticos -->
+    <section class="slide" data-chapter="Clases" data-topic="Miembros de instancia y estáticos">
+      <h2 class="slide-title">Miembros de instancia y <span class="accent">estáticos</span></h2>
+      <div class="columns">
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Auto</span>
+{
+    <span class="k">public string</span> Marca { <span class="k">get</span>; <span class="k">set</span>; }   <span class="c">// de instancia</span>
+
+    <span class="k">public static int</span> Cantidad;         <span class="c">// estático</span>
+
+    <span class="k">public</span> <span class="t">Auto</span>(<span class="k">string</span> marca)
+    {
+        Marca = marca;
+        Cantidad++;
+    }
+}
+
+<span class="k">var</span> a = <span class="k">new</span> <span class="t">Auto</span>(<span class="s">"Fiat"</span>);
+<span class="k">var</span> b = <span class="k">new</span> <span class="t">Auto</span>(<span class="s">"Ford"</span>);
+<span class="t">Console</span>.WriteLine(a.Marca);        <span class="c">// "Fiat"</span>
+<span class="t">Console</span>.WriteLine(<span class="t">Auto</span>.Cantidad);  <span class="c">// 2</span></pre>
+        </div>
+        <div>
+          <ul class="bullets">
+            <li><strong>De instancia:</strong> cada objeto tiene <em>su propio valor</em> → se accede desde el objeto: <code>a.Marca</code></li>
+            <li><strong>Estáticos:</strong> pertenecen <em>a la clase</em>, no a un objeto → se accede con el nombre de la clase: <code>Auto.Cantidad</code>, incluso sin instancias</li>
+          </ul>
+          <div class="callout">De un miembro estático existe <strong>una sola copia</strong>, sin importar cuántas instancias de la clase se creen.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 · Métodos y firma -->
+    <section class="slide" data-chapter="Métodos" data-topic="Firma de un método">
+      <h2 class="slide-title">Métodos y su <span class="accent">firma</span></h2>
+      <p>Un método es un <strong>bloque de código con una serie de instrucciones</strong> que representa el comportamiento del objeto. Se invoca con <code>objeto.Metodo(...)</code>.</p>
+      <div class="columns">
+        <div class="card">
+<pre class="code"><span class="k">public void</span> Acelerar(<span class="k">int</span> aceleracion)
+{
+    velocidad += aceleracion;
+}</pre>
+          <p class="small-note"><strong>Firma</strong> = nombre (<code>Acelerar</code>) + parámetros (<code>int</code>). El tipo de retorno <em>no</em> forma parte de la firma.</p>
+        </div>
+        <div class="card">
+<pre class="code"><span class="t">Auto</span> auto = <span class="k">new</span> <span class="t">Auto</span>(<span class="s">"Fiat"</span>);
+auto.Acelerar(<span class="n">10</span>);
+auto.Frenar();</pre>
+          <p class="small-note">Nombre del objeto + punto + método + paréntesis.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 · Sobrecarga de métodos -->
+    <section class="slide" data-chapter="Métodos" data-topic="Sobrecarga de métodos">
+      <h2 class="slide-title"><span class="accent">Sobrecarga</span> de un método</h2>
+      <div class="columns">
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Auto</span>
+{
+    <span class="k">private int</span> velocidad;
+
+    <span class="c">// método a</span>
+    <span class="k">public void</span> Acelerar(<span class="k">int</span> aceleracion) { … }
+
+    <span class="c">// método b</span>
+    <span class="k">public void</span> Acelerar(<span class="k">string</span> aceleracion) { … }
+
+    <span class="c">// método c</span>
+    <span class="k">public void</span> Acelerar(<span class="k">int</span> aceleracion, <span class="k">int</span> segundos) { … }
+}</pre>
+        </div>
+        <div>
+          <p>Varios métodos con el <strong>mismo nombre</strong> y distinto tipo o número de argumentos — es decir, <strong>distinta firma</strong>. El <strong>compilador</strong> elige cuál ejecutar según los argumentos.</p>
+<pre class="code">auto.Acelerar(<span class="n">10</span>);                 <span class="c">// → a</span>
+auto.Acelerar(<span class="s">"10"</span>);               <span class="c">// → b</span>
+auto.Acelerar(<span class="n">10</span>, <span class="n">3</span>);              <span class="c">// → c</span>
+auto.Acelerar(<span class="t">Console</span>.ReadLine()); <span class="c">// → b</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · Constructores -->
+    <section class="slide" data-chapter="Métodos" data-topic="Constructores">
+      <h2 class="slide-title">El <span class="accent">constructor</span></h2>
+      <p>Método cuyo nombre <strong>es igual al nombre de su tipo</strong>, sin tipo de retorno. Se ejecuta al hacer <code>new</code>. También se puede sobrecargar: distintas formas de inicializar un objeto.</p>
+      <div class="columns">
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Auto</span>
+{
+    <span class="k">private string</span> marca;
+    <span class="k">private int</span> velocidad;
+
+    <span class="c">// constructor a</span>
+    <span class="k">public</span> <span class="t">Auto</span>() { marca = <span class="s">"sin marca"</span>; }
+
+    <span class="c">// constructor b</span>
+    <span class="k">public</span> <span class="t">Auto</span>(<span class="k">string</span> nuevaMarca)
+    { marca = nuevaMarca; }
+}</pre>
+        </div>
+        <div>
+<pre class="code"><span class="k">var</span> a1 = <span class="k">new</span> <span class="t">Auto</span>();
+<span class="c">// → a: "sin marca", velocidad 0</span>
+
+<span class="k">var</span> a2 = <span class="k">new</span> <span class="t">Auto</span>(<span class="s">"Fiat"</span>);
+<span class="c">// → b</span></pre>
+          <div class="callout">La sobrecarga de constructores da <strong>versatilidad</strong> al instanciar y muchas veces reduce código.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 · Integrador -->
+    <section class="slide" data-chapter="Cierre" data-topic="Todo junto: Auto">
+      <h2 class="slide-title">Todo junto: abstracción + <span class="accent">ocultamiento</span></h2>
+      <div class="columns">
+        <div class="card">
+          <h3>Abstracción</h3>
+          <table class="tbl">
+            <tr><th colspan="2">Auto</th></tr>
+            <tr><td>− marca</td><td><code>string</code></td></tr>
+            <tr><td>− posicion</td><td><code>Vector2D</code></td></tr>
+            <tr><td>− velocidad</td><td><code>int</code></td></tr>
+            <tr><td>+ GetMarca()</td><td><code>string</code></td></tr>
+            <tr><td>+ Acelerar(aceleracion: <code>int</code>)</td><td></td></tr>
+            <tr><td>+ Acelerar(aceleracion: <code>string</code>)</td><td></td></tr>
+            <tr><td>+ Frenar()</td><td></td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <h3>Implementación</h3>
+<pre class="code"><span class="k">public class</span> <span class="t">Auto</span>
+{
+    <span class="k">private</span> <span class="t">Vector2D</span> posicion;
+    <span class="k">private string</span> marca;
+    <span class="k">private int</span> velocidad;
+
+    <span class="k">public string</span> GetMarca() => marca;
+    <span class="k">public void</span> Acelerar(<span class="k">int</span> aceleracion)
+    { velocidad += aceleracion; }
+
+    <span class="k">public void</span> Acelerar(<span class="k">string</span> aceleracion)
+    { velocidad += <span class="t">Convert</span>.ToInt32(aceleracion); }
+
+    <span class="k">public void</span> Frenar() { velocidad = <span class="n">0</span>; }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Próximo: Tema 02 — Composición y agregación: cómo se relacionan las clases entre sí.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+</body>
+</html>

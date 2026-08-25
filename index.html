@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Taller de Lenguajes 2 — Clases</title>
+  <style>
+    :root {
+      --bg: #f5f6f9; --panel: #ffffff; --border: #d9dee8; --text: #1b2230;
+      --muted: #5a6576; --accent: #7c3aed; --accent-2: #2563eb;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #0f1115; --panel: #161a22; --border: #2a3140; --text: #e6e9ef;
+        --muted: #9aa3b2; --accent: #b08cff; --accent-2: #79b8ff;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.55;
+    }
+    .wrap { max-width: 880px; margin: 0 auto; padding: 3rem 1.2rem 4rem; }
+    header h1 { margin: 0 0 0.2rem; font-size: 2rem; letter-spacing: -0.02em; }
+    header h1 .accent { color: var(--accent); }
+    header p { margin: 0; color: var(--muted); }
+    h2 { margin: 2.4rem 0 0.8rem; font-size: 1.2rem; }
+    table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    th, td { padding: 0.55rem 0.8rem; border-bottom: 1px solid var(--border); text-align: left; font-size: 0.95rem; }
+    th { background: color-mix(in srgb, var(--accent) 8%, var(--panel)); font-weight: 600; }
+    tr:last-child td { border-bottom: none; }
+    a { color: var(--accent-2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .pend { color: var(--muted); font-style: italic; }
+    footer { margin-top: 3rem; color: var(--muted); font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Taller de <span class="accent">Lenguajes 2</span> — Clases</h1>
+      <p>FACET · UNT — Presentaciones y proyectos de ejemplo de la cátedra.</p>
+    </header>
+
+    <h2>Cursado 2026 — orden de dictado</h2>
+    <table>
+      <tr><th>Clase</th><th>Temas</th><th>Material</th></tr>
+      <tr><td>0</td><td>Sobre la materia</td><td><a href="tema-00-sobre-la-materia/index.html">Tema 00 — Sobre la materia</a></td></tr>
+      <tr><td>1</td><td>POO: abstracción y ocultamiento · composición y agregación</td><td><a href="tema-01-abstraccion-y-ocultamiento/index.html">Tema 01 — Abstracción y ocultamiento</a> · <a href="tema-02-composicion-y-agregacion/index.html">Tema 02 — Composición y agregación</a></td></tr>
+      <tr><td>2</td><td>POO: herencia y polimorfismo · interfaces y clases abstractas</td><td class="pend">Temas 03 y 04 — pendiente</td></tr>
+      <tr><td>3</td><td>API REST</td><td class="pend">Tema 05 — pendiente</td></tr>
+      <tr><td>4</td><td>ASP.NET con API REST</td><td class="pend">Tema 06 — pendiente</td></tr>
+      <tr><td>5</td><td>Excepciones · Logs</td><td class="pend">Temas 16 y 17 — pendiente</td></tr>
+      <tr><td>6</td><td>Bases de datos</td><td class="pend">Tema 07 — pendiente</td></tr>
+      <tr><td>7</td><td>ADO.NET · Repositorios</td><td class="pend">Temas 08 y 09 — pendiente</td></tr>
+      <tr><td>8</td><td>MVC · Layout y Views en ASP.NET</td><td class="pend">Temas 10 y 11 — pendiente</td></tr>
+      <tr><td>9</td><td>ViewModels · Validación · Cookies y sesión</td><td class="pend">Temas 12, 13 y 15 — pendiente</td></tr>
+      <tr><td>10</td><td>Inyección de dependencias e interfaces</td><td class="pend">Tema 14 — pendiente</td></tr>
+    </table>
+
+    <footer>
+      Presentaciones hechas con <a href="https://github.com/Spktro/slidedeck">slidedeck</a>;
+      ideas de diseño adaptadas de <a href="https://github.com/zarazhangrui/frontend-slides">frontend-slides</a>.
+      · <a href="https://github.com/taller-de-lenguajes-2/clases">Repositorio</a>
+    </footer>
+  </div>
+</body>
+</html>

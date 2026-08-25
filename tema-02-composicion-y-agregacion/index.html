@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 02 — POO: Composición y Agregación · Taller de Lenguajes 2</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <p class="slide-eyebrow">Tema 02 · POO — segunda parte</p>
+      <h1 class="title">Composición y <span class="accent">agregación</span></h1>
+      <p class="subtitle">Cómo se asocian las clases para construir una aplicación</p>
+    </section>
+
+    <!-- 2 · Arquitectura de una aplicación POO -->
+    <section class="slide" data-chapter="Arquitectura" data-topic="Construyendo un sistema">
+      <h2 class="slide-title">Construyendo un <span class="accent">sistema</span></h2>
+      <p>Una aplicación orientada a objetos está constituida por <strong>múltiples clases que interactúan entre sí por medio de mensajes</strong>, cada una con una responsabilidad y una tarea particular.</p>
+      <ul class="bullets">
+        <li>Cada clase es una <strong>abstracción</strong> con una responsabilidad clara</li>
+        <li>Las clases colaboran <strong>enviándose mensajes</strong> (llamando métodos)</li>
+        <li>Todas juntas proveen el <strong>comportamiento esperado</strong> de la aplicación</li>
+      </ul>
+      <div class="callout">A la estructura, funcionamiento e interacción entre las partes del software la llamamos <strong>arquitectura</strong> — como los planos de un edificio.</div>
+    </section>
+
+    <!-- 3 · El bar -->
+    <section class="slide" data-chapter="Arquitectura" data-topic="Simulando un bar">
+      <h2 class="slide-title">Interacción entre partes: <span class="accent">un bar</span></h2>
+      <p>Simulemos un bar con clases — cada abstracción tiene su responsabilidad y colaboran enviándose mensajes:</p>
+      <div class="diagram">
+        <svg viewBox="0 0 1140 320" width="1080" role="img" aria-label="Mensajes entre Cliente, Mozo, Cocinero y Cocina">
+          <defs>
+            <marker id="fw" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+            </marker>
+            <marker id="bk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--accent-2)"/>
+            </marker>
+          </defs>
+          <!-- actores -->
+          <g font-size="21" font-weight="700">
+            <rect x="20"  y="130" width="180" height="56" rx="14" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="110" y="165" text-anchor="middle" fill="var(--text)">Cliente</text>
+            <rect x="330" y="130" width="180" height="56" rx="14" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="420" y="165" text-anchor="middle" fill="var(--text)">Mozo</text>
+            <rect x="640" y="130" width="180" height="56" rx="14" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="730" y="165" text-anchor="middle" fill="var(--text)">Cocinero</text>
+            <rect x="950" y="130" width="170" height="56" rx="14" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="1035" y="165" text-anchor="middle" fill="var(--text)">Cocina</text>
+          </g>
+          <!-- ida (por arriba) -->
+          <g stroke="var(--accent)" stroke-width="3" fill="none">
+            <path d="M 110 130 C 110 75, 420 75, 418 126" marker-end="url(#fw)"/>
+            <path d="M 420 130 C 420 75, 730 75, 728 126" marker-end="url(#fw)"/>
+            <path d="M 730 130 C 730 75, 1035 75, 1033 126" marker-end="url(#fw)"/>
+          </g>
+          <g fill="var(--accent)" font-size="16" font-weight="600" text-anchor="middle">
+            <text x="265" y="70">1 · hace un pedido</text>
+            <text x="575" y="70">2 · pasa el pedido</text>
+            <text x="882" y="70">3 · elabora el pedido</text>
+          </g>
+          <!-- vuelta (por abajo) -->
+          <g stroke="var(--accent-2)" stroke-width="3" fill="none">
+            <path d="M 1035 186 C 1035 245, 730 245, 732 190" marker-end="url(#bk)"/>
+            <path d="M 730 186 C 730 245, 420 245, 422 190" marker-end="url(#bk)"/>
+            <path d="M 420 186 C 420 245, 110 245, 112 190" marker-end="url(#bk)"/>
+          </g>
+          <g fill="var(--accent-2)" font-size="16" font-weight="600" text-anchor="middle">
+            <text x="882" y="262">4 · pedido cocinado</text>
+            <text x="575" y="262">5 · pasa el pedido</text>
+            <text x="265" y="262">6 · entrega el pedido</text>
+          </g>
+          <text x="570" y="305" text-anchor="middle" fill="var(--muted)" font-size="16">Cliente, Mozo, Cocinero y Cocina son clases · los mensajes son llamadas a métodos</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 4 · Asociación -->
+    <section class="slide" data-chapter="Asociación" data-topic="¿Cómo vinculamos clases?">
+      <h2 class="slide-title">¿Cómo podemos <span class="accent">vincular</span> clases?</h2>
+      <div class="columns">
+        <div>
+          <p>Una <strong>asociación</strong> es un tipo de relación donde una clase contiene a otra: <em>una clase es miembro de otra clase</em>.</p>
+          <ul class="bullets">
+            <li>Tipos de asociación: <strong>composición</strong> y <strong>agregación</strong></li>
+            <li>Se implementa declarando un miembro cuyo tipo es otra clase</li>
+          </ul>
+        </div>
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Posicion</span>
+{
+    <span class="k">public int</span> X { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public int</span> Y { <span class="k">get</span>; <span class="k">set</span>; }
+}
+
+<span class="k">public class</span> <span class="t">Rectangulo</span>
+{
+    <span class="c">// Rectangulo contiene una Posicion</span>
+    <span class="k">public</span> <span class="t">Posicion</span> MiPosicion { <span class="k">get</span>; <span class="k">set</span>; }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · Composición -->
+    <section class="slide" data-chapter="Asociación" data-topic="Composición">
+      <h2 class="slide-title"><span class="accent">Composición</span> — “es parte de”</h2>
+      <div class="columns">
+        <div>
+          <ul class="bullets">
+            <li>Es la relación <strong>más fuerte</strong> entre clases</li>
+            <li>El objeto contenido <strong>no puede existir</strong> independientemente del que lo contiene</li>
+            <li>El <strong>tiempo de vida</strong> del miembro está condicionado por el del contenedor</li>
+          </ul>
+          <div class="callout">El <strong>Salón</strong> es <em>parte de</em> un <strong>Colegio</strong>: si el colegio deja de existir, sus salones también.</div>
+        </div>
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Colegio</span>
+{
+    <span class="c">// los salones viven dentro del colegio</span>
+    <span class="k">private</span> <span class="t">List</span>&lt;<span class="t">Salon</span>&gt; aulas = <span class="k">new</span>();
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 · Agregación -->
+    <section class="slide" data-chapter="Asociación" data-topic="Agregación">
+      <h2 class="slide-title"><span class="accent">Agregación</span> — “tiene un”</h2>
+      <div class="columns">
+        <div>
+          <ul class="bullets">
+            <li>Relación <strong>más débil</strong> que la composición</li>
+            <li>El objeto contenido <strong>puede existir con independencia</strong> del que lo contiene</li>
+          </ul>
+          <div class="callout">El <strong>Curso</strong> <em>tiene</em> <strong>Estudiantes</strong>: si el curso se cierra, los estudiantes siguen existiendo.</div>
+        </div>
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Curso</span>
+{
+    <span class="c">// el estudiante existe fuera del curso</span>
+    <span class="k">public</span> <span class="t">Estudiante</span> Alumno { <span class="k">get</span>; <span class="k">set</span>; }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · Ejemplo Vehículo -->
+    <section class="slide" data-chapter="Asociación" data-topic="Ejemplo: Vehículo">
+      <h2 class="slide-title">Ejemplo: <span class="accent">Vehículo</span></h2>
+      <div class="columns">
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Motor</span>
+{
+    <span class="k">public</span> <span class="t">Motor</span>() { … }
+}
+
+<span class="k">public class</span> <span class="t">Rueda</span>
+{
+    <span class="k">public</span> <span class="t">Rueda</span>() { … }
+}</pre>
+        </div>
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Vehiculo</span>
+{
+    <span class="k">public</span> <span class="t">Motor</span> MotorDeVehiculo { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public</span> <span class="t">List</span>&lt;<span class="t">Rueda</span>&gt; Ruedas { <span class="k">get</span>; <span class="k">set</span>; }
+
+    <span class="k">public void</span> Acelerar() { … }
+    <span class="k">public void</span> Frenar() { … }
+}</pre>
+        </div>
+      </div>
+      <ul class="bullets">
+        <li>El <strong>Motor</strong> <em>forma parte de</em> un Vehículo → composición</li>
+        <li>El <strong>Vehículo</strong> <em>tiene</em> una o varias Ruedas → agregación</li>
+      </ul>
+    </section>
+
+    <!-- 8 · En resumen -->
+    <section class="slide" data-chapter="Resumen" data-topic="Dejando en claro">
+      <h2 class="slide-title">Dejando en <span class="accent">claro</span></h2>
+      <table class="tbl">
+        <tr><th>Relación</th><th>Se lee</th><th>Vida del objeto contenido</th><th>Ejemplo</th></tr>
+        <tr><td><strong>Composición</strong> — el objeto <em>posee</em> a otro</td><td>“es parte de”</td><td>Ligada al contenedor</td><td>Salón – Colegio</td></tr>
+        <tr><td><strong>Agregación</strong> — el objeto <em>usa</em> a otro</td><td>“tiene un”</td><td>Independiente</td><td>Estudiante – Curso</td></tr>
+      </table>
+      <ul class="bullets">
+        <li>Para encapsular bien, el uso de <code>private</code> y <code>public</code> es <strong>fundamental</strong></li>
+        <li>Siempre vamos a construir software <strong>evitando el acoplamiento</strong> innecesario entre clases</li>
+      </ul>
+    </section>
+
+    <!-- 9 · Desafío -->
+    <section class="slide" data-chapter="Desafío" data-topic="Desafío: TaskLists">
+      <h2 class="slide-title"><span class="accent">Desafío</span></h2>
+      <div class="card accent-top">
+        <h3>Módulo TaskLists</h3>
+        <p>En una distribuidora surgió la necesidad de llevar un <strong>control de las tareas realizadas por sus empleados</strong>. Usted forma parte del equipo de programación que se encargará de hacer el módulo en cuestión, que a partir de ahora se llamará <strong>módulo TaskLists</strong>.</p>
+      </div>
+      <ul class="bullets">
+        <li>¿Qué <strong>abstracciones</strong> (clases) identificás en el enunciado?</li>
+        <li>¿Qué relaciones hay entre ellas? ¿<strong>Composición o agregación</strong>?</li>
+        <li>¿Qué expone cada clase y qué oculta?</li>
+      </ul>
+    </section>
+
+    <!-- 10 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Próximo: Tema 03 — Herencia y polimorfismo.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+</body>
+</html>

@@ -23,13 +23,45 @@
     <!-- 2 · Arquitectura de una aplicación POO -->
     <section class="slide" data-chapter="Arquitectura" data-topic="Construyendo un sistema">
       <h2 class="slide-title">Construyendo un <span class="accent">sistema</span></h2>
-      <p>Una aplicación orientada a objetos está constituida por <strong>múltiples clases que interactúan entre sí por medio de mensajes</strong>, cada una con una responsabilidad y una tarea particular.</p>
-      <ul class="bullets">
-        <li>Cada clase es una <strong>abstracción</strong> con una responsabilidad clara</li>
-        <li>Las clases colaboran <strong>enviándose mensajes</strong> (llamando métodos)</li>
-        <li>Todas juntas proveen el <strong>comportamiento esperado</strong> de la aplicación</li>
-      </ul>
-      <div class="callout">A la estructura, funcionamiento e interacción entre las partes del software la llamamos <strong>arquitectura</strong> — como los planos de un edificio.</div>
+      <div class="columns">
+        <div>
+          <p>Una aplicación orientada a objetos está constituida por <strong>múltiples clases que interactúan entre sí por medio de mensajes</strong>.</p>
+          <ul class="bullets">
+            <li>Cada clase es una <strong>abstracción</strong> con una responsabilidad clara</li>
+            <li>Las clases colaboran <strong>enviándose mensajes</strong> (llamando métodos)</li>
+            <li>Todas juntas proveen el <strong>comportamiento esperado</strong> de la aplicación</li>
+          </ul>
+          <div class="callout">A la estructura, funcionamiento e interacción entre las partes la llamamos <strong>arquitectura</strong> — como los planos de un edificio.</div>
+        </div>
+        <div class="diagram">
+          <svg viewBox="0 0 440 300" width="420" role="img" aria-label="Una aplicación como conjunto de clases que se envían mensajes">
+            <defs>
+              <marker id="m2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--accent-2)"/>
+              </marker>
+            </defs>
+            <rect x="15" y="20" width="410" height="260" rx="16" fill="none" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="220" y="50" text-anchor="middle" fill="var(--text)" font-size="17" font-weight="700">Aplicación</text>
+            <g font-size="15" font-weight="600">
+              <rect x="55"  y="80"  width="110" height="46" rx="10" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+              <text x="110" y="108" text-anchor="middle" fill="var(--text)">Clase A</text>
+              <rect x="275" y="80"  width="110" height="46" rx="10" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+              <text x="330" y="108" text-anchor="middle" fill="var(--text)">Clase B</text>
+              <rect x="55"  y="200" width="110" height="46" rx="10" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+              <text x="110" y="228" text-anchor="middle" fill="var(--text)">Clase C</text>
+              <rect x="275" y="200" width="110" height="46" rx="10" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+              <text x="330" y="228" text-anchor="middle" fill="var(--text)">Clase D</text>
+            </g>
+            <g stroke="var(--accent-2)" stroke-width="2.5" fill="none">
+              <line x1="170" y1="103" x2="268" y2="103" marker-end="url(#m2)"/>
+              <line x1="330" y1="131" x2="330" y2="193" marker-end="url(#m2)"/>
+              <line x1="268" y1="223" x2="172" y2="223" marker-end="url(#m2)"/>
+              <line x1="110" y1="193" x2="110" y2="133" marker-end="url(#m2)"/>
+            </g>
+            <text x="220" y="170" text-anchor="middle" fill="var(--accent-2)" font-size="14" font-style="italic">mensajes</text>
+          </svg>
+        </div>
+      </div>
     </section>
 
     <!-- 3 · El bar -->
@@ -89,26 +121,25 @@
       <h2 class="slide-title">¿Cómo podemos <span class="accent">vincular</span> clases?</h2>
       <div class="columns">
         <div>
-          <p>Una <strong>asociación</strong> es un tipo de relación donde una clase contiene a otra: <em>una clase es miembro de otra clase</em>.</p>
+          <p>Para que el bar funcione, sus clases tienen que estar conectadas. Una <strong>asociación</strong> es una relación donde una clase contiene a otra: <em>una clase es miembro de otra clase</em>.</p>
           <ul class="bullets">
-            <li>Tipos de asociación: <strong>composición</strong> y <strong>agregación</strong></li>
-            <li>Se implementa declarando un miembro cuyo tipo es otra clase</li>
+            <li>Se implementa declarando un <strong>miembro cuyo tipo es otra clase</strong></li>
+            <li>Hay dos tipos de asociación: <strong>composición</strong> y <strong>agregación</strong></li>
           </ul>
         </div>
         <div class="card">
-<pre class="code"><span class="k">public class</span> <span class="t">Posicion</span>
+<pre class="code"><span class="k">public class</span> <span class="t">Bar</span>
 {
-    <span class="k">public int</span> X { <span class="k">get</span>; <span class="k">set</span>; }
-    <span class="k">public int</span> Y { <span class="k">get</span>; <span class="k">set</span>; }
-}
+    <span class="c">// el Bar contiene una Cocina…</span>
+    <span class="k">private</span> <span class="t">Cocina</span> cocina;
 
-<span class="k">public class</span> <span class="t">Rectangulo</span>
-{
-    <span class="c">// Rectangulo contiene una Posicion</span>
-    <span class="k">public</span> <span class="t">Posicion</span> MiPosicion { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="c">// …varios Mozos y sus Clientes</span>
+    <span class="k">private</span> <span class="t">List</span>&lt;<span class="t">Mozo</span>&gt; mozos;
+    <span class="k">private</span> <span class="t">List</span>&lt;<span class="t">Cliente</span>&gt; clientes;
 }</pre>
         </div>
       </div>
+      <p class="small-note">¿Todas estas relaciones son iguales? No — y esa es justamente la diferencia entre composición y agregación.</p>
     </section>
 
     <!-- 5 · Composición -->
@@ -121,14 +152,27 @@
             <li>El objeto contenido <strong>no puede existir</strong> independientemente del que lo contiene</li>
             <li>El <strong>tiempo de vida</strong> del miembro está condicionado por el del contenedor</li>
           </ul>
-          <div class="callout">El <strong>Salón</strong> es <em>parte de</em> un <strong>Colegio</strong>: si el colegio deja de existir, sus salones también.</div>
+          <div class="callout">La <strong>Cocina</strong> <em>es parte del</em> <strong>Bar</strong>: nace cuando el bar se construye y muere con él.</div>
         </div>
-        <div class="card">
-<pre class="code"><span class="k">public class</span> <span class="t">Colegio</span>
+        <div>
+          <div class="diagram">
+            <svg viewBox="0 0 460 90" width="440" role="img" aria-label="UML: Bar composición Cocina">
+              <rect x="10" y="22" width="130" height="46" rx="10" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+              <text x="75" y="51" text-anchor="middle" fill="var(--text)" font-size="18" font-weight="700">Bar</text>
+              <polygon points="140,45 162,35 184,45 162,55" fill="var(--accent)"/>
+              <line x1="184" y1="45" x2="320" y2="45" stroke="var(--accent)" stroke-width="3"/>
+              <rect x="320" y="22" width="130" height="46" rx="10" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+              <text x="385" y="51" text-anchor="middle" fill="var(--text)" font-size="18" font-weight="700">Cocina</text>
+              <text x="252" y="30" text-anchor="middle" fill="var(--muted)" font-size="14">rombo lleno = composición</text>
+            </svg>
+          </div>
+          <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Bar</span>
 {
-    <span class="c">// los salones viven dentro del colegio</span>
-    <span class="k">private</span> <span class="t">List</span>&lt;<span class="t">Salon</span>&gt; aulas = <span class="k">new</span>();
+    <span class="c">// la Cocina nace y muere con el Bar</span>
+    <span class="k">private</span> <span class="t">Cocina</span> cocina = <span class="k">new</span> <span class="t">Cocina</span>();
 }</pre>
+          </div>
         </div>
       </div>
     </section>
@@ -141,34 +185,97 @@
           <ul class="bullets">
             <li>Relación <strong>más débil</strong> que la composición</li>
             <li>El objeto contenido <strong>puede existir con independencia</strong> del que lo contiene</li>
+            <li>El objeto <strong>llega desde afuera</strong>: ya existía antes de asociarse</li>
           </ul>
-          <div class="callout">El <strong>Curso</strong> <em>tiene</em> <strong>Estudiantes</strong>: si el curso se cierra, los estudiantes siguen existiendo.</div>
+          <div class="callout">El <strong>Bar</strong> <em>tiene</em> <strong>Clientes</strong>: si el bar cierra, los clientes siguen existiendo.</div>
         </div>
-        <div class="card">
-<pre class="code"><span class="k">public class</span> <span class="t">Curso</span>
+        <div>
+          <div class="diagram">
+            <svg viewBox="0 0 460 90" width="440" role="img" aria-label="UML: Bar agregación Cliente">
+              <rect x="10" y="22" width="130" height="46" rx="10" fill="var(--panel-2)" stroke="var(--accent-2)" stroke-width="2.5"/>
+              <text x="75" y="51" text-anchor="middle" fill="var(--text)" font-size="18" font-weight="700">Bar</text>
+              <polygon points="140,45 162,35 184,45 162,55" fill="var(--panel)" stroke="var(--accent-2)" stroke-width="2.5"/>
+              <line x1="184" y1="45" x2="320" y2="45" stroke="var(--accent-2)" stroke-width="3"/>
+              <rect x="320" y="22" width="130" height="46" rx="10" fill="var(--panel-2)" stroke="var(--accent-2)" stroke-width="2.5"/>
+              <text x="385" y="51" text-anchor="middle" fill="var(--text)" font-size="18" font-weight="700">Cliente</text>
+              <text x="252" y="30" text-anchor="middle" fill="var(--muted)" font-size="14">rombo vacío = agregación</text>
+            </svg>
+          </div>
+          <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Bar</span>
 {
-    <span class="c">// el estudiante existe fuera del curso</span>
-    <span class="k">public</span> <span class="t">Estudiante</span> Alumno { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="c">// los clientes existen fuera del Bar</span>
+    <span class="k">private</span> <span class="t">List</span>&lt;<span class="t">Cliente</span>&gt; clientes = <span class="k">new</span>();
+
+    <span class="k">public void</span> Entra(<span class="t">Cliente</span> cliente)
+    {
+        clientes.Add(cliente);
+    }
 }</pre>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- 7 · Ejemplo Vehículo -->
-    <section class="slide" data-chapter="Asociación" data-topic="Ejemplo: Vehículo">
-      <h2 class="slide-title">Ejemplo: <span class="accent">Vehículo</span></h2>
-      <div class="columns">
-        <div class="card">
-<pre class="code"><span class="k">public class</span> <span class="t">Motor</span>
-{
-    <span class="k">public</span> <span class="t">Motor</span>() { … }
-}
+    <!-- 7 · Ciclo de vida -->
+    <section class="slide" data-chapter="Asociación" data-topic="Ciclo de vida">
+      <h2 class="slide-title">La diferencia clave: el <span class="accent">ciclo de vida</span></h2>
+      <p>¿Qué pasa con el objeto contenido cuando el contenedor deja de existir?</p>
+      <div class="diagram">
+        <svg viewBox="0 0 1000 330" width="960" role="img" aria-label="Ciclo de vida en composición vs agregación">
+          <!-- línea del cierre -->
+          <line x1="640" y1="20" x2="640" y2="310" stroke="var(--muted)" stroke-width="2" stroke-dasharray="8 6"/>
+          <text x="640" y="16" text-anchor="middle" fill="var(--muted)" font-size="15" font-weight="600">el Bar cierra</text>
 
-<span class="k">public class</span> <span class="t">Rueda</span>
-{
-    <span class="k">public</span> <span class="t">Rueda</span>() { … }
-}</pre>
+          <!-- Composición -->
+          <text x="20" y="55" fill="var(--text)" font-size="17" font-weight="700">Composición</text>
+          <text x="150" y="55" fill="var(--accent)" font-size="17">Bar ◆— Cocina</text>
+          <rect x="120" y="75" width="520" height="26" rx="13" fill="var(--accent)"/>
+          <text x="60" y="93" fill="var(--text)" font-size="15" font-weight="600">Bar</text>
+          <rect x="150" y="115" width="490" height="26" rx="13" fill="var(--accent)" opacity="0.45"/>
+          <text x="60" y="133" fill="var(--text)" font-size="15" font-weight="600">Cocina</text>
+          <text x="662" y="134" fill="var(--red, #d33)" font-size="20" font-weight="800">✕ muere con el Bar</text>
+
+          <!-- Agregación -->
+          <text x="20" y="205" fill="var(--text)" font-size="17" font-weight="700">Agregación</text>
+          <text x="145" y="205" fill="var(--accent-2)" font-size="17">Bar ◇— Cliente</text>
+          <rect x="120" y="225" width="520" height="26" rx="13" fill="var(--accent-2)"/>
+          <text x="60" y="243" fill="var(--text)" font-size="15" font-weight="600">Bar</text>
+          <rect x="40" y="265" width="920" height="26" rx="13" fill="var(--accent-2)" opacity="0.45"/>
+          <text x="60" y="283" fill="var(--text)" font-size="15" font-weight="600" >Cliente</text>
+          <text x="700" y="258" fill="var(--green, #2a8)" font-size="20" font-weight="800">✓ sigue existiendo</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 8 · Otros ejemplos -->
+    <section class="slide" data-chapter="Asociación" data-topic="Otros ejemplos">
+      <h2 class="slide-title">Otros <span class="accent">ejemplos</span> clásicos</h2>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>◆ Composición — “es parte de”</h3>
+          <ul class="bullets">
+            <li>El <strong>Salón</strong> es parte de un <strong>Colegio</strong></li>
+            <li>El <strong>Corazón</strong> es parte de una <strong>Persona</strong></li>
+            <li>La <strong>Habitación</strong> es parte de una <strong>Casa</strong></li>
+          </ul>
         </div>
+        <div class="card accent-top alt">
+          <h3>◇ Agregación — “tiene un”</h3>
+          <ul class="bullets">
+            <li>El <strong>Curso</strong> tiene <strong>Estudiantes</strong></li>
+            <li>El <strong>Equipo</strong> tiene <strong>Jugadores</strong></li>
+            <li>La <strong>Playlist</strong> tiene <strong>Canciones</strong></li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout">La pregunta que decide: si destruyo el contenedor, ¿el contenido <strong>tiene sentido por sí solo</strong>? Si la respuesta es sí → agregación.</div>
+    </section>
+
+    <!-- 9 · Ejercicio Vehículo -->
+    <section class="slide" data-chapter="Asociación" data-topic="¿Cuál es cuál?: Vehículo">
+      <h2 class="slide-title">¿Cuál es cuál? — <span class="accent">Vehículo</span></h2>
+      <div class="columns">
         <div class="card">
 <pre class="code"><span class="k">public class</span> <span class="t">Vehiculo</span>
 {
@@ -179,20 +286,36 @@
     <span class="k">public void</span> Frenar() { … }
 }</pre>
         </div>
+        <div>
+          <div class="diagram">
+            <svg viewBox="0 0 460 150" width="430" role="img" aria-label="UML: Vehiculo, Motor y Rueda">
+              <rect x="10" y="50" width="140" height="46" rx="10" fill="var(--panel-2)" stroke="var(--text)" stroke-width="2"/>
+              <text x="80" y="79" text-anchor="middle" fill="var(--text)" font-size="17" font-weight="700">Vehículo</text>
+              <polygon points="150,60 170,52 190,60 170,68" fill="var(--accent)"/>
+              <line x1="190" y1="60" x2="310" y2="35" stroke="var(--accent)" stroke-width="3"/>
+              <rect x="310" y="12" width="130" height="42" rx="10" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+              <text x="375" y="39" text-anchor="middle" fill="var(--text)" font-size="16" font-weight="700">Motor</text>
+              <polygon points="150,86 170,78 190,86 170,94" fill="var(--panel)" stroke="var(--accent-2)" stroke-width="2.5"/>
+              <line x1="190" y1="86" x2="310" y2="112" stroke="var(--accent-2)" stroke-width="3"/>
+              <rect x="310" y="92" width="130" height="42" rx="10" fill="var(--panel-2)" stroke="var(--accent-2)" stroke-width="2.5"/>
+              <text x="375" y="119" text-anchor="middle" fill="var(--text)" font-size="16" font-weight="700">Rueda</text>
+            </svg>
+          </div>
+          <ul class="bullets">
+            <li>El <strong>Motor</strong> <em>forma parte del</em> Vehículo → <strong>composición ◆</strong></li>
+            <li>El Vehículo <em>tiene</em> <strong>Ruedas</strong> que pueden cambiarse y reutilizarse → <strong>agregación ◇</strong></li>
+          </ul>
+        </div>
       </div>
-      <ul class="bullets">
-        <li>El <strong>Motor</strong> <em>forma parte de</em> un Vehículo → composición</li>
-        <li>El <strong>Vehículo</strong> <em>tiene</em> una o varias Ruedas → agregación</li>
-      </ul>
     </section>
 
-    <!-- 8 · En resumen -->
+    <!-- 10 · En resumen -->
     <section class="slide" data-chapter="Resumen" data-topic="Dejando en claro">
       <h2 class="slide-title">Dejando en <span class="accent">claro</span></h2>
       <table class="tbl">
-        <tr><th>Relación</th><th>Se lee</th><th>Vida del objeto contenido</th><th>Ejemplo</th></tr>
-        <tr><td><strong>Composición</strong> — el objeto <em>posee</em> a otro</td><td>“es parte de”</td><td>Ligada al contenedor</td><td>Salón – Colegio</td></tr>
-        <tr><td><strong>Agregación</strong> — el objeto <em>usa</em> a otro</td><td>“tiene un”</td><td>Independiente</td><td>Estudiante – Curso</td></tr>
+        <tr><th>Relación</th><th>UML</th><th>Se lee</th><th>Vida del objeto contenido</th><th>Ejemplo</th></tr>
+        <tr><td><strong>Composición</strong> — el objeto <em>posee</em> a otro</td><td>◆—</td><td>“es parte de”</td><td>Ligada al contenedor</td><td>Cocina – Bar</td></tr>
+        <tr><td><strong>Agregación</strong> — el objeto <em>usa</em> a otro</td><td>◇—</td><td>“tiene un”</td><td>Independiente</td><td>Cliente – Bar</td></tr>
       </table>
       <ul class="bullets">
         <li>Para encapsular bien, el uso de <code>private</code> y <code>public</code> es <strong>fundamental</strong></li>
@@ -200,7 +323,7 @@
       </ul>
     </section>
 
-    <!-- 9 · Desafío -->
+    <!-- 11 · Desafío -->
     <section class="slide" data-chapter="Desafío" data-topic="Desafío: TaskLists">
       <h2 class="slide-title"><span class="accent">Desafío</span></h2>
       <div class="card accent-top">
@@ -209,12 +332,12 @@
       </div>
       <ul class="bullets">
         <li>¿Qué <strong>abstracciones</strong> (clases) identificás en el enunciado?</li>
-        <li>¿Qué relaciones hay entre ellas? ¿<strong>Composición o agregación</strong>?</li>
+        <li>¿Qué relaciones hay entre ellas? ¿<strong>Composición ◆ o agregación ◇</strong>?</li>
         <li>¿Qué expone cada clase y qué oculta?</li>
       </ul>
     </section>
 
-    <!-- 10 · Cierre -->
+    <!-- 12 · Cierre -->
     <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
       <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
       <p class="subtitle">Próximo: Tema 03 — Herencia y polimorfismo.</p>

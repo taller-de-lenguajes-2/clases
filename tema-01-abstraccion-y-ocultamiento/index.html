@@ -49,37 +49,55 @@
       <h2 class="slide-title"><span class="accent">Abstracción</span></h2>
       <div class="columns">
         <div>
-          <p>Al abstraer <strong>omitimos los detalles que no son relevantes</strong> y representamos solo los que sí lo son. Tres preguntas guían el recorte:</p>
+          <p>Abstraer es representar algo del mundo real <strong>quedándonos solo con lo que nos interesa</strong> y omitiendo el resto. Tres preguntas guían el recorte:</p>
           <ul class="bullets">
             <li><strong>¿Qué es?</strong> — la entidad del mundo real que modelamos</li>
             <li><strong>¿Qué representa?</strong> — el rol que cumple en <em>nuestro</em> sistema</li>
-            <li><strong>¿En qué contexto?</strong> — el mismo objeto se abstrae distinto en sistemas distintos</li>
+            <li><strong>¿En qué contexto?</strong> — la misma persona se abstrae distinto en sistemas distintos</li>
           </ul>
-          <div class="callout">Para manejar no hace falta saber cómo funciona el motor: el <strong>volante</strong> es la abstracción del auto.</div>
+          <div class="callout">No existe <em>la</em> abstracción correcta: depende de <strong>para qué</strong> la necesitamos. La pregunta es siempre: <strong>¿con qué nos quedamos?</strong></div>
         </div>
         <div class="diagram">
-          <svg viewBox="0 0 470 290" width="470" role="img" aria-label="El volante como abstracción del auto">
-            <!-- volante -->
-            <circle cx="130" cy="150" r="82" fill="none" stroke="var(--accent)" stroke-width="13"/>
-            <circle cx="130" cy="150" r="24" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="4"/>
-            <line x1="130" y1="174" x2="130" y2="226" stroke="var(--accent)" stroke-width="9"/>
-            <line x1="108" y1="140" x2="55" y2="122" stroke="var(--accent)" stroke-width="9"/>
-            <line x1="152" y1="140" x2="205" y2="122" stroke="var(--accent)" stroke-width="9"/>
-            <!-- interfaz visible -->
-            <text x="155" y="38" text-anchor="middle" fill="var(--text)" font-size="17" font-weight="700">Lo que el conductor ve</text>
-            <text x="155" y="60" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="600" class="mono">Acelerar() · Frenar() · Girar()</text>
-            <!-- lo oculto -->
-            <rect x="300" y="78" width="150" height="150" rx="12" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="7 6"/>
-            <text x="375" y="105" text-anchor="middle" fill="var(--muted)" font-size="15" font-weight="700">Oculto</text>
-            <text x="375" y="135" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">velocidad</text>
-            <text x="375" y="160" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">coordenadas</text>
-            <text x="375" y="185" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">cambio</text>
-            <text x="375" y="210" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">inyección…</text>
-            <line x1="216" y1="150" x2="296" y2="150" stroke="var(--muted)" stroke-width="2" stroke-dasharray="7 6"/>
+          <svg viewBox="0 0 560 330" width="540" role="img" aria-label="Una misma persona, dos abstracciones distintas según el sistema">
+            <defs>
+              <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+              </marker>
+            </defs>
+            <!-- persona real -->
+            <rect x="10" y="55" width="185" height="230" rx="12" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="7 6"/>
+            <text x="102" y="82" text-anchor="middle" fill="var(--text)" font-size="16" font-weight="700">Persona real</text>
+            <g fill="var(--muted)" font-size="14" text-anchor="middle">
+              <text x="102" y="112">nombre</text>
+              <text x="102" y="136">DNI</text>
+              <text x="102" y="160">cargo · sueldo</text>
+              <text x="102" y="184">sección · interno</text>
+              <text x="102" y="208">dirección</text>
+              <text x="102" y="232">hobbies</text>
+              <text x="102" y="256">equipo de fútbol…</text>
+            </g>
+            <!-- flechas -->
+            <line x1="200" y1="120" x2="290" y2="95" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#ab)"/>
+            <line x1="200" y1="220" x2="290" y2="245" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#ab)"/>
+            <!-- abstracción RRHH -->
+            <rect x="300" y="30" width="245" height="130" rx="12" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="422" y="56" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700">Sistema de RRHH → Empleado</text>
+            <g fill="var(--text)" font-size="14" text-anchor="middle" class="mono">
+              <text x="422" y="84">nombre · DNI</text>
+              <text x="422" y="108">cargo</text>
+              <text x="422" y="132">sueldo</text>
+            </g>
+            <!-- abstracción planilla -->
+            <rect x="300" y="180" width="245" height="130" rx="12" fill="var(--panel-2)" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <text x="422" y="206" text-anchor="middle" fill="var(--accent-2)" font-size="15" font-weight="700">Planilla de secciones</text>
+            <g fill="var(--text)" font-size="14" text-anchor="middle" class="mono">
+              <text x="422" y="234">nombre</text>
+              <text x="422" y="258">sección</text>
+              <text x="422" y="282">interno</text>
+            </g>
           </svg>
         </div>
       </div>
-      <p class="small-note">Un <em>empleado</em> en un sistema de sueldos no es la misma abstracción que en un sistema de control de accesos.</p>
     </section>
 
     <!-- 4 · Abstracción en código -->
@@ -113,22 +131,40 @@
 
     <!-- 5 · Miembros de una clase -->
     <section class="slide" data-chapter="Clases" data-topic="Miembros de una clase">
-      <h2 class="slide-title">Miembros de una <span class="accent">clase</span></h2>
-      <div class="columns three">
-        <div class="card accent-top">
-          <h3>Atributos</h3>
-          <p>Características que <strong>diferencian un objeto de otro</strong>: su apariencia, estado u otras cualidades. Se guardan en variables <em>de instancia</em>; cada objeto tiene sus propios valores.</p>
+      <h2 class="slide-title">Anatomía de una <span class="accent">clase</span></h2>
+      <div class="columns">
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Auto</span>
+{
+    <span style="color:var(--accent)">// ① campos — el estado</span>
+    <span class="k">private string</span> marca;
+    <span class="k">private int</span> velocidad;
+    <span style="color:var(--yellow)">// ② constructor</span>
+    <span class="k">public</span> <span class="t">Auto</span>(<span class="k">string</span> nuevaMarca)
+    { marca = nuevaMarca; velocidad = <span class="n">0</span>; }
+    <span style="color:var(--accent-2)">// ③ propiedad</span>
+    <span class="k">public int</span> Velocidad
+    { <span class="k">get</span> { <span class="k">return</span> velocidad; } }
+    <span style="color:var(--green)">// ④ método — el comportamiento</span>
+    <span class="k">public void</span> Acelerar(<span class="k">int</span> aceleracion)
+    { velocidad += aceleracion; }
+}</pre>
         </div>
-        <div class="card accent-top alt">
-          <h3>Métodos</h3>
-          <p>Funciones definidas dentro de la clase que representan el <strong>comportamiento</strong>: cambiar el estado, calcular un valor, interactuar con otros objetos.</p>
-        </div>
-        <div class="card accent-top alt">
-          <h3>Propiedades</h3>
-          <p>Identificadores con un tipo de dato que <strong>acceden a un campo</strong>, en forma directa o a través de un método (<code>get</code> / <code>set</code>).</p>
+        <div>
+          <div class="card" style="border-left:3px solid var(--accent); margin-bottom:0.5em; padding:0.55em 0.9em">
+            <p><strong>① Campos (atributos)</strong> — el estado del objeto. Variables <em>de instancia</em>: cada objeto tiene sus propios valores.</p>
+          </div>
+          <div class="card" style="border-left:3px solid var(--yellow); margin-bottom:0.5em; padding:0.55em 0.9em">
+            <p><strong>② Constructor</strong> — método especial que corre al hacer <code>new</code>: inicializa el objeto y lo deja en un <strong>estado válido y consistente</strong>. Un <code>Auto</code> nunca nace sin marca.</p>
+          </div>
+          <div class="card" style="border-left:3px solid var(--accent-2); margin-bottom:0.5em; padding:0.55em 0.9em">
+            <p><strong>③ Propiedades</strong> — acceso controlado a los campos (<code>get</code> / <code>set</code>): qué se puede leer o modificar desde afuera.</p>
+          </div>
+          <div class="card" style="border-left:3px solid var(--green); padding:0.55em 0.9em">
+            <p><strong>④ Métodos</strong> — el comportamiento: cambiar el estado, calcular, interactuar con otros objetos.</p>
+          </div>
         </div>
       </div>
-      <div class="callout">Anatomía de una clase — <strong>datos</strong> (campos) · <strong>comportamiento</strong> (métodos) · <strong>acceso a los datos</strong> (propiedades).</div>
     </section>
 
     <!-- 6 · Encapsulamiento -->
@@ -136,34 +172,34 @@
       <h2 class="slide-title">Encapsulamiento y <span class="accent">ocultamiento</span></h2>
       <div class="columns">
         <div>
-          <p>El encapsulamiento <strong>envuelve datos y acciones como una unidad</strong>, exponiendo métodos y propiedades y ocultando los atributos.</p>
+          <p>Sobre la abstracción aplicamos el <strong>encapsulamiento</strong>: envolver datos y acciones como una unidad, y decidir <strong>qué mostramos y qué ocultamos</strong>.</p>
           <ul class="bullets">
-            <li><strong>Ocultamos / bloqueamos</strong> lo que no debe verse desde afuera: el estado interno, los detalles de implementación</li>
-            <li><strong>Presentamos / exponemos</strong> lo que el resto de las clases sí puede ver y utilizar: la interfaz pública</li>
+            <li><strong>Mostramos</strong> lo que el otro necesita para usar el objeto: al conductor le damos volante, pedales y tablero</li>
+            <li><strong>Ocultamos</strong> el funcionamiento interno: la inyección, la mezcla, la ECU — nadie los toca desde afuera</li>
+            <li>El conductor <em>usa</em> el auto sin saber cómo funciona por dentro — y no puede romper lo que no ve</li>
           </ul>
           <div class="callout">Esto es el <strong>principio de ocultamiento de información</strong>: cada clase decide qué muestra y qué guarda para sí.</div>
         </div>
         <div class="diagram">
-          <svg viewBox="0 0 440 280" width="440" role="img" aria-label="La clase como cápsula">
-            <!-- cápsula -->
-            <rect x="120" y="55" width="290" height="170" rx="85" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="4"/>
-            <line x1="215" y1="58" x2="215" y2="222" stroke="var(--accent)" stroke-width="3" stroke-dasharray="6 6"/>
-            <text x="265" y="30" text-anchor="middle" fill="var(--text)" font-size="17" font-weight="700">La clase es una cápsula</text>
-            <!-- interior privado -->
-            <text x="312" y="115" text-anchor="middle" fill="var(--muted)" font-size="14" font-weight="700">private</text>
-            <text x="312" y="143" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">sueldo</text>
-            <text x="312" y="168" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">legajo</text>
-            <!-- puerta pública -->
-            <text x="167" y="132" text-anchor="middle" fill="var(--accent)" font-size="14" font-weight="700">public</text>
-            <text x="167" y="158" text-anchor="middle" fill="var(--accent)" font-size="22">⇄</text>
-            <!-- mensajes desde afuera -->
-            <line x1="18" y1="115" x2="108" y2="130" stroke="var(--accent-2)" stroke-width="3"/>
-            <polygon points="118,132 104,124 106,138" fill="var(--accent-2)"/>
-            <line x1="18" y1="185" x2="108" y2="160" stroke="var(--accent-2)" stroke-width="3"/>
-            <polygon points="118,158 104,152 105,166" fill="var(--accent-2)"/>
-            <text x="14" y="102" fill="var(--accent-2)" font-size="14" class="mono">Nombre</text>
-            <text x="14" y="207" fill="var(--accent-2)" font-size="13" class="mono">CalcularAguinaldo()</text>
-            <text x="265" y="258" text-anchor="middle" fill="var(--muted)" font-size="14">El resto del sistema entra solo por la puerta pública</text>
+          <svg viewBox="0 0 470 290" width="460" role="img" aria-label="Qué ve y qué no ve el conductor de un auto">
+            <!-- volante -->
+            <circle cx="130" cy="160" r="80" fill="none" stroke="var(--accent)" stroke-width="13"/>
+            <circle cx="130" cy="160" r="24" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="4"/>
+            <line x1="130" y1="184" x2="130" y2="234" stroke="var(--accent)" stroke-width="9"/>
+            <line x1="108" y1="150" x2="57" y2="132" stroke="var(--accent)" stroke-width="9"/>
+            <line x1="152" y1="150" x2="203" y2="132" stroke="var(--accent)" stroke-width="9"/>
+            <!-- interfaz visible -->
+            <text x="130" y="38" text-anchor="middle" fill="var(--text)" font-size="16" font-weight="700">Lo que el conductor ve</text>
+            <text x="130" y="62" text-anchor="middle" fill="var(--accent)" font-size="14" font-weight="600" class="mono">Acelerar() · Frenar() · Girar()</text>
+            <!-- lo oculto -->
+            <rect x="290" y="85" width="165" height="160" rx="12" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="7 6"/>
+            <text x="372" y="112" text-anchor="middle" fill="var(--muted)" font-size="15" font-weight="700">Lo que no ve</text>
+            <text x="372" y="142" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">inyección</text>
+            <text x="372" y="167" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">mezcla</text>
+            <text x="372" y="192" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">ECU</text>
+            <text x="372" y="217" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">velocidad interna</text>
+            <line x1="214" y1="160" x2="286" y2="160" stroke="var(--muted)" stroke-width="2" stroke-dasharray="7 6"/>
+            <text x="250" y="272" text-anchor="middle" fill="var(--muted)" font-size="14">public = el volante · private = el motor</text>
           </svg>
         </div>
       </div>
@@ -238,14 +274,28 @@
 <pre class="code"><span class="k">public void</span> Acelerar(<span class="k">int</span> aceleracion)
 {
     velocidad += aceleracion;
+    <span class="k">if</span> (velocidad &gt; velocidadMaxima)
+        velocidad = velocidadMaxima;  <span class="c">// tope físico</span>
+}
+
+<span class="k">public void</span> Frenar()
+{
+    <span class="c">// frena de a poco, no de golpe</span>
+    <span class="k">while</span> (velocidad &gt; <span class="n">0</span>)
+        velocidad = velocidad - <span class="n">5</span>;
+
+    velocidad = <span class="n">0</span>;  <span class="c">// nunca queda negativa</span>
 }</pre>
-          <p class="small-note"><strong>Firma</strong> = nombre (<code>Acelerar</code>) + parámetros (<code>int</code>). El tipo de retorno <em>no</em> forma parte de la firma.</p>
         </div>
-        <div class="card">
+        <div>
+          <div class="card">
 <pre class="code"><span class="t">Auto</span> auto = <span class="k">new</span> <span class="t">Auto</span>(<span class="s">"Fiat"</span>);
 auto.Acelerar(<span class="n">10</span>);
-auto.Frenar();</pre>
-          <p class="small-note">Nombre del objeto + punto + método + paréntesis.</p>
+auto.Frenar();  <span class="c">// 10 → 5 → 0</span></pre>
+            <p class="small-note">Nombre del objeto + punto + método + paréntesis.</p>
+          </div>
+          <div class="callout"><strong>Firma</strong> = nombre (<code>Acelerar</code>) + parámetros (<code>int</code>). El tipo de retorno <em>no</em> forma parte de la firma.</div>
+          <p class="small-note">El que llama a <code>Frenar()</code> no sabe (ni le importa) que adentro hay un <code>while</code>: solo conoce la firma.</p>
         </div>
       </div>
     </section>

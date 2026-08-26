@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 03 — POO: Herencia y Polimorfismo · Taller de Lenguajes 2</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <p class="slide-eyebrow">Tema 03 · POO — tercera parte</p>
+      <h1 class="title">Herencia y <span class="accent">polimorfismo</span></h1>
+      <p class="subtitle">Jerarquías de clases · sobreescritura · el principio de sustitución de Liskov</p>
+    </section>
+
+    <!-- 2 · Pilares -->
+    <section class="slide" data-chapter="Intro" data-topic="Dónde estamos">
+      <h2 class="slide-title">Pilares de la <span class="accent">POO</span> — segunda mitad</h2>
+      <div class="columns four">
+        <div class="card">
+          <h3>Abstracción</h3>
+          <p class="small-note">✓ Tema 01 — quedarnos con lo que nos interesa</p>
+        </div>
+        <div class="card">
+          <h3>Encapsulamiento</h3>
+          <p class="small-note">✓ Tema 01 — qué mostramos y qué ocultamos</p>
+        </div>
+        <div class="card accent-top">
+          <h3>Herencia</h3>
+          <p class="small-note"><strong>Hoy</strong> — construir clases a partir de otras</p>
+        </div>
+        <div class="card accent-top">
+          <h3>Polimorfismo</h3>
+          <p class="small-note"><strong>Hoy</strong> — un mismo mensaje, muchas formas</p>
+        </div>
+      </div>
+      <div class="callout">Ya sabemos armar clases y asociarlas (<em>es parte de</em>, <em>tiene un</em>). Hoy aparece la tercera relación: <strong>es un</strong>.</div>
+    </section>
+
+    <!-- 3 · Herencia: concepto -->
+    <section class="slide" data-chapter="Herencia" data-topic="¿Qué es la herencia?">
+      <h2 class="slide-title"><span class="accent">Herencia</span></h2>
+      <ul class="bullets">
+        <li>Es el mecanismo por el cual una clase se <strong>construye a partir de otra ya existente</strong>: la clase nueva obtiene todos los miembros (atributos y métodos) de la clase base, y puede <strong>extenderlos o especializarlos</strong></li>
+        <li>Es la relación <strong>“es un”</strong>: un <em>Auto</em> es un <em>Vehículo</em> · una <em>Vaca</em> es un <em>Animal</em></li>
+        <li>Lo común se escribe <strong>una sola vez</strong> en la base; cada derivada agrega solo su diferencia</li>
+      </ul>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>Beneficio 1 · Reutilización</h3>
+          <p class="small-note">El código de la clase base se aprovecha en todas sus derivadas.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Beneficio 2 · Polimorfismo</h3>
+          <p class="small-note">Podemos tratar a todas las derivadas como si fueran la base — lo vemos en unos minutos.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 · Vocabulario + UML -->
+    <section class="slide" data-chapter="Herencia" data-topic="Padres, hijas y UML">
+      <h2 class="slide-title">Clases padre, clases <span class="accent">hijas</span></h2>
+      <div class="columns">
+        <div>
+          <ul class="bullets">
+            <li><strong>Clase padre</strong> — también llamada <em>clase base</em> o <em>superclase</em></li>
+            <li><strong>Clases hijas</strong> — también llamadas <em>subclases</em> o <em>clases derivadas</em></li>
+            <li>En UML la herencia se dibuja con una <strong>flecha de triángulo vacío</strong> apuntando a la base</li>
+          </ul>
+          <div class="callout">Ya conocés los rombos ◆ y ◇ del Tema 02 — el <strong>triángulo</strong> completa el vocabulario de relaciones.</div>
+        </div>
+        <div class="diagram">
+          <svg viewBox="0 0 460 300" width="440" role="img" aria-label="UML: Vaca, Gato y Perro heredan de Animal">
+            <rect x="160" y="15" width="140" height="50" rx="10" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="230" y="46" text-anchor="middle" fill="var(--text)" font-size="18" font-weight="700">Animal</text>
+            <polygon points="230,65 216,89 244,89" fill="var(--panel)" stroke="var(--accent)" stroke-width="2.5"/>
+            <line x1="230" y1="89" x2="230" y2="120" stroke="var(--accent)" stroke-width="2.5"/>
+            <line x1="70" y1="120" x2="390" y2="120" stroke="var(--accent)" stroke-width="2.5"/>
+            <line x1="70" y1="120" x2="70" y2="150" stroke="var(--accent)" stroke-width="2.5"/>
+            <line x1="230" y1="120" x2="230" y2="150" stroke="var(--accent)" stroke-width="2.5"/>
+            <line x1="390" y1="120" x2="390" y2="150" stroke="var(--accent)" stroke-width="2.5"/>
+            <g class="stage s1">
+              <rect x="10" y="150" width="120" height="48" rx="10" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+              <text x="70" y="180" text-anchor="middle" fill="var(--text)" font-size="16" font-weight="600">Vaca</text>
+            </g>
+            <g class="stage s2">
+              <rect x="170" y="150" width="120" height="48" rx="10" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+              <text x="230" y="180" text-anchor="middle" fill="var(--text)" font-size="16" font-weight="600">Gato</text>
+            </g>
+            <g class="stage s3">
+              <rect x="330" y="150" width="120" height="48" rx="10" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+              <text x="390" y="180" text-anchor="middle" fill="var(--text)" font-size="16" font-weight="600">Perro</text>
+            </g>
+            <text x="230" y="245" text-anchor="middle" fill="var(--muted)" font-size="15">Vaca <tspan font-style="italic">es un</tspan> Animal · Gato <tspan font-style="italic">es un</tspan> Animal · Perro <tspan font-style="italic">es un</tspan> Animal</text>
+            <text x="230" y="275" text-anchor="middle" fill="var(--muted)" font-size="14">el triángulo vacío apunta siempre a la clase base</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · Ejemplo: editor gráfico -->
+    <section class="slide" data-chapter="Herencia" data-topic="Ejemplo: editor gráfico">
+      <h2 class="slide-title">Un ejemplo: un <span class="accent">editor gráfico</span></h2>
+      <p>Pensemos un sistema de edición de contenidos gráficos — PowerPoint, CorelDraw, Illustrator. Todo lo que se dibuja comparte algo: <strong>tiene posición</strong> y <strong>se puede dibujar</strong>.</p>
+      <div class="diagram">
+        <svg viewBox="0 0 620 250" width="580" role="img" aria-label="UML: Texto, Tabla e Imagen heredan de ObjetoVisual">
+          <rect x="210" y="10" width="200" height="62" rx="10" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+          <text x="310" y="36" text-anchor="middle" fill="var(--text)" font-size="17" font-weight="700">ObjetoVisual</text>
+          <text x="310" y="58" text-anchor="middle" fill="var(--muted)" font-size="13" class="mono">X · Y · Dibujar()</text>
+          <polygon points="310,72 296,96 324,96" fill="var(--panel)" stroke="var(--accent)" stroke-width="2.5"/>
+          <line x1="310" y1="96" x2="310" y2="125" stroke="var(--accent)" stroke-width="2.5"/>
+          <line x1="110" y1="125" x2="510" y2="125" stroke="var(--accent)" stroke-width="2.5"/>
+          <line x1="110" y1="125" x2="110" y2="155" stroke="var(--accent)" stroke-width="2.5"/>
+          <line x1="310" y1="125" x2="310" y2="155" stroke="var(--accent)" stroke-width="2.5"/>
+          <line x1="510" y1="125" x2="510" y2="155" stroke="var(--accent)" stroke-width="2.5"/>
+          <rect x="40" y="155" width="140" height="48" rx="10" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+          <text x="110" y="185" text-anchor="middle" fill="var(--text)" font-size="16" font-weight="600">Texto</text>
+          <rect x="240" y="155" width="140" height="48" rx="10" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+          <text x="310" y="185" text-anchor="middle" fill="var(--text)" font-size="16" font-weight="600">Tabla</text>
+          <rect x="440" y="155" width="140" height="48" rx="10" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+          <text x="510" y="185" text-anchor="middle" fill="var(--text)" font-size="16" font-weight="600">Imagen</text>
+          <text x="310" y="238" text-anchor="middle" fill="var(--muted)" font-size="15">la posición y el dibujado se escriben una sola vez, en ObjetoVisual</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 6 · Herencia en C# -->
+    <section class="slide" data-chapter="Herencia" data-topic="Herencia en C#">
+      <h2 class="slide-title">Herencia en <span class="accent">C#</span></h2>
+      <div class="columns">
+        <div>
+          <p>Se declara con el operador <code>:</code> — de la clase derivada hacia la base:</p>
+<pre class="code"><span class="k">class</span> <span class="t">ClaseDerivada</span> : <span class="t">ClaseBase</span>
+{
+    <span class="c">// miembros propios de la derivada</span>
+}</pre>
+          <ul class="bullets">
+            <li><code>Texto : ObjetoVisual</code> se lee <em>“Texto <strong>es un</strong> ObjetoVisual”</em></li>
+            <li><code>base()</code> invoca al constructor de la clase base</li>
+            <li>La derivada usa <code>X</code> e <code>Y</code> <strong>sin volver a declararlos</strong></li>
+          </ul>
+        </div>
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">ObjetoVisual</span>   <span class="c">// clase base</span>
+{
+    <span class="k">public int</span> X { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public int</span> Y { <span class="k">get</span>; <span class="k">set</span>; }
+}
+
+<span class="k">public class</span> <span class="t">Texto</span> : <span class="t">ObjetoVisual</span>
+{
+    <span class="k">public</span> <span class="t">Texto</span>() : <span class="k">base</span>() { … }
+}
+
+<span class="k">public class</span> <span class="t">Imagen</span> : <span class="t">ObjetoVisual</span>
+{
+    <span class="k">public</span> <span class="t">Imagen</span>() : <span class="k">base</span>() { … }
+}
+
+<span class="t">Texto</span> titulo = <span class="k">new</span> <span class="t">Texto</span>();
+titulo.X = <span class="n">10</span>;  <span class="c">// heredado de ObjetoVisual</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · protected -->
+    <section class="slide" data-chapter="Herencia" data-topic="protected">
+      <h2 class="slide-title">Un modificador nuevo: <span class="accent">protected</span></h2>
+      <p>Con herencia aparece un nivel de acceso intermedio entre <code>public</code> y <code>private</code>:</p>
+      <table class="tbl">
+        <tr><th>Modificador</th><th>Desde la propia clase</th><th>Desde las derivadas</th><th>Desde cualquier otra clase</th></tr>
+        <tr><td><code>public</code></td><td>✓</td><td>✓</td><td>✓</td></tr>
+        <tr><td><code>protected</code></td><td>✓</td><td>✓</td><td>✗</td></tr>
+        <tr><td><code>private</code></td><td>✓</td><td>✗</td><td>✗</td></tr>
+      </table>
+      <p class="small-note">Existen otros (<code>internal</code>, <code>protected internal</code>, <code>private protected</code>), pero nos centramos en estos tres.</p>
+    </section>
+
+    <!-- 8 · Polimorfismo: concepto -->
+    <section class="slide" data-chapter="Polimorfismo" data-topic="¿Qué es el polimorfismo?">
+      <h2 class="slide-title"><span class="accent">Polimorfismo</span></h2>
+      <p>Del griego: <em>“con muchas formas”</em>. Es la capacidad de que <strong>un mismo mensaje se resuelva de forma distinta según el objeto que lo recibe</strong> — y se decide en tiempo de ejecución. Tiene dos caras:</p>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>1 · Tratar a la derivada como base</h3>
+          <p>Un objeto de una clase derivada puede usarse <strong>donde se espera la base</strong>: en parámetros, colecciones, variables.</p>
+          <p class="small-note"><code>ObjetoVisual o = new Texto();</code></p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>2 · virtual / override</h3>
+          <p>La base define métodos <code>virtual</code> con un comportamiento por defecto; cada derivada puede <strong>sobreescribirlos</strong> con <code>override</code>.</p>
+          <p class="small-note">Igual firma, implementación propia.</p>
+        </div>
+      </div>
+      <div class="callout">No confundir con la <strong>sobrecarga</strong> (Tema 01): allá el <em>compilador</em> elige entre firmas distintas; acá se elige <em>en ejecución</em> entre implementaciones de la <strong>misma firma</strong>.</div>
+    </section>
+
+    <!-- 9 · Polimorfismo en acción -->
+    <section class="slide" data-chapter="Polimorfismo" data-topic="Polimorfismo en acción">
+      <h2 class="slide-title">Polimorfismo en <span class="accent">acción</span></h2>
+      <div class="columns">
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">ObjetoVisual</span>
+{
+    <span class="k">public virtual void</span> Dibujar()
+    { <span class="t">Console</span>.WriteLine(<span class="s">"dibujo genérico"</span>); }
+}
+
+<span class="k">public class</span> <span class="t">Texto</span> : <span class="t">ObjetoVisual</span>
+{
+    <span class="k">public override void</span> Dibujar()
+    { <span class="t">Console</span>.WriteLine(<span class="s">"muestro texto"</span>); }
+}
+
+<span class="k">public class</span> <span class="t">Imagen</span> : <span class="t">ObjetoVisual</span>
+{
+    <span class="k">public override void</span> Dibujar()
+    { <span class="t">Console</span>.WriteLine(<span class="s">"muestro imagen"</span>); }
+}</pre>
+        </div>
+        <div>
+          <p>La magia aparece al recorrer la colección — <strong>el editor no pregunta qué es cada cosa</strong>, solo le pide a cada objeto que se dibuje:</p>
+<pre class="code"><span class="t">List</span>&lt;<span class="t">ObjetoVisual</span>&gt; diapositiva = <span class="k">new</span>()
+{
+    <span class="k">new</span> <span class="t">Texto</span>(),
+    <span class="k">new</span> <span class="t">Imagen</span>(),
+    <span class="k">new</span> <span class="t">Texto</span>()
+};
+
+<span class="k">foreach</span> (<span class="t">ObjetoVisual</span> o <span class="k">in</span> diapositiva)
+    o.Dibujar();
+
+<span class="c">// muestro texto</span>
+<span class="c">// muestro imagen</span>
+<span class="c">// muestro texto</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 · LSP: concepto -->
+    <section class="slide" data-chapter="Liskov" data-topic="Problemas de abstracciones">
+      <h2 class="slide-title">Problemas de abstracciones: <span class="accent">Liskov</span></h2>
+      <p>Heredar es fácil; heredar <strong>bien</strong> es diseño. El <strong>principio de sustitución de Liskov</strong> (Barbara Liskov, 1987) dice:</p>
+      <div class="callout" style="font-size:1.05em">“Los objetos de una clase base deben poder <strong>reemplazarse por objetos de sus subclases</strong> sin alterar el correcto funcionamiento del programa.”</div>
+      <ul class="bullets">
+        <li>La derivada debe <strong>cumplir el contrato</strong> que promete la base — no vale mentir</li>
+        <li>Si en algún lugar se espera un <code>Pato</code>, cualquier subclase de <code>Pato</code> tiene que <strong>servir ahí sin sorpresas</strong></li>
+        <li>Cuando una subclase necesita “anular” comportamiento de la base (no vuelo, no aplica, tiro excepción), la jerarquía está <strong>mal planteada</strong></li>
+      </ul>
+    </section>
+
+    <!-- 11 · El pato de juguete -->
+    <section class="slide" data-chapter="Liskov" data-topic="El pato de juguete">
+      <h2 class="slide-title">El pato de <span class="accent">juguete</span></h2>
+      <div class="columns">
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Pato</span>
+{
+    <span class="k">public virtual void</span> Quack() { … }
+    <span class="k">public virtual void</span> Volar() { … }
+}
+
+<span class="k">public class</span> <span class="t">PatoBali</span> : <span class="t">Pato</span>      <span class="c">// ✓ ok</span>
+{
+    <span class="k">public override void</span> Quack() { <span class="t">Console</span>.WriteLine(<span class="s">"¡Quack!"</span>); }
+    <span class="k">public override void</span> Volar() { <span class="t">Console</span>.WriteLine(<span class="s">"Volando"</span>); }
+}
+
+<span class="k">public class</span> <span class="t">PatoJuguete</span> : <span class="t">Pato</span>   <span class="c">// ⚠</span>
+{
+    <span class="k">public override void</span> Quack() { <span class="t">Console</span>.WriteLine(<span class="s">"¡Squeak!"</span>); }
+    <span class="k">public override void</span> Volar() { <span class="t">Console</span>.WriteLine(<span class="s">"NO VUELO"</span>); }
+    <span class="k">public void</span> CargarPilas() { … }
+}</pre>
+        </div>
+        <div>
+          <p>El pato de juguete <em>parece</em> un pato… pero como subclase <strong>rompe el contrato</strong>:</p>
+<pre class="code"><span class="t">Pato</span> patito = <span class="k">new</span> <span class="t">PatoJuguete</span>();
+
+patito.Volar();
+<span class="c">// "NO VUELO" — miente: prometía volar</span>
+
+patito.CargarPilas();
+<span class="c">// ✗ no compila: Pato no tiene</span>
+<span class="c">//   CargarPilas()</span></pre>
+          <div class="callout">Tratado como <code>Pato</code>, el juguete <strong>no cumple lo prometido</strong> y <strong>no puedo usar lo que le es propio</strong>. Viola Liskov por los dos lados.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 · La salida -->
+    <section class="slide" data-chapter="Liskov" data-topic="La salida">
+      <h2 class="slide-title">La salida: <span class="accent">abstracciones que encajen</span></h2>
+      <div class="columns">
+        <div>
+          <ul class="bullets">
+            <li>La clave es crear abstracciones que se ajusten <strong>de manera natural</strong> a la lógica del problema</li>
+            <li>A veces conviene tener <strong>jerarquías separadas</strong> en lugar de forzar una única</li>
+            <li>El pato de goma encaja mejor como <strong>Juguete</strong> que como <strong>Pato</strong></li>
+          </ul>
+          <div class="callout">¿Y si un objeto necesita comportamientos de <strong>varios orígenes</strong> a la vez? Eso lo resuelven las <strong>interfaces</strong> — próximo tema.</div>
+        </div>
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Juguete</span>
+{
+    <span class="k">public virtual void</span> Sonido() { }
+    <span class="k">public virtual void</span> Flotar() { }
+    <span class="k">public virtual void</span> CargarPilas() { }
+}
+
+<span class="k">public class</span> <span class="t">PatoDeGoma</span> : <span class="t">Juguete</span>  <span class="c">// ✓</span>
+{
+    <span class="k">public override void</span> Sonido()
+    { <span class="t">Console</span>.WriteLine(<span class="s">"¡Squeak squeak!"</span>); }
+
+    <span class="k">public override void</span> Flotar()
+    { <span class="t">Console</span>.WriteLine(<span class="s">"Flotando"</span>); }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 · Las tres relaciones -->
+    <section class="slide" data-chapter="Resumen" data-topic="Las tres relaciones">
+      <h2 class="slide-title">Recordando: las <span class="accent">tres relaciones</span></h2>
+      <table class="tbl">
+        <tr><th>Relación</th><th>UML</th><th>Se lee</th><th>Ejemplo</th></tr>
+        <tr><td><strong>Herencia</strong></td><td>—▷</td><td>“es un”</td><td>Texto – ObjetoVisual</td></tr>
+        <tr><td><strong>Composición</strong></td><td>—◆</td><td>“es parte de”</td><td>Cocina – Bar</td></tr>
+        <tr><td><strong>Agregación</strong></td><td>—◇</td><td>“tiene un”</td><td>Cliente – Bar</td></tr>
+      </table>
+      <div class="callout">Antes de heredar, preguntate: ¿de verdad <strong>es un</strong>… en <em>todos</em> los casos? Si la respuesta duda, probablemente sea <em>tiene un</em> — o falte otra abstracción (Liskov te lo va a cobrar).</div>
+    </section>
+
+    <!-- 14 · Ejercicio -->
+    <section class="slide" data-chapter="Desafío" data-topic="Ejercicio: vehículos">
+      <h2 class="slide-title"><span class="accent">Ejercicio</span>: construyendo vehículos</h2>
+      <p>Hay que modelar un <strong>Avión</strong>, un <strong>Auto</strong> y una <strong>Bicicleta</strong>, con estos comportamientos: <code>EncenderMotor()</code> · <code>Conducir()</code> · <code>ApagarMotor()</code> · <code>Volar()</code></p>
+      <table class="tbl">
+        <tr><th></th><th>Avión</th><th>Auto</th><th>Bicicleta</th></tr>
+        <tr><td>¿Tiene motor?</td><td>✓</td><td>✓</td><td>✗</td></tr>
+        <tr><td>¿Se puede conducir?</td><td>✓</td><td>✓</td><td>✓</td></tr>
+        <tr><td>¿Puede volar?</td><td>✓</td><td>✗</td><td>✗</td></tr>
+      </table>
+      <ul class="bullets">
+        <li>¿Cómo plantearías la jerarquía con herencia? ¿Dónde ponés cada método?</li>
+        <li>¿Hay forma de que <strong>nadie mienta</strong> (Liskov) con una sola clase base?</li>
+      </ul>
+      <p class="small-note">Spoiler: lo vamos a resolver bien en el próximo tema.</p>
+    </section>
+
+    <!-- 15 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Próximo: Tema 04 — Interfaces y clases abstractas: contratos sin mentiras.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+</body>
+</html>

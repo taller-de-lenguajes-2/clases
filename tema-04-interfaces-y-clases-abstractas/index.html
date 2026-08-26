@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 04 — POO: Interfaces y Clases abstractas · Taller de Lenguajes 2</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <p class="slide-eyebrow">Tema 04 · POO — cuarta parte</p>
+      <h1 class="title">Interfaces y clases <span class="accent">abstractas</span></h1>
+      <p class="subtitle">Contratos que las clases se comprometen a cumplir</p>
+    </section>
+
+    <!-- 2 · El problema que traemos -->
+    <section class="slide" data-chapter="Intro" data-topic="El problema que traemos">
+      <h2 class="slide-title">El problema que <span class="accent">traemos</span></h2>
+      <ul class="bullets">
+        <li>El <strong>pato de juguete</strong> no encajaba en la jerarquía de <code>Pato</code>: mentía al volar y escondía <code>CargarPilas()</code></li>
+        <li>En el ejercicio de <strong>vehículos</strong>, ninguna clase base única evitaba que alguien mintiera: la bicicleta no tiene motor, el auto no vuela</li>
+        <li>La herencia simple obliga a elegir <strong>una sola</strong> familia — y la realidad a veces necesita <strong>capacidades combinadas</strong></li>
+      </ul>
+      <div class="callout">Hoy sumamos dos herramientas: la <strong>clase abstracta</strong> (una base que no se puede instanciar) y la <strong>interfaz</strong> (un contrato puro que se puede combinar).</div>
+    </section>
+
+    <!-- 3 · Clase abstracta: concepto -->
+    <section class="slide" data-chapter="Abstractas" data-topic="¿Qué es una clase abstracta?">
+      <h2 class="slide-title">Clase <span class="accent">abstracta</span></h2>
+      <div class="columns">
+        <div>
+          <ul class="bullets">
+            <li>Es una clase pensada <strong>solo para ser heredada</strong>: no se pueden crear instancias de ella</li>
+            <li>Representa un concepto <strong>incompleto o genérico</strong> — existe <em>una figura</em>, pero nadie dibuja “una figura”: dibuja un cuadrado o un círculo</li>
+            <li>Se declara con el modificador <code>abstract</code></li>
+          </ul>
+<pre class="code"><span class="k">public abstract class</span> <span class="t">FiguraGeometrica</span>
+{ … }
+
+<span class="k">var</span> f = <span class="k">new</span> <span class="t">FiguraGeometrica</span>();
+<span class="c">// ✗ no compila: es abstracta</span></pre>
+        </div>
+        <div class="card">
+          <h3>Reglas del juego</h3>
+          <ul class="bullets">
+            <li>Sus métodos <code>abstract</code> <strong>no tienen implementación</strong>: solo la firma</li>
+            <li>Si una clase tiene al menos un método abstracto, <strong>la clase debe ser abstracta</strong></li>
+            <li>Puede mezclar métodos abstractos con <strong>métodos y atributos comunes</strong></li>
+            <li>Las derivadas <strong>deben implementar</strong> (con <code>override</code>) todo lo abstracto — o ser abstractas también</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 · Abstracta: ejemplo -->
+    <section class="slide" data-chapter="Abstractas" data-topic="Ejemplo: FiguraGeometrica">
+      <h2 class="slide-title">Ejemplo: <span class="accent">FiguraGeometrica</span></h2>
+      <div class="columns">
+        <div class="card">
+<pre class="code"><span class="k">public abstract class</span> <span class="t">FiguraGeometrica</span>
+{
+    <span class="c">// contrato: toda figura sabe esto</span>
+    <span class="k">public abstract double</span> Area();
+    <span class="k">public abstract double</span> Perimetro();
+}
+
+<span class="k">public class</span> <span class="t">Cuadrado</span> : <span class="t">FiguraGeometrica</span>
+{
+    <span class="k">private double</span> lado;
+
+    <span class="k">public</span> <span class="t">Cuadrado</span>(<span class="k">double</span> lado)
+    { <span class="k">this</span>.lado = lado; }
+
+    <span class="k">public override double</span> Area() { <span class="k">return</span> lado * lado; }
+    <span class="k">public override double</span> Perimetro() { <span class="k">return</span> lado * <span class="n">4</span>; }
+}</pre>
+        </div>
+        <div>
+<pre class="code"><span class="k">public class</span> <span class="t">Rectangulo</span> : <span class="t">FiguraGeometrica</span>
+{
+    <span class="k">private double</span> b, h;
+
+    <span class="k">public</span> <span class="t">Rectangulo</span>(<span class="k">double</span> b, <span class="k">double</span> h)
+    { <span class="k">this</span>.b = b; <span class="k">this</span>.h = h; }
+
+    <span class="k">public override double</span> Area() { <span class="k">return</span> b * h; }
+    <span class="k">public override double</span> Perimetro() { <span class="k">return</span> <span class="n">2</span> * (b + h); }
+}</pre>
+          <ul class="bullets">
+            <li>La base <strong>declara</strong> el contrato; cada derivada lo <strong>implementa</strong> con <code>override</code></li>
+            <li>Sin implementar <code>Area()</code> y <code>Perimetro()</code>, <code>Cuadrado</code> no compila</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · Abstracta + polimorfismo -->
+    <section class="slide" data-chapter="Abstractas" data-topic="Abstractas + polimorfismo">
+      <h2 class="slide-title">Abstractas + <span class="accent">polimorfismo</span></h2>
+      <div class="columns">
+        <div>
+          <p>No puedo instanciar <code>FiguraGeometrica</code>… pero sí puedo <strong>usarla como tipo</strong>. El polimorfismo del Tema 03 funciona igual:</p>
+          <ul class="bullets">
+            <li>Una lista de figuras <strong>sin saber cuál es cuál</strong></li>
+            <li>Cada una calcula su área <strong>como le corresponde</strong></li>
+            <li>Y acá nadie miente: el contrato <strong>obliga</strong> a que toda figura tenga área y perímetro</li>
+          </ul>
+        </div>
+        <div class="card">
+<pre class="code"><span class="t">List</span>&lt;<span class="t">FiguraGeometrica</span>&gt; figuras = <span class="k">new</span>()
+{
+    <span class="k">new</span> <span class="t">Cuadrado</span>(<span class="n">3</span>),
+    <span class="k">new</span> <span class="t">Rectangulo</span>(<span class="n">3</span>, <span class="n">5</span>)
+};
+
+<span class="k">double</span> total = <span class="n">0</span>;
+<span class="k">foreach</span> (<span class="t">FiguraGeometrica</span> f <span class="k">in</span> figuras)
+    total += f.Area();
+
+<span class="t">Console</span>.WriteLine(total);  <span class="c">// 9 + 15 = 24</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 · Interfaz: concepto -->
+    <section class="slide" data-chapter="Interfaces" data-topic="¿Qué es una interfaz?">
+      <h2 class="slide-title">La <span class="accent">interfaz</span></h2>
+      <ul class="bullets">
+        <li>En teoría de objetos, la interfaz de una clase es <strong>todo lo que podemos hacer con ella</strong>: sus métodos y propiedades públicas</li>
+        <li>En C#, una <code>interface</code> lleva esa idea al extremo: es un <strong>contrato puro</strong> — solo firmas, sin implementación ni estado</li>
+        <li>La clase que la implementa se <strong>compromete a cumplir</strong> cada miembro del contrato</li>
+      </ul>
+      <div class="columns">
+        <div class="card">
+<pre class="code"><span class="k">public interface</span> <span class="t">IPrinter</span>
+{
+    <span class="c">// solo la firma: qué, no cómo</span>
+    <span class="k">void</span> Imprimir(<span class="t">Documento</span> doc);
+}</pre>
+        </div>
+        <div>
+          <ul class="bullets">
+            <li>Puede declarar <strong>métodos, propiedades, indexadores y eventos</strong></li>
+            <li>Por convención, el nombre empieza con <code>I</code>: <code>IPrinter</code>, <code>IVolador</code></li>
+            <li>Una clase puede implementar <strong>varias interfaces a la vez</strong> — a diferencia de la herencia, que es de una sola base</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · Interfaz: ejemplo -->
+    <section class="slide" data-chapter="Interfaces" data-topic="Ejemplo: IPrinter">
+      <h2 class="slide-title">Un contrato, muchas <span class="accent">implementaciones</span></h2>
+      <div class="columns">
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Impresora</span> : <span class="t">IPrinter</span>
+{
+    <span class="k">public void</span> Imprimir(<span class="t">Documento</span> doc)
+    {
+        <span class="c">// lo manda al hardware</span>
+    }
+}
+
+<span class="k">public class</span> <span class="t">Consola</span> : <span class="t">IPrinter</span>
+{
+    <span class="k">public void</span> Imprimir(<span class="t">Documento</span> doc)
+    {
+        <span class="t">Console</span>.WriteLine(doc.ToString());
+    }
+}</pre>
+        </div>
+        <div>
+          <p>Quien necesita imprimir <strong>no conoce ni le importa</strong> la implementación:</p>
+<pre class="code"><span class="t">IPrinter</span> salida = <span class="k">new</span> <span class="t">Consola</span>();
+salida.Imprimir(doc);
+
+salida = <span class="k">new</span> <span class="t">Impresora</span>();
+salida.Imprimir(doc);  <span class="c">// mismo código</span></pre>
+          <div class="callout">El contrato garantiza que <strong>cualquier</strong> <code>IPrinter</code> sabe imprimir. Polimorfismo, otra vez — ahora sin compartir ni una línea de código entre las clases.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 · Patos con interfaces -->
+    <section class="slide" data-chapter="Interfaces" data-topic="Los patos, resueltos">
+      <h2 class="slide-title">Los patos, <span class="accent">resueltos</span></h2>
+      <div class="columns">
+        <div>
+          <p>El pato y el pato de goma <strong>comparten algunos comportamientos, pero no todos</strong>. En vez de forzar una jerarquía, separamos las <strong>capacidades</strong> en interfaces:</p>
+          <ul class="bullets">
+            <li><code>Pato</code> hace sonidos <strong>y</strong> vuela</li>
+            <li><code>PatoDeGoma</code> solo hace sonidos — <strong>y ya no miente</strong>: nunca prometió volar</li>
+          </ul>
+          <div class="callout">Las interfaces permiten sumar comportamiento <strong>de varios orígenes</strong> a una misma clase: la “herencia múltiple” que las clases no tienen.</div>
+        </div>
+        <div class="card">
+<pre class="code"><span class="k">public interface</span> <span class="t">IEmisorSonido</span> { <span class="k">void</span> Sonido(); }
+
+<span class="k">public interface</span> <span class="t">IVolador</span> { <span class="k">void</span> Volar(); }
+
+<span class="k">public class</span> <span class="t">Pato</span> : <span class="t">IEmisorSonido</span>, <span class="t">IVolador</span>
+{
+    <span class="k">public void</span> Sonido() { <span class="t">Console</span>.WriteLine(<span class="s">"¡Quack!"</span>); }
+    <span class="k">public void</span> Volar()  { <span class="t">Console</span>.WriteLine(<span class="s">"Volando"</span>); }
+}
+
+<span class="k">public class</span> <span class="t">PatoDeGoma</span> : <span class="t">IEmisorSonido</span>
+{
+    <span class="k">public void</span> Sonido() { <span class="t">Console</span>.WriteLine(<span class="s">"¡Squeak!"</span>); }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 · Abstracta vs interfaz -->
+    <section class="slide" data-chapter="Comparación" data-topic="¿Abstracta o interfaz?">
+      <h2 class="slide-title">¿Abstracta o <span class="accent">interfaz</span>?</h2>
+      <table class="tbl">
+        <tr><th></th><th>Clase abstracta</th><th>Interfaz</th></tr>
+        <tr><td>¿Se puede instanciar?</td><td>✗</td><td>✗</td></tr>
+        <tr><td>¿Puede tener campos / estado?</td><td>✓</td><td>✗</td></tr>
+        <tr><td>¿Puede traer implementación?</td><td>✓ métodos concretos y abstractos</td><td>✗ solo firmas <span class="small-note">(default methods desde C# 8, no los usamos)</span></td></tr>
+        <tr><td>¿Constructor?</td><td>✓</td><td>✗</td></tr>
+        <tr><td>¿Cuántas por clase?</td><td>una sola base</td><td>todas las que necesites</td></tr>
+        <tr><td>La relación se lee…</td><td>“<strong>es un</strong>” con código común</td><td>“<strong>sabe hacer</strong>” / “es capaz de”</td></tr>
+      </table>
+      <div class="callout">Regla práctica: si hay <strong>código y estado para compartir</strong> entre parientes → clase abstracta. Si es una <strong>capacidad</strong> que pueden tener clases sin parentesco → interfaz. Y se combinan: una clase abstracta puede implementar interfaces.</div>
+    </section>
+
+    <!-- 10 · Interfaces chicas -->
+    <section class="slide" data-chapter="Comparación" data-topic="Interfaces específicas">
+      <h2 class="slide-title">Interfaces <span class="accent">chicas y específicas</span></h2>
+      <p>Anticipo de un principio de diseño (ISP — <em>Interface Segregation Principle</em>): <strong>nadie debería verse obligado a depender de métodos que no usa</strong>.</p>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>✗ Una interfaz gigante</h3>
+<pre class="code"><span class="k">public interface</span> <span class="t">IVehiculo</span>
+{
+    <span class="k">void</span> EncenderMotor();
+    <span class="k">void</span> Conducir();
+    <span class="k">void</span> Volar();
+}</pre>
+          <p class="small-note">La bicicleta queda obligada a “implementar” un motor que no tiene — el pato de juguete, otra vez.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>✓ Varias específicas</h3>
+<pre class="code"><span class="k">public interface</span> <span class="t">IConMotor</span>
+{
+    <span class="k">void</span> EncenderMotor();
+    <span class="k">void</span> ApagarMotor();
+}
+<span class="k">public interface</span> <span class="t">IConducible</span> { <span class="k">void</span> Conducir(); }
+
+<span class="k">public interface</span> <span class="t">IVolador</span> { <span class="k">void</span> Volar(); }</pre>
+          <p class="small-note">Cada clase toma <strong>solo los contratos que puede cumplir</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · Ejercicio resuelto -->
+    <section class="slide" data-chapter="Desafío" data-topic="Vehículos, resueltos">
+      <h2 class="slide-title">Los vehículos, <span class="accent">resueltos</span></h2>
+      <div class="columns">
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Avion</span> : <span class="t">IConMotor</span>, <span class="t">IConducible</span>, <span class="t">IVolador</span>
+{
+    <span class="k">public void</span> EncenderMotor() { … }  <span class="k">public void</span> ApagarMotor() { … }
+    <span class="k">public void</span> Conducir() { … }       <span class="k">public void</span> Volar() { … }
+}
+
+<span class="k">public class</span> <span class="t">Auto</span> : <span class="t">IConMotor</span>, <span class="t">IConducible</span>
+{
+    <span class="k">public void</span> EncenderMotor() { … }  <span class="k">public void</span> ApagarMotor() { … }
+    <span class="k">public void</span> Conducir() { … }
+}
+
+<span class="k">public class</span> <span class="t">Bicicleta</span> : <span class="t">IConducible</span>
+{
+    <span class="k">public void</span> Conducir() { … }
+}</pre>
+        </div>
+        <div>
+          <p>Cada vehículo implementa <strong>exactamente lo que puede hacer</strong> — nadie miente, nadie esconde métodos:</p>
+<pre class="code"><span class="c">// todo lo que vuela, a volar:</span>
+<span class="t">List</span>&lt;<span class="t">IVolador</span>&gt; escuadron = <span class="k">new</span>()
+{ <span class="k">new</span> <span class="t">Avion</span>() };
+
+<span class="c">// todo lo conducible, a la ruta:</span>
+<span class="t">List</span>&lt;<span class="t">IConducible</span>&gt; caravana = <span class="k">new</span>()
+{ <span class="k">new</span> <span class="t">Avion</span>(), <span class="k">new</span> <span class="t">Auto</span>(),
+  <span class="k">new</span> <span class="t">Bicicleta</span>() };</pre>
+          <div class="callout">Liskov contento: donde se espera un <code>IVolador</code> solo entran cosas que <strong>de verdad vuelan</strong>.</div>
+          <p class="small-note">Para pensar: ¿y si Avión y Auto <strong>comparten código</strong> del motor? Pista: abstracta + interfaces se combinan.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Cierra la unidad de POO. Próximo: API REST — nuestras clases empiezan a hablar con el mundo.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+</body>
+</html>

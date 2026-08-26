@@ -47,63 +47,81 @@
     <!-- 3 · Abstracción -->
     <section class="slide" data-chapter="Abstracción" data-topic="¿Qué es abstraer?">
       <h2 class="slide-title"><span class="accent">Abstracción</span></h2>
-      <div class="columns">
-        <div>
-          <p>Abstraer es representar algo del mundo real <strong>quedándonos solo con lo que nos interesa</strong> y omitiendo el resto. Tres preguntas guían el recorte:</p>
-          <ul class="bullets">
-            <li><strong>¿Qué es?</strong> — la entidad del mundo real que modelamos</li>
-            <li><strong>¿Qué representa?</strong> — el rol que cumple en <em>nuestro</em> sistema</li>
-            <li><strong>¿En qué contexto?</strong> — la misma persona se abstrae distinto en sistemas distintos</li>
-          </ul>
-          <div class="callout">No existe <em>la</em> abstracción correcta: depende de <strong>para qué</strong> la necesitamos. La pregunta es siempre: <strong>¿con qué nos quedamos?</strong></div>
+      <p>Abstraer es representar algo del mundo real <strong>quedándonos solo con lo que nos interesa</strong> para nuestro sistema, y omitiendo todo lo demás. Tres preguntas guían el recorte:</p>
+      <div class="columns three">
+        <div class="card">
+          <div class="bignum">1</div>
+          <h3>¿Qué es?</h3>
+          <p>La entidad del mundo real que vamos a modelar.</p>
         </div>
-        <div class="diagram">
-          <svg viewBox="0 0 560 330" width="540" role="img" aria-label="Una misma persona, dos abstracciones distintas según el sistema">
-            <defs>
-              <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
-                <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
-              </marker>
-            </defs>
-            <!-- persona real -->
-            <rect x="10" y="55" width="185" height="230" rx="12" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="7 6"/>
-            <text x="102" y="82" text-anchor="middle" fill="var(--text)" font-size="16" font-weight="700">Persona real</text>
-            <g fill="var(--muted)" font-size="14" text-anchor="middle">
-              <text x="102" y="112">nombre</text>
-              <text x="102" y="136">DNI</text>
-              <text x="102" y="160">cargo · sueldo</text>
-              <text x="102" y="184">sección · interno</text>
-              <text x="102" y="208">dirección</text>
-              <text x="102" y="232">hobbies</text>
-              <text x="102" y="256">equipo de fútbol…</text>
-            </g>
-            <!-- flechas -->
-            <line x1="200" y1="120" x2="290" y2="95" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#ab)"/>
-            <line x1="200" y1="220" x2="290" y2="245" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#ab)"/>
-            <!-- abstracción RRHH -->
-            <rect x="300" y="30" width="245" height="130" rx="12" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
-            <text x="422" y="56" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="700">Sistema de RRHH → Empleado</text>
-            <g fill="var(--text)" font-size="14" text-anchor="middle" class="mono">
-              <text x="422" y="84">nombre · DNI</text>
-              <text x="422" y="108">cargo</text>
-              <text x="422" y="132">sueldo</text>
-            </g>
-            <!-- abstracción planilla -->
-            <rect x="300" y="180" width="245" height="130" rx="12" fill="var(--panel-2)" stroke="var(--accent-2)" stroke-width="2.5"/>
-            <text x="422" y="206" text-anchor="middle" fill="var(--accent-2)" font-size="15" font-weight="700">Planilla de secciones</text>
-            <g fill="var(--text)" font-size="14" text-anchor="middle" class="mono">
-              <text x="422" y="234">nombre</text>
-              <text x="422" y="258">sección</text>
-              <text x="422" y="282">interno</text>
-            </g>
-          </svg>
+        <div class="card">
+          <div class="bignum">2</div>
+          <h3>¿Qué representa?</h3>
+          <p>El rol que cumple dentro de <em>nuestro</em> sistema.</p>
+        </div>
+        <div class="card">
+          <div class="bignum">3</div>
+          <h3>¿En qué contexto?</h3>
+          <p>La misma entidad se abstrae distinto en sistemas distintos.</p>
         </div>
       </div>
+      <div class="callout">No existe <em>la</em> abstracción correcta: depende de <strong>para qué</strong> la necesitamos. La pregunta es siempre: <strong>¿con qué nos quedamos?</strong></div>
+    </section>
+
+    <!-- 3b · Ejemplo: una persona, dos abstracciones -->
+    <section class="slide" data-chapter="Abstracción" data-topic="Una persona, dos abstracciones">
+      <h2 class="slide-title">El contexto <span class="accent">decide</span></h2>
+      <p>La misma persona del mundo real, vista por dos sistemas distintos:</p>
+      <div class="diagram">
+        <svg viewBox="0 0 900 340" width="860" role="img" aria-label="Una misma persona, dos abstracciones distintas según el sistema">
+          <defs>
+            <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+            </marker>
+          </defs>
+          <!-- persona real -->
+          <g class="stage s1">
+            <rect x="20" y="45" width="240" height="250" rx="12" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="7 6"/>
+            <text x="140" y="75" text-anchor="middle" fill="var(--text)" font-size="18" font-weight="700">Persona real</text>
+            <g fill="var(--muted)" font-size="15" text-anchor="middle">
+              <text x="140" y="108">nombre</text>
+              <text x="140" y="134">DNI</text>
+              <text x="140" y="160">cargo · sueldo</text>
+              <text x="140" y="186">sección · interno</text>
+              <text x="140" y="212">dirección</text>
+              <text x="140" y="238">hobbies</text>
+              <text x="140" y="264">equipo de fútbol…</text>
+            </g>
+          </g>
+          <!-- abstracción RRHH -->
+          <g class="stage s2">
+            <line x1="265" y1="130" x2="480" y2="95" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#ab)"/>
+            <rect x="490" y="35" width="380" height="120" rx="12" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="680" y="63" text-anchor="middle" fill="var(--accent)" font-size="16" font-weight="700">Sistema de RRHH → Empleado</text>
+            <g fill="var(--text)" font-size="15" text-anchor="middle" class="mono">
+              <text x="680" y="95">nombre · DNI · cargo · sueldo</text>
+              <text x="680" y="125" fill="var(--muted)">(la sección o los hobbies no le importan)</text>
+            </g>
+          </g>
+          <!-- abstracción planilla -->
+          <g class="stage s3">
+            <line x1="265" y1="210" x2="480" y2="245" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#ab)"/>
+            <rect x="490" y="185" width="380" height="120" rx="12" fill="var(--panel-2)" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <text x="680" y="213" text-anchor="middle" fill="var(--accent-2)" font-size="16" font-weight="700">Planilla de secciones</text>
+            <g fill="var(--text)" font-size="15" text-anchor="middle" class="mono">
+              <text x="680" y="245">nombre · sección · interno</text>
+              <text x="680" y="275" fill="var(--muted)">(el sueldo acá no aparece)</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div class="callout stage s4">Ninguna de las dos es <em>la</em> persona completa: <strong>cada sistema se queda con lo que necesita</strong>.</div>
     </section>
 
     <!-- 4 · Abstracción en código -->
     <section class="slide" data-chapter="Abstracción" data-topic="De la abstracción a la clase">
       <h2 class="slide-title">De la abstracción a la <span class="accent">clase</span></h2>
-      <p>Nuestro sistema identifica empleados de una empresa: necesitamos una abstracción de ellos.</p>
+      <p>Quedémonos con la abstracción de RRHH — el <strong>Empleado</strong>. ¿Cómo la escribimos en C#?</p>
       <div class="columns">
         <div class="card">
           <h3>Representando la abstracción</h3>
@@ -172,13 +190,49 @@
       <h2 class="slide-title">Encapsulamiento y <span class="accent">ocultamiento</span></h2>
       <div class="columns">
         <div>
-          <p>Sobre la abstracción aplicamos el <strong>encapsulamiento</strong>: envolver datos y acciones como una unidad, y decidir <strong>qué mostramos y qué ocultamos</strong>.</p>
+          <p>Sobre la abstracción aplicamos el <strong>encapsulamiento</strong>: envolver datos y acciones <strong>como una unidad</strong>, y decidir qué mostramos y qué ocultamos.</p>
+          <ul class="bullets">
+            <li><strong>Ocultamos / bloqueamos</strong> lo que no debe verse desde afuera: el estado interno, los detalles de implementación</li>
+            <li><strong>Presentamos / exponemos</strong> la interfaz pública: lo único que el resto de las clases puede ver y utilizar</li>
+          </ul>
+          <div class="callout">Esto es el <strong>principio de ocultamiento de información</strong>: cada clase decide qué muestra y qué guarda para sí.</div>
+        </div>
+        <div class="diagram">
+          <svg viewBox="0 0 440 280" width="440" role="img" aria-label="La clase como cápsula">
+            <!-- cápsula -->
+            <rect x="120" y="55" width="290" height="170" rx="85" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="4"/>
+            <line x1="215" y1="58" x2="215" y2="222" stroke="var(--accent)" stroke-width="3" stroke-dasharray="6 6"/>
+            <text x="265" y="30" text-anchor="middle" fill="var(--text)" font-size="17" font-weight="700">La clase es una cápsula</text>
+            <!-- interior privado -->
+            <text x="312" y="118" text-anchor="middle" fill="var(--muted)" font-size="14" font-weight="700">private</text>
+            <text x="312" y="146" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">estado interno</text>
+            <text x="312" y="171" text-anchor="middle" fill="var(--muted)" font-size="14" class="mono">(campos)</text>
+            <!-- puerta pública -->
+            <text x="167" y="132" text-anchor="middle" fill="var(--accent)" font-size="14" font-weight="700">public</text>
+            <text x="167" y="158" text-anchor="middle" fill="var(--accent)" font-size="22">⇄</text>
+            <!-- mensajes desde afuera -->
+            <line x1="18" y1="115" x2="108" y2="130" stroke="var(--accent-2)" stroke-width="3"/>
+            <polygon points="118,132 104,124 106,138" fill="var(--accent-2)"/>
+            <line x1="18" y1="185" x2="108" y2="160" stroke="var(--accent-2)" stroke-width="3"/>
+            <polygon points="118,158 104,152 105,166" fill="var(--accent-2)"/>
+            <text x="14" y="102" fill="var(--accent-2)" font-size="14" class="mono">Propiedades</text>
+            <text x="14" y="207" fill="var(--accent-2)" font-size="14" class="mono">Métodos()</text>
+            <text x="265" y="258" text-anchor="middle" fill="var(--muted)" font-size="14">El resto del sistema entra solo por la puerta pública</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6b · Ejemplo: el conductor -->
+    <section class="slide" data-chapter="Encapsulamiento" data-topic="Un ejemplo: el conductor">
+      <h2 class="slide-title">Un ejemplo: el <span class="accent">conductor</span></h2>
+      <div class="columns">
+        <div>
           <ul class="bullets">
             <li><strong>Mostramos</strong> lo que el otro necesita para usar el objeto: al conductor le damos volante, pedales y tablero</li>
             <li><strong>Ocultamos</strong> el funcionamiento interno: la inyección, la mezcla, la ECU — nadie los toca desde afuera</li>
-            <li>El conductor <em>usa</em> el auto sin saber cómo funciona por dentro — y no puede romper lo que no ve</li>
+            <li>El conductor <em>usa</em> el auto sin saber cómo funciona por dentro — y <strong>no puede romper lo que no ve</strong></li>
           </ul>
-          <div class="callout">Esto es el <strong>principio de ocultamiento de información</strong>: cada clase decide qué muestra y qué guarda para sí.</div>
         </div>
         <div class="diagram">
           <svg viewBox="0 0 470 290" width="460" role="img" aria-label="Qué ve y qué no ve el conductor de un auto">

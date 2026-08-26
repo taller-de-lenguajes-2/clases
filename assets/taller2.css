@@ -61,6 +61,21 @@
 .diagram text { font-family: inherit; }
 .diagram .mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
 
+/* --- Entrada escalonada: se dispara al activarse el slide --- */
+.slide .stage { opacity: 0; }
+.slide.active .stage { animation: stage-in 0.55s ease-out both; }
+.slide.active .stage.s1 { animation-delay: 0.15s; }
+.slide.active .stage.s2 { animation-delay: 1.1s; }
+.slide.active .stage.s3 { animation-delay: 2.1s; }
+.slide.active .stage.s4 { animation-delay: 3.1s; }
+@keyframes stage-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+@media print {
+  .slide .stage { opacity: 1 !important; animation: none !important; }
+}
+
 /* --- Placeholder visible para datos a completar --- */
 .todo-placeholder {
   display: inline-block; padding: 0.05em 0.5em; border-radius: 6px;

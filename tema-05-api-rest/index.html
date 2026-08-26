@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 05 — API REST · Taller de Lenguajes 2</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <p class="slide-eyebrow">Tema 05 · Servicios web</p>
+      <h1 class="title">API <span class="accent">REST</span></h1>
+      <p class="subtitle">APIs · arquitectura cliente-servidor · el protocolo HTTP</p>
+    </section>
+
+    <!-- 2 · Formas de comunicación -->
+    <section class="slide" data-chapter="Comunicación" data-topic="Formas de comunicación">
+      <h2 class="slide-title">Formas de <span class="accent">comunicación</span></h2>
+      <p>Antes de hablar de APIs: ¿de cuántas maneras pueden comunicarse dos dispositivos?</p>
+      <div class="columns three">
+        <div class="card accent-top">
+          <h3>Símplex →</h3>
+          <p>Transmisión en <strong>un solo sentido</strong>: del que origina hacia el que recibe.</p>
+          <p class="small-note">Ej.: una radio FM — la escuchás, no le contestás.</p>
+        </div>
+        <div class="card accent-top">
+          <h3>Semidúplex ⇄</h3>
+          <p>Ambos sentidos, pero <strong>de manera alterna</strong>: uno habla por vez.</p>
+          <p class="small-note">Ej.: un handy — “cambio y fuera”.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Dúplex ⇆</h3>
+          <p>Ambos sentidos <strong>en simultáneo</strong> — la forma más eficiente.</p>
+          <p class="small-note">Ej.: una llamada telefónica.</p>
+        </div>
+      </div>
+      <div class="callout">La web funciona sobre un ciclo de <strong>petición y respuesta</strong>: el cliente pide, el servidor contesta. Lo vemos enseguida.</div>
+    </section>
+
+    <!-- 3 · ¿Qué es una API? -->
+    <section class="slide" data-chapter="API" data-topic="¿Qué es una API?">
+      <h2 class="slide-title">¿Qué es una <span class="accent">API</span>?</h2>
+      <div class="columns">
+        <div>
+          <p><strong>API</strong> — <em>Application Programming Interface</em> — es un <strong>conjunto de reglas bien definidas</strong> que especifica formalmente la comunicación entre dos componentes de software.</p>
+          <ul class="bullets">
+            <li>El cliente accede al recurso <strong>solo a través de la API</strong>, nunca directo</li>
+            <li>Siempre estuvimos haciendo APIs: la <strong>interfaz pública</strong> de nuestras clases (Tema 01) es exactamente eso, un contrato de uso</li>
+          </ul>
+          <div class="callout">¿Se acuerdan del <strong>Mozo</strong> del bar? El cliente nunca entra a la cocina: pide por el mozo. La API es el mozo del software.</div>
+        </div>
+        <div class="diagram">
+          <svg viewBox="0 0 440 220" width="430" role="img" aria-label="El cliente accede al recurso a través de la API">
+            <defs>
+              <marker id="a5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+              </marker>
+              <marker id="a5b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--accent-2)"/>
+              </marker>
+            </defs>
+            <rect x="10" y="80" width="120" height="52" rx="12" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="70" y="112" text-anchor="middle" fill="var(--text)" font-size="17" font-weight="700">Cliente</text>
+            <rect x="170" y="80" width="100" height="52" rx="26" fill="var(--accent)" opacity="0.9"/>
+            <text x="220" y="112" text-anchor="middle" fill="#fff" font-size="17" font-weight="700">API</text>
+            <rect x="310" y="80" width="120" height="52" rx="12" fill="var(--panel-2)" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <text x="370" y="112" text-anchor="middle" fill="var(--text)" font-size="17" font-weight="700">Recurso</text>
+            <line x1="130" y1="95" x2="166" y2="95" stroke="var(--accent)" stroke-width="3" marker-end="url(#a5)"/>
+            <line x1="270" y1="95" x2="306" y2="95" stroke="var(--accent)" stroke-width="3" marker-end="url(#a5)"/>
+            <line x1="306" y1="118" x2="274" y2="118" stroke="var(--accent-2)" stroke-width="3" marker-end="url(#a5b)"/>
+            <line x1="166" y1="118" x2="134" y2="118" stroke="var(--accent-2)" stroke-width="3" marker-end="url(#a5b)"/>
+            <text x="220" y="55" text-anchor="middle" fill="var(--muted)" font-size="15">pide según las reglas</text>
+            <text x="220" y="165" text-anchor="middle" fill="var(--muted)" font-size="15">recibe la respuesta</text>
+            <text x="220" y="200" text-anchor="middle" fill="var(--muted)" font-size="14">el recurso nunca se toca directamente</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 · Tipos de APIs -->
+    <section class="slide" data-chapter="API" data-topic="Tipos de APIs">
+      <h2 class="slide-title">Tipos de <span class="accent">APIs</span> según su acceso</h2>
+      <div class="columns three">
+        <div class="card accent-top">
+          <h3>Privadas (internas)</h3>
+          <p>Conectan componentes <strong>dentro de una organización</strong>; no están disponibles para terceros.</p>
+          <p class="small-note">Una app de redes sociales puede tener docenas: login, feed, mensajería…</p>
+        </div>
+        <div class="card accent-top">
+          <h3>Públicas</h3>
+          <p>Dan acceso público a datos o servicios para que <strong>terceros los integren</strong>; gratuitas o pagas.</p>
+          <p class="small-note">Un e-commerce integra la API de <strong>Stripe</strong> y no construye su pasarela de pagos.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>De socios</h3>
+          <p>Dos o más empresas <strong>comparten datos o funcionalidad</strong> para colaborar; requieren autenticación.</p>
+          <p class="small-note">Solo las usan los socios autorizados.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · REST -->
+    <section class="slide" data-chapter="REST" data-topic="¿Qué es REST?">
+      <h2 class="slide-title">¿Qué es <span class="accent">REST</span>?</h2>
+      <ul class="bullets">
+        <li>Una <strong>API REST</strong> es una interfaz de comunicación entre sistemas que usa el protocolo <strong>HTTP</strong> para obtener datos o ejecutar operaciones sobre ellos, en formatos como <strong>JSON</strong> o XML</li>
+        <li><strong>RE</strong>presentational <strong>S</strong>tate <strong>T</strong>ransfer: <em>transferencia de representaciones de estado</em> — el servidor no manda “el objeto”, manda una <strong>representación</strong> de su estado</li>
+        <li>Una API es <strong>RESTful</strong> cuando cumple los estándares REST</li>
+      </ul>
+      <div class="callout">REST no es una tecnología ni un producto: es un <strong>estilo de arquitectura</strong> con reglas claras — las vemos ahora.</div>
+    </section>
+
+    <!-- 6 · Restricciones REST -->
+    <section class="slide" data-chapter="REST" data-topic="Restricciones de REST">
+      <h2 class="slide-title">Las restricciones de <span class="accent">REST</span></h2>
+      <div class="columns four">
+        <div class="card accent-top">
+          <h3>Cliente-servidor</h3>
+          <p class="small-note">Las aplicaciones de cliente y servidor deben estar <strong>separadas</strong> — cada uno con su responsabilidad.</p>
+        </div>
+        <div class="card accent-top">
+          <h3>Sin estado</h3>
+          <p class="small-note">Cada petición es <strong>independiente</strong> y se resuelve completa: el servidor no recuerda peticiones anteriores.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Caché</h3>
+          <p class="small-note">Las respuestas pueden <strong>cachearse</strong> para evitar llamadas repetidas al servidor.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Interfaz uniforme</h3>
+          <p class="small-note">Cada recurso tiene un <strong>identificador único</strong> (URI): una ruta que lo nombra.</p>
+        </div>
+      </div>
+      <p class="small-note">¿“Sin estado” les suena raro después del bar? El estado vive en el servidor o el cliente — pero cada <em>petición</em> trae todo lo necesario para resolverse sola.</p>
+    </section>
+
+    <!-- 7 · Cliente-servidor -->
+    <section class="slide" data-chapter="HTTP" data-topic="Cliente-servidor">
+      <h2 class="slide-title">Arquitectura <span class="accent">cliente-servidor</span></h2>
+      <div class="columns">
+        <div>
+          <p>Modelo de diseño donde las tareas se reparten entre <strong>servidores</strong> — proveedores de recursos o servicios — y <strong>clientes</strong> — los que los demandan.</p>
+          <ul class="bullets">
+            <li>El cliente <strong>realiza peticiones</strong>; el servidor <strong>responde</strong></li>
+            <li>Separa la <strong>interfaz de usuario</strong> del <strong>almacenamiento de datos</strong></li>
+            <li>En REST, la respuesta es una <strong>representación del estado</strong> del recurso solicitado</li>
+          </ul>
+        </div>
+        <div class="diagram">
+          <svg viewBox="0 0 460 240" width="450" role="img" aria-label="Cliente y servidor intercambiando request y response por internet">
+            <defs>
+              <marker id="cs1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+              </marker>
+              <marker id="cs2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+                <path d="M0,0 L10,5 L0,10 z" fill="var(--accent-2)"/>
+              </marker>
+            </defs>
+            <rect x="15" y="85" width="130" height="70" rx="12" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="80" y="115" text-anchor="middle" fill="var(--text)" font-size="17" font-weight="700">Cliente</text>
+            <text x="80" y="138" text-anchor="middle" fill="var(--muted)" font-size="13">navegador · app</text>
+            <ellipse cx="230" cy="120" rx="55" ry="34" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 5"/>
+            <text x="230" y="126" text-anchor="middle" fill="var(--muted)" font-size="14">Internet</text>
+            <rect x="315" y="85" width="130" height="70" rx="12" fill="var(--panel-2)" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <text x="380" y="115" text-anchor="middle" fill="var(--text)" font-size="17" font-weight="700">Servidor</text>
+            <text x="380" y="138" text-anchor="middle" fill="var(--muted)" font-size="13">recursos · datos</text>
+            <path d="M 145 95 C 200 60, 260 60, 311 92" fill="none" stroke="var(--accent)" stroke-width="3" marker-end="url(#cs1)"/>
+            <text x="230" y="55" text-anchor="middle" fill="var(--accent)" font-size="15" font-weight="600">Request HTTP</text>
+            <path d="M 315 150 C 260 185, 200 185, 149 152" fill="none" stroke="var(--accent-2)" stroke-width="3" marker-end="url(#cs2)"/>
+            <text x="230" y="205" text-anchor="middle" fill="var(--accent-2)" font-size="15" font-weight="600">Response HTTP</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 · HTTP -->
+    <section class="slide" data-chapter="HTTP" data-topic="El protocolo HTTP">
+      <h2 class="slide-title">El protocolo <span class="accent">HTTP</span></h2>
+      <ul class="bullets">
+        <li><strong>H</strong>yper-<strong>T</strong>ext <strong>T</strong>ransfer <strong>P</strong>rotocol: el idioma en que hablan cliente y servidor</li>
+        <li>Toda la comunicación gira en torno al ciclo <strong>solicitud-respuesta</strong>: el cliente pide algo (<em>Request</em>) y el servidor contesta si puede o no hacerlo (<em>Response</em>)</li>
+        <li>En HTTP/1.1 los mensajes son <strong>texto plano</strong> (se pueden leer); en HTTP/2 pasan a <strong>tramas binarias</strong> para optimizar la transmisión</li>
+      </ul>
+      <div class="callout">Todo lo que sigue — verbos, URLs, códigos de estado — son las <strong>partes de ese mensaje</strong>. Aprender HTTP es aprender a leer y escribir estos mensajes.</div>
+    </section>
+
+    <!-- 9 · Anatomía de una URL -->
+    <section class="slide" data-chapter="HTTP" data-topic="Anatomía de una URL">
+      <h2 class="slide-title">Anatomía de una <span class="accent">URL</span></h2>
+      <p>La <strong>URI</strong> identifica el recurso; la <strong>URL</strong> además dice dónde está y cómo acceder:</p>
+      <div class="diagram">
+        <svg viewBox="0 0 1080 240" width="1040" role="img" aria-label="Partes de una URL">
+          <g font-size="26" font-weight="600" class="mono">
+            <text x="30" y="90" fill="var(--accent)">https://</text>
+            <text x="152" y="90" fill="var(--text)">www.</text>
+            <text x="225" y="90" fill="var(--text)">servicio.com</text>
+            <text x="415" y="90" fill="var(--yellow)">:80</text>
+            <text x="470" y="90" fill="var(--accent-2)">/productos/electronicos</text>
+            <text x="835" y="90" fill="var(--green)">?Activos=1</text>
+          </g>
+          <g stroke-width="3">
+            <line x1="30" y1="105" x2="140" y2="105" stroke="var(--accent)"/>
+            <line x1="152" y1="105" x2="405" y2="105" stroke="var(--text)"/>
+            <line x1="415" y1="105" x2="458" y2="105" stroke="var(--yellow)"/>
+            <line x1="470" y1="105" x2="822" y2="105" stroke="var(--accent-2)"/>
+            <line x1="835" y1="105" x2="1000" y2="105" stroke="var(--green)"/>
+          </g>
+          <g font-size="16" text-anchor="middle">
+            <text x="85" y="140" fill="var(--accent)" font-weight="600">protocolo</text>
+            <text x="280" y="140" fill="var(--text)" font-weight="600">host (subdominio + dominio)</text>
+            <text x="437" y="170" fill="var(--yellow)" font-weight="600">puerto</text>
+            <text x="646" y="140" fill="var(--accent-2)" font-weight="600">recurso (URI)</text>
+            <text x="917" y="140" fill="var(--green)" font-weight="600">query string</text>
+          </g>
+          <text x="540" y="215" text-anchor="middle" fill="var(--muted)" font-size="15">query string: pares <tspan class="mono">nombre=valor</tspan> que empiezan con <tspan class="mono">?</tspan> y se concatenan con <tspan class="mono">&amp;</tspan> → <tspan class="mono">?edad=3&amp;nombre=Carlos</tspan></text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 10 · Request HTTP -->
+    <section class="slide" data-chapter="HTTP" data-topic="El Request HTTP">
+      <h2 class="slide-title">Estructura de un <span class="accent">Request</span></h2>
+      <div class="columns">
+        <div>
+          <ul class="bullets">
+            <li><strong>Verbo</strong> — qué operación se pide: <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code>…</li>
+            <li><strong>URI</strong> — la ruta al recurso referenciado</li>
+            <li><strong>Versión HTTP</strong> — por ejemplo <code>HTTP/1.1</code></li>
+            <li><strong>Headers</strong> — metadatos como pares clave-valor: tipo de cliente, formato del body, caché…</li>
+            <li><strong>Body</strong> <em>(opcional)</em> — el contenido del mensaje</li>
+          </ul>
+        </div>
+        <div class="card">
+<pre class="code"><span class="k">POST</span> /Person/ <span class="c">HTTP/1.1</span>
+<span class="t">Host:</span> api.miservicio.com
+<span class="t">Content-Type:</span> application/json
+<span class="t">Content-Length:</span> 123
+
+{
+  <span class="s">"Person"</span>: {
+    <span class="s">"Id"</span>: <span class="n">1</span>,
+    <span class="s">"Nombre"</span>: <span class="s">"Pablo Páramo"</span>,
+    <span class="s">"Email"</span>: <span class="s">"pparamo@gmail.com"</span>,
+    <span class="s">"Pais"</span>: <span class="s">"Argentina"</span>
+  }
+}</pre>
+          <p class="small-note">Un <code>POST</code> completo: verbo + URI + versión, headers, y el body en JSON.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · Verbos -->
+    <section class="slide" data-chapter="HTTP" data-topic="Verbos HTTP">
+      <h2 class="slide-title">Los <span class="accent">verbos</span> HTTP</h2>
+      <table class="tbl">
+        <tr><th>Verbo</th><th>Para qué se usa</th><th>¿Datos visibles en la URL?</th></tr>
+        <tr><td><code>GET</code></td><td>Solicitar un recurso — el más común</td><td>Sí, en la URL y el query string</td></tr>
+        <tr><td><code>POST</code></td><td>Enviar datos para crear — típico de formularios</td><td>No, viajan en el body</td></tr>
+        <tr><td><code>PUT</code></td><td>Actualizar contenidos (también puede crearlos)</td><td>No</td></tr>
+        <tr><td><code>DELETE</code></td><td>Eliminar el recurso identificado en la URI</td><td>—</td></tr>
+        <tr><td><code>HEAD</code></td><td>Como GET pero sin el contenido: solo headers y código</td><td>—</td></tr>
+      </table>
+      <div class="callout">La gracia de REST: <strong>el verbo dice qué hacés, la URI dice sobre qué</strong>. <code>DELETE /productos/5</code> se lee solo.</div>
+    </section>
+
+    <!-- 12 · Response -->
+    <section class="slide" data-chapter="HTTP" data-topic="El Response HTTP">
+      <h2 class="slide-title">Estructura de un <span class="accent">Response</span></h2>
+      <div class="columns">
+        <div>
+          <ul class="bullets">
+            <li><strong>Status code</strong> — cómo le fue al servidor con lo pedido</li>
+            <li><strong>Versión HTTP</strong></li>
+            <li><strong>Headers</strong> — metadatos de la respuesta: tipo y largo del contenido, servidor, fecha…</li>
+            <li><strong>Body</strong> <em>(opcional)</em> — la representación del recurso solicitado</li>
+          </ul>
+        </div>
+        <div class="card">
+<pre class="code"><span class="c">HTTP/1.1</span> <span class="k">200 OK</span>
+<span class="t">Date:</span> Wed, 23 Oct 2019 19:51:41 GMT
+<span class="t">Server:</span> Apache/2.4.29
+<span class="t">Content-Type:</span> application/json; charset=UTF-8
+
+[
+  { <span class="s">"Id"</span>: <span class="n">1</span>, <span class="s">"Nombre"</span>: <span class="s">"Teclado"</span> },
+  { <span class="s">"Id"</span>: <span class="n">2</span>, <span class="s">"Nombre"</span>: <span class="s">"Mouse"</span> }
+]</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 · Status codes -->
+    <section class="slide" data-chapter="HTTP" data-topic="Códigos de estado">
+      <h2 class="slide-title">Códigos de <span class="accent">estado</span></h2>
+      <div class="columns four">
+        <div class="card" style="border-left:3px solid var(--muted)"><h3>1xx · 3xx</h3><p class="small-note">Informativas (100–199) y redirecciones (300–399)</p></div>
+        <div class="card" style="border-left:3px solid var(--green)"><h3>2xx</h3><p class="small-note">Satisfactorias: lo pedido <strong>salió bien</strong></p></div>
+        <div class="card" style="border-left:3px solid var(--yellow)"><h3>4xx</h3><p class="small-note">Errores <strong>del cliente</strong>: pediste mal o algo que no existe</p></div>
+        <div class="card" style="border-left:3px solid #e5484d"><h3>5xx</h3><p class="small-note">Errores <strong>del servidor</strong>: el problema es de ellos</p></div>
+      </div>
+      <table class="tbl">
+        <tr><th>Código</th><th>Significado</th></tr>
+        <tr><td><code>200 OK</code></td><td>Solicitud cumplida con éxito</td></tr>
+        <tr><td><code>201 Created</code></td><td>Recurso creado con éxito</td></tr>
+        <tr><td><code>204 No Content</code></td><td>Éxito sin contenido para devolver (típico al eliminar)</td></tr>
+        <tr><td><code>400 Bad Request</code></td><td>La solicitud está mal formada</td></tr>
+        <tr><td><code>404 Not Found</code></td><td>Ruta o recurso no encontrado</td></tr>
+        <tr><td><code>500 Internal Server Error</code></td><td>Se produjo un error en el servidor</td></tr>
+      </table>
+    </section>
+
+    <!-- 14 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Próximo: Tema 06 — construimos nuestra propia API REST con ASP.NET Core.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+</body>
+</html>

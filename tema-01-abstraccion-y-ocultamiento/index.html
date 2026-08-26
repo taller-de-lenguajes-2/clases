@@ -354,10 +354,46 @@ auto.Frenar();  <span class="c">// 10 → 5 → 0</span></pre>
       </div>
     </section>
 
-    <!-- 10 · Sobrecarga de métodos -->
-    <section class="slide" data-chapter="Métodos" data-topic="Sobrecarga de métodos">
+    <!-- 10a · Sobrecarga: concepto -->
+    <section class="slide" data-chapter="Métodos" data-topic="¿Qué es la sobrecarga?">
       <h2 class="slide-title"><span class="accent">Sobrecarga</span> de un método</h2>
+      <ul class="bullets">
+        <li><strong>¿Qué es?</strong> Definir en una clase <strong>varios métodos con el mismo nombre</strong> pero distinta firma: distinto tipo o cantidad de parámetros</li>
+        <li><strong>¿Para qué?</strong> La misma acción conceptual puede recibir <strong>distintos datos de entrada</strong> — quien usa la clase escribe siempre el mismo nombre, sin memorizar variantes</li>
+        <li><strong>¿Quién elige cuál se ejecuta?</strong> El <strong>compilador</strong>, mirando los argumentos de la llamada</li>
+      </ul>
+      <div class="diagram">
+        <svg viewBox="0 0 760 150" width="720" role="img" aria-label="Un nombre, tres firmas">
+          <rect x="10" y="50" width="230" height="50" rx="12" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+          <text x="125" y="82" text-anchor="middle" fill="var(--accent)" font-size="19" font-weight="700" class="mono">Acelerar</text>
+          <g stroke="var(--muted)" stroke-width="2.5" fill="none">
+            <line x1="245" y1="60" x2="330" y2="30"/>
+            <line x1="245" y1="75" x2="330" y2="75"/>
+            <line x1="245" y1="90" x2="330" y2="120"/>
+          </g>
+          <g fill="var(--text)" font-size="16" class="mono">
+            <text x="345" y="36">( int aceleracion )</text>
+            <text x="345" y="81">( string aceleracion )</text>
+            <text x="345" y="126">( int aceleracion, int segundos )</text>
+          </g>
+        </svg>
+      </div>
+      <div class="callout">Acá reaparece la <strong>firma</strong>: sobrecargar es <strong>mismo nombre, distinta firma</strong>. Dos métodos con la misma firma no compilan.</div>
+    </section>
+
+    <!-- 10b · Sobrecarga: ejemplo -->
+    <section class="slide" data-chapter="Métodos" data-topic="Sobrecarga en acción">
+      <h2 class="slide-title">Sobrecarga en <span class="accent">acción</span></h2>
       <div class="columns">
+        <div>
+          <p>Tres formas de acelerar el mismo <code>Auto</code>: con un entero, con un texto, o durante unos segundos. <strong>Mismo nombre, tres firmas.</strong></p>
+          <p>En la llamada, el compilador mira los argumentos y resuelve cuál ejecutar:</p>
+<pre class="code">auto.Acelerar(<span class="n">10</span>);                 <span class="c">// → a</span>
+auto.Acelerar(<span class="s">"10"</span>);               <span class="c">// → b</span>
+auto.Acelerar(<span class="n">10</span>, <span class="n">3</span>);              <span class="c">// → c</span>
+auto.Acelerar(<span class="t">Console</span>.ReadLine()); <span class="c">// → b</span></pre>
+          <p class="small-note"><code>Console.ReadLine()</code> devuelve <code>string</code> → por eso va al método b.</p>
+        </div>
         <div class="card">
 <pre class="code"><span class="k">public class</span> <span class="t">Auto</span>
 {
@@ -372,13 +408,6 @@ auto.Frenar();  <span class="c">// 10 → 5 → 0</span></pre>
     <span class="c">// método c</span>
     <span class="k">public void</span> Acelerar(<span class="k">int</span> aceleracion, <span class="k">int</span> segundos) { … }
 }</pre>
-        </div>
-        <div>
-          <p>Varios métodos con el <strong>mismo nombre</strong> y distinto tipo o número de argumentos — es decir, <strong>distinta firma</strong>. El <strong>compilador</strong> elige cuál ejecutar según los argumentos.</p>
-<pre class="code">auto.Acelerar(<span class="n">10</span>);                 <span class="c">// → a</span>
-auto.Acelerar(<span class="s">"10"</span>);               <span class="c">// → b</span>
-auto.Acelerar(<span class="n">10</span>, <span class="n">3</span>);              <span class="c">// → c</span>
-auto.Acelerar(<span class="t">Console</span>.ReadLine()); <span class="c">// → b</span></pre>
         </div>
       </div>
     </section>

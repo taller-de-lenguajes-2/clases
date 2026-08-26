@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 06 — Web API con ASP.NET Core · Taller de Lenguajes 2</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <p class="slide-eyebrow">Tema 06 · Servicios web</p>
+      <h1 class="title">Web API con <span class="accent">ASP.NET Core</span></h1>
+      <p class="subtitle">Controladores · ruteo · parámetros · respuestas · OpenAPI</p>
+    </section>
+
+    <!-- 2 · ASP.NET y las dos formas -->
+    <section class="slide" data-chapter="ASP.NET" data-topic="¿Qué es ASP.NET?">
+      <h2 class="slide-title">¿Qué es <span class="accent">ASP.NET</span>?</h2>
+      <p><strong>ASP</strong> (<em>Active Server Pages</em>) es la tecnología de Microsoft para crear aplicaciones web: ejecuta código <strong>del lado del servidor</strong> para generar y servir contenido. Para crear Web APIs, ASP.NET Core ofrece dos caminos:</p>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>Basadas en controladores</h3>
+          <p>Enfoque robusto y estructurado: clases <strong>controladoras</strong> que heredan de <code>ControllerBase</code> separan responsabilidades por recurso.</p>
+          <p class="small-note">★ La que usamos en la materia — escala mejor y ordena el proyecto.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Minimal API</h3>
+          <p>Enfoque simplificado: se declaran rutas y acciones <strong>directamente</strong>, con mínima configuración y sin controladores.</p>
+          <p class="small-note">Útil para APIs chicas y prototipos.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · Crear el proyecto -->
+    <section class="slide" data-chapter="ASP.NET" data-topic="Crear el proyecto">
+      <h2 class="slide-title">Crear el <span class="accent">proyecto</span></h2>
+      <div class="columns">
+        <div>
+          <p>Todo desde la terminal, con el SDK de .NET:</p>
+          <ul class="bullets">
+            <li><code>dotnet --list-sdks</code> — qué SDKs tengo instalados</li>
+            <li><code>dotnet new --list</code> — qué plantillas de proyecto existen</li>
+            <li><code>dotnet new webapi --use-controllers</code> — crea la Web API basada en controladores</li>
+            <li><code>code -r MiWebAPI</code> — abre el proyecto en VS Code</li>
+          </ul>
+        </div>
+        <div class="card">
+<pre class="code"><span class="c"># ¿qué SDK tengo?</span>
+<span class="k">dotnet</span> --list-sdks
+
+<span class="c"># crear la Web API con controladores</span>
+<span class="k">dotnet</span> new webapi --use-controllers -o MiWebAPI
+
+<span class="c"># abrirla en VS Code</span>
+<span class="k">code</span> -r MiWebAPI
+
+<span class="c"># correrla</span>
+<span class="k">dotnet</span> run</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 · Anatomía del proyecto -->
+    <section class="slide" data-chapter="ASP.NET" data-topic="Anatomía del proyecto">
+      <h2 class="slide-title">Anatomía del <span class="accent">proyecto</span></h2>
+      <table class="tbl">
+        <tr><th>Elemento</th><th>Qué es</th></tr>
+        <tr><td><code>Program.cs</code></td><td>Punto de entrada: configura los servicios y el pipeline de la aplicación</td></tr>
+        <tr><td><code>Controllers/</code></td><td>Los controladores del proyecto — acá vive nuestra API</td></tr>
+        <tr><td><code>appsettings.json</code></td><td>Configuración de la aplicación (conexiones, logging…)</td></tr>
+        <tr><td><code>MiWebAPI.csproj</code></td><td>Archivo del proyecto: SDK de destino y dependencias NuGet</td></tr>
+        <tr><td><code>Properties/launchSettings.json</code></td><td>Perfiles de ejecución locales: puertos y entorno</td></tr>
+      </table>
+      <div class="callout">Regla mental: <code>Program.cs</code> <strong>arma</strong> la aplicación; <code>Controllers/</code> <strong>atiende</strong> las peticiones.</div>
+    </section>
+
+    <!-- 5 · El viaje del request -->
+    <section class="slide" data-chapter="Pipeline" data-topic="El viaje de un request">
+      <h2 class="slide-title">El viaje de un <span class="accent">request</span></h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1080 300" width="1030" role="img" aria-label="Un request atraviesa los middlewares hasta el controlador y vuelve como response">
+          <defs>
+            <marker id="p6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/>
+            </marker>
+            <marker id="p6b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--accent-2)"/>
+            </marker>
+          </defs>
+          <rect x="15" y="110" width="130" height="60" rx="12" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+          <text x="80" y="147" text-anchor="middle" fill="var(--text)" font-size="17" font-weight="700">Cliente</text>
+          <!-- caja aplicación -->
+          <rect x="230" y="45" width="820" height="200" rx="16" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="8 6"/>
+          <text x="640" y="75" text-anchor="middle" fill="var(--muted)" font-size="15" font-weight="600">Aplicación ASP.NET Core</text>
+          <g class="stage s1">
+            <rect x="270" y="110" width="150" height="60" rx="12" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+            <text x="345" y="140" text-anchor="middle" fill="var(--text)" font-size="15" font-weight="600">Middleware 1</text>
+            <text x="345" y="160" text-anchor="middle" fill="var(--muted)" font-size="13">autenticación</text>
+          </g>
+          <g class="stage s2">
+            <rect x="460" y="110" width="150" height="60" rx="12" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+            <text x="535" y="140" text-anchor="middle" fill="var(--text)" font-size="15" font-weight="600">Middleware 2</text>
+            <text x="535" y="160" text-anchor="middle" fill="var(--muted)" font-size="13">autorización</text>
+          </g>
+          <g class="stage s3">
+            <rect x="650" y="110" width="150" height="60" rx="12" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+            <text x="725" y="140" text-anchor="middle" fill="var(--text)" font-size="15" font-weight="600">Middleware 3</text>
+            <text x="725" y="160" text-anchor="middle" fill="var(--muted)" font-size="13">ruteo</text>
+          </g>
+          <g class="stage s4">
+            <rect x="850" y="105" width="160" height="70" rx="12" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="3"/>
+            <text x="930" y="140" text-anchor="middle" fill="var(--text)" font-size="16" font-weight="700">Controlador</text>
+            <text x="930" y="162" text-anchor="middle" fill="var(--muted)" font-size="13">la acción se ejecuta</text>
+          </g>
+          <g stroke="var(--accent)" stroke-width="3" fill="none">
+            <line x1="145" y1="125" x2="264" y2="125" marker-end="url(#p6)"/>
+            <line x1="420" y1="125" x2="454" y2="125" marker-end="url(#p6)"/>
+            <line x1="610" y1="125" x2="644" y2="125" marker-end="url(#p6)"/>
+            <line x1="800" y1="125" x2="844" y2="125" marker-end="url(#p6)"/>
+          </g>
+          <g stroke="var(--accent-2)" stroke-width="3" fill="none">
+            <line x1="844" y1="155" x2="806" y2="155" marker-end="url(#p6b)"/>
+            <line x1="644" y1="155" x2="616" y2="155" marker-end="url(#p6b)"/>
+            <line x1="454" y1="155" x2="426" y2="155" marker-end="url(#p6b)"/>
+            <line x1="264" y1="155" x2="151" y2="155" marker-end="url(#p6b)"/>
+          </g>
+          <text x="200" y="105" fill="var(--accent)" font-size="14" font-weight="600">request</text>
+          <text x="190" y="185" fill="var(--accent-2)" font-size="14" font-weight="600">response</text>
+          <text x="640" y="280" text-anchor="middle" fill="var(--muted)" font-size="15">cada middleware puede procesar, decidir o modificar — a la ida y a la vuelta</text>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 6 · Middleware -->
+    <section class="slide" data-chapter="Pipeline" data-topic="Middleware">
+      <h2 class="slide-title"><span class="accent">Middleware</span></h2>
+      <ul class="bullets">
+        <li>Es el mecanismo que permite <strong>procesar las solicitudes HTTP de manera modular</strong>: cada pieza hace una tarea y pasa el control a la siguiente</li>
+        <li>Se organizan en una cadena o <strong>“pipeline”</strong>: la solicitud los atraviesa <strong>en orden</strong>, y la respuesta vuelve por el mismo camino</li>
+        <li>Cada middleware puede <strong>procesar la solicitud, tomar decisiones o modificar la respuesta</strong> — incluso cortar el viaje (ej.: si no estás autenticado, nunca llegás al controlador)</li>
+      </ul>
+      <div class="columns four">
+        <div class="card"><h3>Autenticación</h3><p class="small-note">¿quién sos?</p></div>
+        <div class="card"><h3>Autorización</h3><p class="small-note">¿podés hacer esto?</p></div>
+        <div class="card"><h3>Ruteo</h3><p class="small-note">¿a qué controlador va?</p></div>
+        <div class="card"><h3>Logging · compresión</h3><p class="small-note">registro y encabezados</p></div>
+      </div>
+    </section>
+
+    <!-- 7 · Program.cs -->
+    <section class="slide" data-chapter="Pipeline" data-topic="Program.cs">
+      <h2 class="slide-title"><span class="accent">Program.cs</span>: armar la aplicación</h2>
+      <div class="columns">
+        <div class="card">
+<pre class="code"><span class="c">// 1 · construir el builder</span>
+<span class="k">var</span> builder = <span class="t">WebApplication</span>.CreateBuilder(args);
+
+<span class="c">// 2 · registrar servicios</span>
+builder.Services.AddControllers();
+
+<span class="c">// 3 · construir la aplicación</span>
+<span class="k">var</span> app = builder.Build();
+
+<span class="c">// 4 · armar el pipeline de middlewares</span>
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
+
+<span class="c">// 5 · ejecutar</span>
+app.Run();</pre>
+        </div>
+        <div>
+          <ul class="bullets">
+            <li><strong>1–2:</strong> el <em>builder</em> junta configuración y servicios que la app va a usar</li>
+            <li><strong>3:</strong> <code>Build()</code> construye el objeto aplicación</li>
+            <li><strong>4:</strong> cada <code>Use…</code> <strong>agrega un middleware al pipeline</strong> — el orden acá es el orden del viaje</li>
+            <li><strong>5:</strong> <code>Run()</code> pone el servidor a escuchar</li>
+          </ul>
+          <div class="callout"><code>MapControllers()</code> es el que conecta el pipeline con nuestros controladores.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 · Controladores -->
+    <section class="slide" data-chapter="Controladores" data-topic="¿Qué es un controlador?">
+      <h2 class="slide-title">¿Qué es un <span class="accent">controlador</span>?</h2>
+      <div class="columns">
+        <div>
+          <p>Es la clase que <strong>atiende las solicitudes HTTP</strong>: el punto de entrada de la API. Sus métodos públicos se llaman <strong>acciones</strong> — cuando llega una solicitud, el framework la <strong>enruta a una acción</strong>.</p>
+          <ul class="bullets">
+            <li>Se marcan con el atributo <code>[ApiController]</code></li>
+            <li>Heredan de <code>ControllerBase</code></li>
+            <li>Reciben el request y <strong>emiten la respuesta</strong></li>
+          </ul>
+        </div>
+        <div>
+          <table class="tbl">
+            <tr><th></th><th><code>ControllerBase</code></th><th><code>Controller</code></th></tr>
+            <tr><td>Para</td><td>Web <strong>API</strong></td><td>Páginas <strong>web</strong></td></tr>
+            <tr><td>Devuelve</td><td>JSON</td><td>Vistas (HTML)</td></tr>
+          </table>
+          <p class="small-note"><code>Controller</code> hereda de <code>ControllerBase</code> y agrega soporte de vistas — si tu controlador necesita vistas <em>y</em> API, derivá de <code>Controller</code>. Para API pura: <code>ControllerBase</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 · Atributos -->
+    <section class="slide" data-chapter="Controladores" data-topic="Atributos en C#">
+      <h2 class="slide-title"><span class="accent">Atributos</span> en C#</h2>
+      <div class="columns">
+        <div>
+          <ul class="bullets">
+            <li>Son clases que heredan de <code>Attribute</code> y funcionan como <strong>etiquetas</strong> sobre otros fragmentos de código</li>
+            <li>Asocian <strong>metadatos</strong> — información declarativa — a clases, métodos, propiedades…</li>
+            <li>Se escriben <strong>entre corchetes</strong>, antepuestos a lo que etiquetan</li>
+          </ul>
+          <div class="callout">⚠ En alguna bibliografía en español aparecen como “decoradores” por mala traducción: en C# se llaman <strong>atributos</strong>.</div>
+        </div>
+        <div class="card">
+<pre class="code">[<span class="t">Atributo</span>]
+<span class="k">public class</span> <span class="t">MiNuevaClase</span>
+{
+    <span class="c">// elementos de la clase…</span>
+}
+
+[<span class="t">Atributo</span>]
+<span class="k">public void</span> MiMetodo()
+{
+    <span class="c">// código del método…</span>
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 · Ruteo -->
+    <section class="slide" data-chapter="Controladores" data-topic="Ruteo">
+      <h2 class="slide-title"><span class="accent">Ruteo</span>: de la URL a la acción</h2>
+      <p>El middleware de <em>routing</em> hace coincidir la URL entrante con un controlador y una acción. Dos formas de controlarlo:</p>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>Convencional</h3>
+          <p>Una <strong>plantilla de ruta</strong> definida al inicio mapea las solicitudes:</p>
+<pre class="code"><span class="s">"{controller}/{action}/{id?}"</span></pre>
+          <p class="small-note"><code>{controller}</code> → la clase · <code>{action}</code> → el método · <code>{id?}</code> → parámetro opcional</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Por atributos ★</h3>
+          <p>La ruta se define <strong>sobre el código mismo</strong> con atributos:</p>
+<pre class="code">[<span class="t">ApiController</span>]
+[<span class="t">Route</span>(<span class="s">"[controller]"</span>)]</pre>
+          <p class="small-note"><code>[ApiController]</code> lo marca como controlador de API · <code>[Route]</code> define su ruta de acceso. Es la forma que usamos.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · Controlador ejemplo -->
+    <section class="slide" data-chapter="Controladores" data-topic="Un controlador completo">
+      <h2 class="slide-title">Un controlador, <span class="accent">anotado</span></h2>
+      <div class="columns">
+        <div class="card">
+<pre class="code">[<span class="t">ApiController</span>]              <span class="c">// ① es un controlador</span>
+[<span class="t">Route</span>(<span class="s">"[controller]"</span>)]     <span class="c">// ② su ruta = su nombre</span>
+<span class="k">public class</span> <span class="t">PronosticoDelClimaController</span>
+    : <span class="t">ControllerBase</span>         <span class="c">// ③ herencia API</span>
+{
+    [<span class="t">HttpGet</span>]                <span class="c">// ④ verbo que atiende</span>
+    <span class="k">public</span> <span class="t">IActionResult</span> GetClimaHoy()
+    {
+        <span class="c">// código que devuelve el clima</span>
+        <span class="k">return</span> Ok(clima);
+    }
+}</pre>
+        </div>
+        <div>
+          <p>La ruta resultante combina controlador y acción:</p>
+<pre class="code"><span class="c">GET</span> https://localhost:5001<span class="k">/PronosticoDelClima</span><span class="t">/GetClimaHoy</span></pre>
+          <ul class="bullets">
+            <li><code>[Route("[controller]")]</code> usa el <strong>nombre de la clase</strong> — sin el sufijo <em>Controller</em>, que por convención no impacta en la ruta</li>
+            <li>La acción <code>GetClimaHoy</code> responde a <code>GET</code> por su atributo <code>[HttpGet]</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 · Verbos y parámetros -->
+    <section class="slide" data-chapter="Requests" data-topic="Verbos y parámetros">
+      <h2 class="slide-title">Verbos y <span class="accent">parámetros</span></h2>
+      <div class="columns">
+        <div>
+          <p>Cada verbo HTTP tiene su atributo: <code>[HttpGet]</code>, <code>[HttpPost]</code>, <code>[HttpPut]</code>, <code>[HttpDelete]</code>…</p>
+          <p>Parámetro <strong>en la ruta</strong> — se declara en el template:</p>
+<pre class="code">[<span class="t">HttpGet</span>(<span class="s">"GetClima/{fecha}"</span>)]
+<span class="k">public</span> <span class="t">IActionResult</span> GetClima(<span class="t">DateTime</span> fecha) { … }
+
+<span class="c">GET /PronosticoDelClima/GetClima/22-11-2026</span></pre>
+        </div>
+        <div>
+          <p>Parámetros <strong>por query string</strong> — se mapean por nombre:</p>
+<pre class="code">[<span class="t">HttpGet</span>(<span class="s">"Buscar"</span>)]
+<span class="k">public</span> <span class="t">IActionResult</span> Buscar(<span class="k">int</span> edad,
+                             <span class="k">string</span> nombre) { … }
+
+<span class="c">GET /Paciente/Buscar?edad=3&amp;nombre=Carlos</span></pre>
+          <p class="small-note">La anatomía de URL del Tema 05, ahora del lado del servidor.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 · FromBody y fuentes -->
+    <section class="slide" data-chapter="Requests" data-topic="¿De dónde vienen los datos?">
+      <h2 class="slide-title">¿De dónde vienen los <span class="accent">datos</span>?</h2>
+      <div class="columns">
+        <div>
+          <p>Los datos de un request pueden venir de distintas fuentes; los atributos <code>From…</code> indican <strong>de dónde vincular</strong> cada parámetro:</p>
+          <table class="tbl">
+            <tr><th>Atributo</th><th>Fuente</th></tr>
+            <tr><td><code>[FromBody]</code></td><td>El cuerpo del request (JSON)</td></tr>
+            <tr><td><code>[FromQuery]</code></td><td>El query string</td></tr>
+            <tr><td><code>[FromRoute]</code></td><td>La ruta del request</td></tr>
+            <tr><td><code>[FromForm]</code></td><td>Un formulario en el body</td></tr>
+            <tr><td><code>[FromHeader]</code></td><td>Los headers del request</td></tr>
+          </table>
+        </div>
+        <div class="card">
+<pre class="code"><span class="c">// POST /Paciente/Alta</span>
+<span class="c">// el paciente viaja como JSON en el body</span>
+
+[<span class="t">HttpPost</span>(<span class="s">"Alta"</span>)]
+<span class="k">public</span> <span class="t">IActionResult</span> Alta(
+    [<span class="t">FromBody</span>] <span class="t">Paciente</span> paciente)
+{
+    <span class="c">// dar de alta el paciente…</span>
+    <span class="k">return</span> Created(<span class="s">"/Paciente/1"</span>, paciente);
+}</pre>
+          <p class="small-note">ASP.NET deserializa el JSON del body directo a un objeto <code>Paciente</code> — la abstracción viaja por la red.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 · Respuestas -->
+    <section class="slide" data-chapter="Responses" data-topic="Devolver respuestas">
+      <h2 class="slide-title">Devolver <span class="accent">respuestas</span></h2>
+      <div class="columns">
+        <div>
+          <p><code>IActionResult</code> / <code>ActionResult&lt;T&gt;</code> representan el resultado de una acción y permiten devolver <strong>distintos tipos de respuesta</strong> según la situación:</p>
+<pre class="code">[<span class="t">HttpGet</span>]
+<span class="k">public</span> <span class="t">ActionResult</span>&lt;<span class="t">List</span>&lt;<span class="t">Producto</span>&gt;&gt; Get()
+{
+    <span class="k">var</span> productos = <span class="k">new</span> <span class="t">List</span>&lt;<span class="t">Producto</span>&gt;();
+    <span class="k">return</span> Ok(productos);   <span class="c">// 200 + JSON</span>
+}</pre>
+        </div>
+        <div>
+          <table class="tbl">
+            <tr><th>Código</th><th>Se devuelve con…</th></tr>
+            <tr><td><code>200 OK</code></td><td><code>return Ok(objeto);</code></td></tr>
+            <tr><td><code>201 Created</code></td><td><code>return Created("/productos/1", p);</code></td></tr>
+            <tr><td><code>204 No Content</code></td><td><code>return NoContent();</code></td></tr>
+            <tr><td><code>400 Bad Request</code></td><td><code>return BadRequest("…");</code></td></tr>
+            <tr><td><code>404 Not Found</code></td><td><code>return NotFound("…");</code></td></tr>
+            <tr><td><code>500 Error</code></td><td><code>return StatusCode(500, "…");</code></td></tr>
+          </table>
+          <p class="small-note">Los códigos del Tema 05, ahora desde el lado que los emite.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 · OpenAPI -->
+    <section class="slide" data-chapter="OpenAPI" data-topic="Documentar la API">
+      <h2 class="slide-title">Documentar la API: <span class="accent">OpenAPI</span></h2>
+      <div class="columns">
+        <div>
+          <p><strong>El problema:</strong> exponemos endpoints…</p>
+<pre class="code"><span class="c">GET    /api/pacientes      → lista</span>
+<span class="c">POST   /api/pacientes      → crea</span>
+<span class="c">PUT    /api/pacientes/5    → actualiza</span>
+<span class="c">DELETE /api/pacientes/5    → elimina</span></pre>
+          <p>…¿cómo los conoce quien consume la API <strong>sin leer nuestro código</strong>?</p>
+        </div>
+        <div>
+          <p><strong>La solución:</strong> <em>OpenAPI</em> — un estándar abierto (ex <em>Swagger</em>, hoy de la OpenAPI Initiative junto a Google, Microsoft, IBM…) que describe la API en un documento JSON/YAML:</p>
+          <ul class="bullets">
+            <li>Qué endpoints existen, qué parámetros aceptan, qué devuelven</li>
+            <li>Herramientas de terceros lo leen automáticamente: generan <strong>clientes</strong>, <strong>SDKs</strong> y <strong>pruebas</strong></li>
+            <li><strong>Swagger UI</strong> lo convierte en una página para <strong>probar la API desde el navegador</strong></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16 · Swagger setup -->
+    <section class="slide" data-chapter="OpenAPI" data-topic="Swagger UI en 3 pasos">
+      <h2 class="slide-title"><span class="accent">Swagger UI</span> en tres pasos</h2>
+      <div class="columns">
+        <div class="card">
+<pre class="code"><span class="c"># 1 · instalar el paquete</span>
+<span class="k">dotnet</span> add package Swashbuckle.AspNetCore</pre>
+<pre class="code"><span class="c">// 2 · registrar el servicio (Program.cs)</span>
+builder.Services.AddSwaggerGen();
+
+<span class="c">// 3 · sumar los middlewares (solo en desarrollo)</span>
+<span class="k">if</span> (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}</pre>
+        </div>
+        <div>
+          <p>Y para que la documentación se escriba sola, <strong>comentarios XML</strong> sobre las acciones:</p>
+<pre class="code"><span class="c">/// &lt;summary&gt;</span>
+<span class="c">/// Obtiene los estudiantes activos</span>
+<span class="c">/// &lt;/summary&gt;</span>
+<span class="c">/// &lt;param name="id"&gt;ID del estudiante&lt;/param&gt;</span>
+<span class="c">/// &lt;response code="200"&gt;Operación exitosa&lt;/response&gt;</span>
+<span class="c">/// &lt;response code="404"&gt;No encontrado&lt;/response&gt;</span>
+[<span class="t">HttpGet</span>(<span class="s">"{id}"</span>)]
+<span class="k">public</span> <span class="t">IActionResult</span> Get(<span class="k">int</span> id) { … }</pre>
+          <p class="small-note">Mismo código → documentación siempre actualizada + una herramienta para probar los endpoints en vivo.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Próximo: excepciones y logs — que la API no se caiga, y que cuente qué le pasó.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+</body>
+</html>

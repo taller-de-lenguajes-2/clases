@@ -182,7 +182,48 @@
       </div>
     </section>
 
-    <!-- 4 · Asociación -->
+    <!-- 4b · Responsabilidades -->
+    <section class="slide" data-chapter="Arquitectura" data-topic="Responsabilidades">
+      <h2 class="slide-title">¿Qué tiene que hacer <span class="accent">cada uno</span>?</h2>
+      <p>Repartimos las responsabilidades: cada clase <strong>sabe</strong> algo (su estado) y <strong>hace</strong> algo (su comportamiento).</p>
+      <div class="columns four">
+        <div class="card accent-top">
+          <h3>Cliente</h3>
+          <p class="small-note"><strong>Sabe:</strong> qué quiere pedir</p>
+          <ul class="bullets">
+            <li><code>HacerPedido()</code></li>
+            <li><code>RecibirPedido()</code></li>
+          </ul>
+        </div>
+        <div class="card accent-top">
+          <h3>Mozo</h3>
+          <p class="small-note"><strong>Sabe:</strong> qué mesas atiende</p>
+          <ul class="bullets">
+            <li><code>TomarPedido()</code></li>
+            <li><code>PasarPedido()</code></li>
+            <li><code>EntregarPedido()</code></li>
+          </ul>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Cocinero</h3>
+          <p class="small-note"><strong>Sabe:</strong> las recetas</p>
+          <ul class="bullets">
+            <li><code>Elaborar(pedido)</code></li>
+            <li><code>AvisarListo()</code></li>
+          </ul>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Cocina</h3>
+          <p class="small-note"><strong>Sabe:</strong> fuegos y utensilios libres</p>
+          <ul class="bullets">
+            <li><code>Preparar(plato)</code></li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout"><strong>Sabe</strong> = campos · <strong>Hace</strong> = métodos — la anatomía de clase del Tema 01. Si una responsabilidad no encaja en ninguna clase, probablemente falte una abstracción.</div>
+    </section>
+
+    <!-- 5 · Asociación -->
     <section class="slide" data-chapter="Asociación" data-topic="¿Cómo vinculamos clases?">
       <h2 class="slide-title">¿Cómo podemos <span class="accent">vincular</span> clases?</h2>
       <div class="columns">

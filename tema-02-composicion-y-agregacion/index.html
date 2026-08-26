@@ -223,6 +223,41 @@
       <div class="callout"><strong>Sabe</strong> = campos · <strong>Hace</strong> = métodos — la anatomía de clase del Tema 01. Si una responsabilidad no encaja en ninguna clase, probablemente falte una abstracción.</div>
     </section>
 
+    <!-- 4c · El estado -->
+    <section class="slide" data-chapter="Arquitectura" data-topic="El estado de cada clase">
+      <h2 class="slide-title">Lo que <span class="accent">sabe</span> se guarda: el estado</h2>
+      <div class="columns">
+        <div>
+          <p>El <strong>“sabe”</strong> de la diapo anterior no es humo: son <strong>propiedades</strong> que la clase guarda y mantiene mientras el bar funciona.</p>
+          <ul class="bullets">
+            <li>El estado <strong>cambia cuando los métodos actúan</strong>: al preparar un plato, la cocina pasa a estar cocinando</li>
+            <li>Con <code>private set</code> nadie de afuera lo modifica a mano — solo se <strong>consulta</strong></li>
+            <li>Cada objeto tiene <strong>su propio estado</strong>: dos cocinas pueden estar una cocinando y la otra libre</li>
+          </ul>
+          <div class="callout">Estado + comportamiento juntos y protegidos: el <strong>encapsulamiento</strong> del Tema 01 trabajando en el bar.</div>
+        </div>
+        <div class="card">
+<pre class="code"><span class="k">public class</span> <span class="t">Cocina</span>
+{
+    <span class="c">// el estado: lo que la Cocina sabe</span>
+    <span class="k">public bool</span> EstaCocinando { <span class="k">get</span>; <span class="k">private set</span>; }
+    <span class="k">public int</span> FuegosLibres { <span class="k">get</span>; <span class="k">private set</span>; } = <span class="n">4</span>;
+
+    <span class="k">public void</span> Preparar(<span class="t">Plato</span> plato)
+    {
+        EstaCocinando = <span class="k">true</span>;
+        FuegosLibres--;
+    }
+    <span class="k">public void</span> Terminar()
+    {
+        FuegosLibres++;
+        <span class="k">if</span> (FuegosLibres == <span class="n">4</span>) EstaCocinando = <span class="k">false</span>;
+    }
+}</pre>
+        </div>
+      </div>
+    </section>
+
     <!-- 5 · Asociación -->
     <section class="slide" data-chapter="Asociación" data-topic="¿Cómo vinculamos clases?">
       <h2 class="slide-title">¿Cómo podemos <span class="accent">vincular</span> clases?</h2>

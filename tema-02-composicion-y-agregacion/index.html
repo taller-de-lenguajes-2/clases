@@ -64,10 +64,76 @@
       </div>
     </section>
 
-    <!-- 3 · El bar -->
-    <section class="slide" data-chapter="Arquitectura" data-topic="Simulando un bar">
+    <!-- 3 · Los actores del bar -->
+    <section class="slide" data-chapter="Arquitectura" data-topic="Los actores del bar">
+      <h2 class="slide-title">Simulemos un <span class="accent">bar</span> con clases</h2>
+      <p>Primero elegimos las <strong>abstracciones</strong>: ¿quiénes participan y qué responsabilidad tiene cada uno?</p>
+      <div class="columns four">
+        <div class="card stage s1" style="text-align:center">
+          <div class="diagram">
+            <svg viewBox="0 0 120 130" width="105" role="img" aria-label="Cliente">
+              <circle cx="45" cy="30" r="16" fill="var(--accent-2)" opacity="0.55"/>
+              <path d="M18,120 C18,82 27,64 45,64 C63,64 72,82 72,120 Z" fill="var(--accent-2)" opacity="0.55"/>
+              <circle cx="72" cy="34" r="16" fill="var(--accent-2)"/>
+              <path d="M45,124 C45,86 54,68 72,68 C90,68 99,86 99,124 Z" fill="var(--accent-2)"/>
+            </svg>
+          </div>
+          <h3>Cliente</h3>
+          <p class="small-note">Hace el pedido y lo recibe</p>
+        </div>
+        <div class="card stage s2" style="text-align:center">
+          <div class="diagram">
+            <svg viewBox="0 0 120 130" width="105" role="img" aria-label="Mozo">
+              <circle cx="55" cy="30" r="16" fill="var(--accent)"/>
+              <path d="M25,120 C25,82 35,64 55,64 C75,64 85,82 85,120 Z" fill="var(--accent)"/>
+              <polygon points="55,62 47,54 47,70" fill="var(--yellow)"/>
+              <polygon points="55,62 63,54 63,70" fill="var(--yellow)"/>
+              <line x1="93" y1="52" x2="93" y2="78" stroke="var(--accent)" stroke-width="4"/>
+              <ellipse cx="93" cy="50" rx="22" ry="5" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="3"/>
+              <rect x="86" y="36" width="9" height="12" rx="2" fill="var(--accent-2)"/>
+            </svg>
+          </div>
+          <h3>Mozo</h3>
+          <p class="small-note">Lleva pedidos y platos de un lado al otro</p>
+        </div>
+        <div class="card stage s3" style="text-align:center">
+          <div class="diagram">
+            <svg viewBox="0 0 120 130" width="105" role="img" aria-label="Cocinero">
+              <circle cx="60" cy="14" r="9" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="3"/>
+              <circle cx="46" cy="18" r="8" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="3"/>
+              <circle cx="74" cy="18" r="8" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="3"/>
+              <rect x="42" y="16" width="36" height="14" rx="3" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="3"/>
+              <circle cx="60" cy="44" r="14" fill="var(--accent)"/>
+              <path d="M30,120 C30,88 40,72 60,72 C80,72 90,88 90,120 Z" fill="var(--accent)"/>
+            </svg>
+          </div>
+          <h3>Cocinero</h3>
+          <p class="small-note">Elabora los pedidos</p>
+        </div>
+        <div class="card stage s4" style="text-align:center">
+          <div class="diagram">
+            <svg viewBox="0 0 120 130" width="105" role="img" aria-label="Cocina">
+              <path d="M38,28 C34,20 42,16 40,8" fill="none" stroke="var(--muted)" stroke-width="3" stroke-linecap="round"/>
+              <path d="M60,30 C56,22 64,18 62,10" fill="none" stroke="var(--muted)" stroke-width="3" stroke-linecap="round"/>
+              <path d="M82,28 C78,20 86,16 84,8" fill="none" stroke="var(--muted)" stroke-width="3" stroke-linecap="round"/>
+              <ellipse cx="60" cy="46" rx="34" ry="7" fill="var(--panel-2)" stroke="var(--accent-2)" stroke-width="3"/>
+              <path d="M26,46 L26,80 C26,92 38,100 60,100 C82,100 94,92 94,80 L94,46" fill="var(--panel-2)" stroke="var(--accent-2)" stroke-width="3"/>
+              <line x1="16" y1="58" x2="26" y2="58" stroke="var(--accent-2)" stroke-width="4" stroke-linecap="round"/>
+              <line x1="94" y1="58" x2="104" y2="58" stroke="var(--accent-2)" stroke-width="4" stroke-linecap="round"/>
+              <rect x="20" y="104" width="80" height="10" rx="4" fill="var(--accent-2)" opacity="0.6"/>
+            </svg>
+          </div>
+          <h3>Cocina</h3>
+          <p class="small-note">Donde los pedidos se preparan</p>
+        </div>
+      </div>
+      <div class="callout">Cada uno es una <strong>clase</strong> con una responsabilidad clara. Ahora veamos cómo <strong>colaboran</strong>…</div>
+    </section>
+
+    <!-- 4 · El bar en acción -->
+    <section class="slide" data-chapter="Arquitectura" data-topic="El bar en acción">
       <h2 class="slide-title">Interacción entre partes: <span class="accent">un bar</span></h2>
-      <p>Simulemos un bar con clases — cada abstracción tiene su responsabilidad y colaboran enviándose mensajes:</p>
+      <p>Cada abstracción tiene su responsabilidad y colaboran enviándose mensajes:</p>
       <div class="diagram">
         <svg viewBox="0 0 1140 320" width="1080" role="img" aria-label="Mensajes entre Cliente, Mozo, Cocinero y Cocina">
           <defs>

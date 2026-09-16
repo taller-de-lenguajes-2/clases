@@ -218,42 +218,80 @@ app.Run();</pre>
       <h2 class="slide-title">Métodos de <span class="accent">acción</span> <span style="color:var(--muted);font-weight:600;font-size:0.6em">(action methods)</span></h2>
       <div class="columns">
         <div>
-          <ul class="bullets" style="font-size:18px; line-height:1.45">
-            <li>Son los <strong>métodos públicos</strong> del controlador: cada uno atiende un tipo de request</li>
+          <ul class="bullets">
+            <li>Son los <strong>métodos públicos</strong> del controlador</li>
+            <li>Cada uno <strong>atiende un tipo de request</strong></li>
             <li>Reciben los datos del request como <strong>parámetros</strong></li>
-            <li>Devuelven la response: con <code>Ok(objeto)</code> se arma un <code>200 OK</code> con el objeto convertido a JSON</li>
+            <li>Lo que devuelven se convierte en la <strong>response</strong></li>
           </ul>
+        </div>
+        <div>
 <pre class="code">[<span class="t">ApiController</span>]
 [<span class="t">Route</span>(<span class="s">"[controller]"</span>)]
 <span class="k">public class</span> <span class="t">SaludoController</span> : <span class="t">ControllerBase</span>
 {
-    [<span class="t">HttpGet</span>]                     <span class="c">// ← atiende GET</span>
-    <span class="k">public</span> <span class="t">IActionResult</span> Saludar()  <span class="c">// ← método de acción</span>
+    [<span class="t">HttpGet</span>]
+    <span class="k">public</span> <span class="t">IActionResult</span> Saludar()  <span class="c">// ← acción</span>
     {
         <span class="k">return</span> Ok(<span class="k">new</span> { mensaje = <span class="s">"Hola, mundo"</span> });
     }
 }</pre>
-          <p class="small-note">Los corchetes (<code>[ApiController]</code>, <code>[HttpGet]</code>…) son <strong>atributos</strong>: los vemos en la próxima slide.</p>
-        </div>
-        <div>
-          <div class="http-msg">
-            <div class="msg-title">Request</div>
-            <div class="part" style="--c: var(--accent)"><div class="tag">Línea inicial</div><pre>GET /Saludo HTTP/1.1</pre></div>
-            <div class="part" style="--c: var(--yellow)"><div class="tag">Headers</div><pre>Host: localhost:5001</pre></div>
-          </div>
-          <p style="text-align:center; margin: 6px 0; color: var(--muted)">↓ <code>Saludar()</code> se ejecuta ↓</p>
-          <div class="http-msg">
-            <div class="msg-title">Response</div>
-            <div class="part" style="--c: var(--accent)"><div class="tag">Línea de estado</div><pre>HTTP/1.1 <strong>200 OK</strong></pre></div>
-            <div class="part" style="--c: var(--yellow)"><div class="tag">Headers</div><pre>Content-Type: application/json; charset=utf-8</pre></div>
-            <div class="part" style="--c: var(--accent-2)"><div class="tag">Body</div><pre>{"mensaje":"Hola, mundo"}</pre></div>
-          </div>
-          <div class="callout">⚠ <strong>Todo</strong> método público es una acción, aunque no tenga atributos: queda publicado y responde a cualquier verbo. Los métodos auxiliares van <code>private</code>, o se marcan con <code>[NonAction]</code>.</div>
+          <p class="small-note">Los corchetes (<code>[ApiController]</code>, <code>[HttpGet]</code>…) son <strong>atributos</strong>: los vemos en un rato.</p>
         </div>
       </div>
     </section>
 
-    <!-- 10 · Atributos -->
+    <!-- 10 · Request a una acción -->
+    <section class="slide" data-chapter="Controladores" data-topic="Un request, una acción">
+      <h2 class="slide-title">Un request, <span class="accent">una acción</span></h2>
+      <p>Llega <code>GET /Saludo</code>, se ejecuta <code>Saludar()</code>, y su <code>Ok(…)</code> se convierte en la response:</p>
+      <div class="columns" style="grid-template-columns: 1fr 1.35fr">
+        <div class="http-msg lg">
+          <div class="msg-title">Request</div>
+          <div class="part" style="--c: var(--accent)"><div class="tag">Línea inicial</div><pre>GET /Saludo HTTP/1.1</pre></div>
+          <div class="part" style="--c: var(--yellow)"><div class="tag">Headers</div><pre>Host: localhost:5186</pre></div>
+        </div>
+        <div class="http-msg lg">
+          <div class="msg-title">Response</div>
+          <div class="part" style="--c: var(--accent)"><div class="tag">Línea de estado</div><pre>HTTP/1.1 <strong>200 OK</strong></pre></div>
+          <div class="part" style="--c: var(--yellow)"><div class="tag">Headers</div><pre>Content-Type: application/json; charset=utf-8</pre></div>
+          <div class="part" style="--c: var(--accent-2)"><div class="tag">Body</div><pre>{"mensaje":"Hola, mundo"}</pre></div>
+        </div>
+      </div>
+      <div class="callout"><code>Ok(objeto)</code> = código <strong>200</strong> + el objeto <strong>convertido a JSON</strong> en el body. Más adelante vemos el resto: <code>NotFound()</code>, <code>Created()</code>…</div>
+    </section>
+
+    <!-- 11 · Todo método público es una acción -->
+    <section class="slide" data-chapter="Controladores" data-topic="Todo método público es una acción">
+      <h2 class="slide-title">⚠ Todo método <span class="accent">público</span> es una acción</h2>
+      <div class="columns">
+        <div>
+<pre class="code"><span class="k">public class</span> <span class="t">SaludoController</span> : <span class="t">ControllerBase</span>
+{
+    [<span class="t">HttpGet</span>]
+    <span class="k">public</span> <span class="t">IActionResult</span> Saludar() { … }
+
+    <span class="k">public void</span> Ayudante() { … }  <span class="c">// ✗ sin querer</span>
+}</pre>
+          <ul class="bullets">
+            <li><code>Ayudante()</code> <strong>queda publicado</strong>, aunque no tenga atributos</li>
+            <li>Responde a <strong>cualquier verbo</strong>: <code>POST /Saludo</code> → <code>200</code></li>
+            <li>Y rompe Swagger (lo vemos al final)</li>
+          </ul>
+        </div>
+        <div>
+          <p><strong>Solución:</strong> que no sea pública, o marcarla como “no acción”.</p>
+<pre class="code"><span class="c">// opción 1</span>
+<span class="k">private void</span> Ayudante() { … }
+
+<span class="c">// opción 2</span>
+[<span class="t">NonAction</span>]
+<span class="k">public void</span> Ayudante() { … }</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 · Atributos -->
     <section class="slide" data-chapter="Controladores" data-topic="Atributos en C#">
       <h2 class="slide-title"><span class="accent">Atributos</span> en C#</h2>
       <div class="columns">
@@ -281,7 +319,7 @@ app.Run();</pre>
       </div>
     </section>
 
-    <!-- 11 · Ruteo -->
+    <!-- 13 · Ruteo -->
     <section class="slide" data-chapter="Controladores" data-topic="Ruteo">
       <h2 class="slide-title"><span class="accent">Ruteo</span>: de la URL a la acción</h2>
       <p>El middleware de <em>routing</em> hace coincidir la URL entrante con un controlador y una acción. Dos formas de controlarlo:</p>
@@ -302,7 +340,7 @@ app.Run();</pre>
       </div>
     </section>
 
-    <!-- 12 · Controlador ejemplo -->
+    <!-- 14 · Controlador ejemplo -->
     <section class="slide" data-chapter="Controladores" data-topic="Un controlador completo">
       <h2 class="slide-title">Un controlador, <span class="accent">anotado</span></h2>
       <div class="columns">
@@ -332,7 +370,7 @@ app.Run();</pre>
       </div>
     </section>
 
-    <!-- 13 · Atributos por verbo -->
+    <!-- 15 · Atributos por verbo -->
     <section class="slide" data-chapter="Requests" data-topic="Un atributo por verbo">
       <h2 class="slide-title">Un <span class="accent">atributo</span> por verbo</h2>
       <p>Cada acción declara qué verbo atiende. El texto entre paréntesis es una <strong>plantilla de ruta</strong> que se suma a la del controlador.</p>
@@ -348,15 +386,17 @@ app.Run();</pre>
       <div class="callout"><code>[Route("api/[controller]")]</code> + <code>[HttpGet("{id}")]</code> = <code>GET api/pacientes/5</code>. Sin texto (<code>[HttpGet]</code>), la acción responde en la ruta del controlador tal cual.</div>
     </section>
 
-    <!-- 14 · CRUD completo -->
-    <section class="slide" data-chapter="Requests" data-topic="Un controlador CRUD">
-      <h2 class="slide-title">Un controlador <span class="accent">CRUD</span></h2>
-      <div class="columns wide-left">
+    <!-- 16 · CRUD: leer -->
+    <section class="slide" data-chapter="Requests" data-topic="CRUD: leer">
+      <h2 class="slide-title">Un controlador CRUD: <span class="accent">leer</span></h2>
+      <div class="columns">
         <div>
-<pre class="code sm" style="margin-top:0">[<span class="t">ApiController</span>]
+<pre class="code">[<span class="t">ApiController</span>]
 [<span class="t">Route</span>(<span class="s">"api/[controller]"</span>)]
 <span class="k">public class</span> <span class="t">PacientesController</span> : <span class="t">ControllerBase</span>
 {
+    <span class="k">static</span> <span class="t">List</span>&lt;<span class="t">Paciente</span>&gt; pacientes = <span class="k">new</span>();
+
     [<span class="t">HttpGet</span>]
     <span class="k">public</span> <span class="t">IActionResult</span> Listar() =&gt; Ok(pacientes);
 
@@ -366,135 +406,209 @@ app.Run();</pre>
         <span class="k">var</span> p = pacientes.Find(x =&gt; x.Id == id);
         <span class="k">return</span> p <span class="k">is null</span> ? NotFound() : Ok(p);
     }
-
-    [<span class="t">HttpPost</span>]
-    <span class="k">public</span> <span class="t">IActionResult</span> Crear([<span class="t">FromBody</span>] <span class="t">Paciente</span> p)
-    {
-        pacientes.Add(p);
-        <span class="k">return</span> CreatedAtAction(<span class="k">nameof</span>(Obtener), <span class="k">new</span> { id = p.Id }, p);
-    }
-
-    [<span class="t">HttpDelete</span>(<span class="s">"{id:int}"</span>)]
-    <span class="k">public</span> <span class="t">IActionResult</span> Borrar(<span class="k">int</span> id) =&gt;
-        pacientes.RemoveAll(x =&gt; x.Id == id) &gt; 0
-            ? NoContent() : NotFound();
 }</pre>
         </div>
         <div>
-          <p class="small-note" style="margin-top:0"><code>pacientes</code> es una <code>List&lt;Paciente&gt;</code> en memoria. Qué pasa con cada request:</p>
-          <table class="tbl compact">
+          <table class="tbl roomy">
             <tr><th>Request</th><th>Resultado</th></tr>
-            <tr><td><code>GET api/pacientes</code></td><td><code>Listar()</code> → <code>200</code></td></tr>
-            <tr><td><code>GET api/pacientes/5</code></td><td><code>Obtener(5)</code> → <code>200</code> o <code>404</code></td></tr>
-            <tr><td><code>GET api/pacientes/abc</code></td><td><code>404</code>: <code>abc</code> no es <code>int</code>, ninguna ruta coincide</td></tr>
-            <tr><td><code>POST api/pacientes</code></td><td><code>Crear(p)</code> con el JSON del body → <code>201</code></td></tr>
-            <tr><td><code>DELETE api/pacientes/5</code></td><td><code>204</code>; si se repite, <code>404</code></td></tr>
-            <tr><td><code>PATCH api/pacientes/5</code></td><td><code>405</code>: la ruta existe, el verbo no</td></tr>
+            <tr><td><code>GET api/pacientes</code></td><td><code>Listar()</code> → <code>200</code> + la lista</td></tr>
+            <tr><td><code>GET api/pacientes/5</code></td><td><code>Obtener(5)</code> → <code>200</code> + el paciente</td></tr>
+            <tr><td><code>GET api/pacientes/9</code></td><td><code>Obtener(9)</code> → <code>404</code>: no existe</td></tr>
+            <tr><td><code>GET api/pacientes/abc</code></td><td><code>404</code>: <code>abc</code> no es <code>int</code></td></tr>
           </table>
-          <div class="callout"><code>CreatedAtAction</code> agrega el header <code>Location</code> con la URL del nuevo paciente (<code>…/api/Pacientes/7</code>), armada a partir de <code>Obtener</code>.</div>
         </div>
       </div>
     </section>
 
-    <!-- 15 · Parámetros de ruta -->
+    <!-- 17 · CRUD: crear y borrar -->
+    <section class="slide" data-chapter="Requests" data-topic="CRUD: crear y borrar">
+      <h2 class="slide-title">Un controlador CRUD: <span class="accent">crear y borrar</span></h2>
+      <div class="columns wide-left">
+        <div>
+<pre class="code">[<span class="t">HttpPost</span>]
+<span class="k">public</span> <span class="t">IActionResult</span> Crear([<span class="t">FromBody</span>] <span class="t">Paciente</span> p)
+{
+    pacientes.Add(p);
+    <span class="k">return</span> CreatedAtAction(<span class="k">nameof</span>(Obtener),
+                           <span class="k">new</span> { id = p.Id }, p);
+}
+
+[<span class="t">HttpDelete</span>(<span class="s">"{id:int}"</span>)]
+<span class="k">public</span> <span class="t">IActionResult</span> Borrar(<span class="k">int</span> id)
+{
+    <span class="k">int</span> borrados = pacientes.RemoveAll(x =&gt; x.Id == id);
+    <span class="k">return</span> borrados &gt; 0 ? NoContent() : NotFound();
+}</pre>
+        </div>
+        <div>
+          <table class="tbl roomy">
+            <tr><th>Request</th><th>Resultado</th></tr>
+            <tr><td><code>POST api/pacientes</code></td><td><code>201</code></td></tr>
+            <tr><td><code>DELETE api/pacientes/5</code></td><td><code>204</code></td></tr>
+            <tr><td>…otra vez</td><td><code>404</code></td></tr>
+            <tr><td><code>PATCH api/pacientes/5</code></td><td><code>405</code>: no hay acción para ese verbo</td></tr>
+          </table>
+          <div class="callout"><code>CreatedAtAction</code> agrega el header <code>Location</code> con la URL del paciente nuevo.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 · Parámetros de ruta -->
     <section class="slide" data-chapter="Requests" data-topic="Parámetros en la ruta">
       <h2 class="slide-title">Parámetros en la <span class="accent">ruta</span></h2>
-      <div class="url-split">
+      <div class="url-split lg">
         <div class="seg route"><code>/api/pacientes/4</code><span>ruta · dice <strong>cuál</strong> recurso</span></div>
         <div class="seg query dim"><code>?activo=true&amp;pagina=2</code><span>query string · dice <strong>cómo</strong> lo querés</span></div>
       </div>
-      <div class="columns wide-left">
+      <div class="columns">
         <div>
-<pre class="code sm" style="margin-top:0"><span class="c">// obligatorio: el nombre entre llaves = el nombre del parámetro</span>
+<pre class="code"><span class="c">// el nombre entre llaves</span>
+<span class="c">// = el nombre del parámetro</span>
 [<span class="t">HttpGet</span>(<span class="s">"{id}"</span>)]
 <span class="k">public</span> <span class="t">IActionResult</span> Obtener(<span class="k">int</span> id)
-<span class="c">// api/pacientes/5 → id = 5</span>
 
-<span class="c">// con restricción de tipo: si no cumple, la ruta no coincide</span>
+<span class="c">// con restricción de tipo</span>
 [<span class="t">HttpGet</span>(<span class="s">"{id:int}"</span>)]
-<span class="c">// api/pacientes/abc → 404</span>
-
-<span class="c">// opcional (?) con valor por defecto</span>
-[<span class="t">HttpGet</span>(<span class="s">"pagina/{nro:int?}"</span>)]
-<span class="k">public</span> <span class="t">IActionResult</span> Pagina(<span class="k">int</span> nro = <span class="n">1</span>)
-<span class="c">// api/pacientes/pagina → 1 · api/pacientes/pagina/4 → 4</span>
-
-<span class="c">// varios segmentos</span>
-[<span class="t">HttpGet</span>(<span class="s">"{pacienteId:int}/turnos/{turnoId:int}"</span>)]
-<span class="k">public</span> <span class="t">IActionResult</span> Turno(<span class="k">int</span> pacienteId, <span class="k">int</span> turnoId)
-<span class="c">// api/pacientes/5/turnos/12</span>
-
-<span class="c">// fechas: siempre en formato ISO (año-mes-día)</span>
-[<span class="t">HttpGet</span>(<span class="s">"turnos/{fecha:datetime}"</span>)]
-<span class="k">public</span> <span class="t">IActionResult</span> TurnosDelDia(<span class="t">DateTime</span> fecha)
-<span class="c">// …/turnos/2026-11-22 ✓ · …/turnos/22-11-2026 → 404</span></pre>
+<span class="k">public</span> <span class="t">IActionResult</span> Obtener(<span class="k">int</span> id)</pre>
         </div>
         <div>
-          <table class="tbl compact">
-            <tr><th>Restricción</th><th>Acepta</th></tr>
-            <tr><td><code>{id:int}</code></td><td>enteros: <code>5</code>, <code>-3</code></td></tr>
-            <tr><td><code>{activo:bool}</code></td><td><code>true</code> / <code>false</code></td></tr>
-            <tr><td><code>{fecha:datetime}</code></td><td>fechas: <code>2026-11-22</code></td></tr>
-            <tr><td><code>{codigo:guid}</code></td><td>un <code>Guid</code></td></tr>
-            <tr><td><code>{nombre:alpha}</code></td><td>solo letras</td></tr>
-            <tr><td><code>{id:min(1)}</code></td><td>enteros desde 1</td></tr>
-            <tr><td><code>{dni:length(8)}</code></td><td>texto de 8 caracteres</td></tr>
-            <tr><td><code>{id:int:min(1)}</code></td><td>se pueden encadenar</td></tr>
+          <table class="tbl roomy">
+            <tr><th>Request</th><th><code>"{id}"</code></th><th><code>"{id:int}"</code></th></tr>
+            <tr><td><code>…/pacientes/5</code></td><td><code>id = 5</code></td><td><code>id = 5</code></td></tr>
+            <tr><td><code>…/pacientes/abc</code></td><td><code>400</code></td><td><code>404</code></td></tr>
           </table>
-          <div class="callout"><strong>Con restricción</strong>, un valor inválido da <code>404</code>: la ruta no coincide. <strong>Sin restricción</strong>, el request llega a la acción, falla la conversión y <code>[ApiController]</code> responde <code>400</code>.</div>
+          <ul class="bullets" style="margin-top: 14px">
+            <li><strong>400</strong>: llegó a la acción y falló la conversión</li>
+            <li><strong>404</strong>: la ruta ni siquiera coincide</li>
+          </ul>
         </div>
       </div>
     </section>
 
-    <!-- 16 · Parámetros de query string -->
+    <!-- 19 · Restricciones de ruta -->
+    <section class="slide" data-chapter="Requests" data-topic="Restricciones de ruta">
+      <h2 class="slide-title">Restricciones de <span class="accent">ruta</span></h2>
+      <table class="tbl roomy">
+        <tr><th>Restricción</th><th>Acepta</th><th>Coincide con</th></tr>
+        <tr><td><code>{id:int}</code></td><td>enteros</td><td><code>…/5</code></td></tr>
+        <tr><td><code>{activo:bool}</code></td><td><code>true</code> o <code>false</code></td><td><code>…/true</code></td></tr>
+        <tr><td><code>{fecha:datetime}</code></td><td>fechas <strong>año-mes-día</strong></td><td><code>…/2026-11-22</code></td></tr>
+        <tr><td><code>{codigo:guid}</code></td><td>un <code>Guid</code></td><td><code>…/3f2504e0-4f89-11d3-9a0c-0305e82c3301</code></td></tr>
+        <tr><td><code>{apellido:alpha}</code></td><td>solo letras</td><td><code>…/perez</code></td></tr>
+        <tr><td><code>{id:min(1)}</code></td><td>enteros desde 1</td><td><code>…/1</code></td></tr>
+        <tr><td><code>{dni:length(8)}</code></td><td>exactamente 8 caracteres</td><td><code>…/30123456</code></td></tr>
+      </table>
+      <div class="callout">Se pueden encadenar: <code>{id:int:min(1)}</code>. Y ojo con las fechas: <code>…/22-11-2026</code> <strong>no coincide</strong> → <code>404</code>.</div>
+    </section>
+
+    <!-- 20 · Más casos de ruta -->
+    <section class="slide" data-chapter="Requests" data-topic="Opcionales y varios tramos">
+      <h2 class="slide-title">Ruta: opcionales y <span class="accent">varios tramos</span></h2>
+      <div class="columns">
+        <div>
+          <p><strong>Opcional</strong>: con <code>?</code> y un valor por defecto</p>
+<pre class="code">[<span class="t">HttpGet</span>(<span class="s">"pagina/{nro:int?}"</span>)]
+<span class="k">public</span> <span class="t">IActionResult</span> Pagina(<span class="k">int</span> nro = <span class="n">1</span>)</pre>
+          <table class="tbl roomy">
+            <tr><th>Request</th><th>Llega</th></tr>
+            <tr><td><code>…/pagina</code></td><td><code>nro = 1</code></td></tr>
+            <tr><td><code>…/pagina/4</code></td><td><code>nro = 4</code></td></tr>
+          </table>
+        </div>
+        <div>
+          <p><strong>Varios tramos</strong>: un parámetro por cada llave</p>
+<pre class="code">[<span class="t">HttpGet</span>(<span class="s">"{pacienteId:int}/turnos/{turnoId:int}"</span>)]
+<span class="k">public</span> <span class="t">IActionResult</span> Turno(<span class="k">int</span> pacienteId,
+                          <span class="k">int</span> turnoId)</pre>
+          <table class="tbl roomy">
+            <tr><th>Request</th><th>Llega</th></tr>
+            <tr><td><code>…/5/turnos/12</code></td><td><code>pacienteId = 5</code>, <code>turnoId = 12</code></td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 21 · Parámetros de query string -->
     <section class="slide" data-chapter="Requests" data-topic="Parámetros por query string">
       <h2 class="slide-title">Parámetros por <span class="accent">query string</span></h2>
-      <div class="url-split">
+      <div class="url-split lg">
         <div class="seg route dim"><code>/api/pacientes/4</code><span>ruta · dice <strong>cuál</strong> recurso</span></div>
         <div class="seg query"><code>?activo=true&amp;pagina=2</code><span>query string · dice <strong>cómo</strong> lo querés</span></div>
       </div>
-      <div class="columns wide-left">
+      <div class="columns">
         <div>
-<pre class="code sm" style="margin-top:0"><span class="c">// simples: se vinculan por nombre, sin importar el orden</span>
+<pre class="code"><span class="c">// se vinculan por nombre,</span>
+<span class="c">// sin declararlos en la plantilla</span>
 [<span class="t">HttpGet</span>(<span class="s">"buscar"</span>)]
-<span class="k">public</span> <span class="t">IActionResult</span> Buscar(<span class="k">string</span> nombre, <span class="k">int</span> edad)
-<span class="c">// api/pacientes/buscar?edad=3&amp;nombre=Carlos</span>
-
-<span class="c">// opcionales: valor por defecto o tipo nullable (?)</span>
-[<span class="t">HttpGet</span>]
-<span class="k">public</span> <span class="t">IActionResult</span> Listar(<span class="k">int</span> pagina = <span class="n">1</span>, <span class="k">int</span> tamanio = <span class="n">20</span>,
-                           <span class="k">bool</span>? activo = <span class="k">null</span>)
-<span class="c">// api/pacientes?pagina=2 → tamanio = 20, activo = null</span>
-
-<span class="c">// listas: se repite la clave</span>
-[<span class="t">HttpGet</span>(<span class="s">"por-ids"</span>)]
-<span class="k">public</span> <span class="t">IActionResult</span> PorIds([<span class="t">FromQuery</span>] <span class="k">int</span>[] id)
-<span class="c">// …/por-ids?id=1&amp;id=4&amp;id=9 → [1, 4, 9]</span>
-
-<span class="c">// otro nombre en la URL</span>
-<span class="k">public</span> <span class="t">IActionResult</span> Texto([<span class="t">FromQuery</span>(Name = <span class="s">"q"</span>)] <span class="k">string</span> texto)
-<span class="c">// …?q=perez → texto = "perez"</span>
-
-<span class="c">// muchos filtros: una clase que los agrupa</span>
-<span class="k">public</span> <span class="t">IActionResult</span> Filtrar([<span class="t">FromQuery</span>] <span class="t">FiltroPacientes</span> filtro)
-<span class="c">// …?obra=OSDE&amp;edadMin=18 → filtro.Obra, filtro.EdadMin</span></pre>
+<span class="k">public</span> <span class="t">IActionResult</span> Buscar(<span class="k">string</span> nombre,
+                           <span class="k">int</span> edad)</pre>
         </div>
         <div>
-          <p class="small-note" style="margin-top:0">Con <code>Buscar(string nombre, int edad)</code>:</p>
-          <table class="tbl compact">
-            <tr><th>Query string</th><th>Qué llega</th></tr>
-            <tr><td><code>?edad=3&amp;nombre=Carlos</code></td><td><code>"Carlos"</code> y <code>3</code></td></tr>
-            <tr><td><code>?NOMBRE=Carlos&amp;EDAD=3</code></td><td>lo mismo: no distingue mayúsculas</td></tr>
-            <tr><td><code>?nombre=Carlos</code></td><td><code>edad = 0</code>: un <code>int</code> que falta toma su valor por defecto</td></tr>
-            <tr><td><code>?edad=3</code></td><td><code>400</code>: un <code>string</code> no nullable es <strong>obligatorio</strong></td></tr>
-            <tr><td><code>?edad=tres&amp;nombre=Carlos</code></td><td><code>400</code>: <code>tres</code> no es un <code>int</code></td></tr>
+          <table class="tbl roomy">
+            <tr><th>Request <code>…/buscar</code></th><th>Llega</th></tr>
+            <tr><td><code>?edad=3&amp;nombre=Carlos</code></td><td><code>"Carlos"</code>, <code>3</code></td></tr>
+            <tr><td><code>?NOMBRE=Carlos&amp;EDAD=3</code></td><td>lo mismo</td></tr>
+            <tr><td><code>?nombre=Carlos</code></td><td><code>edad = 0</code></td></tr>
+            <tr><td><code>?edad=3</code></td><td><code>400</code></td></tr>
+            <tr><td><code>?edad=tres&amp;nombre=Carlos</code></td><td><code>400</code></td></tr>
           </table>
-          <div class="callout">¿Querés que un texto sea opcional? Declaralo <code>string? nombre</code>: si no viene, llega <code>null</code>.</div>
+        </div>
+      </div>
+      <p class="small-note">El orden y las mayúsculas no importan. Un <code>int</code> que falta vale <code>0</code>; un <code>string</code> que falta da <code>400</code>, porque no es nullable.</p>
+    </section>
+
+    <!-- 22 · Query: opcionales y listas -->
+    <section class="slide" data-chapter="Requests" data-topic="Query: opcionales y listas">
+      <h2 class="slide-title">Query string: opcionales y <span class="accent">listas</span></h2>
+      <div class="columns">
+        <div>
+          <p><strong>Opcionales</strong>: valor por defecto, o tipo nullable (<code>?</code>)</p>
+<pre class="code">[<span class="t">HttpGet</span>]
+<span class="k">public</span> <span class="t">IActionResult</span> Listar(
+    <span class="k">int</span> pagina = <span class="n">1</span>,
+    <span class="k">int</span> tamanio = <span class="n">20</span>,
+    <span class="k">bool</span>? activo = <span class="k">null</span>,
+    <span class="k">string</span>? nombre = <span class="k">null</span>)</pre>
+          <p class="small-note"><code>…/pacientes?pagina=2</code> → <code>tamanio = 20</code>, <code>activo</code> y <code>nombre</code> en <code>null</code></p>
+        </div>
+        <div>
+          <p><strong>Listas</strong>: se repite la clave</p>
+<pre class="code">[<span class="t">HttpGet</span>(<span class="s">"por-ids"</span>)]
+<span class="k">public</span> <span class="t">IActionResult</span> PorIds(
+    [<span class="t">FromQuery</span>] <span class="k">int</span>[] id)</pre>
+          <p class="small-note"><code>…/por-ids?id=1&amp;id=4&amp;id=9</code> → <code>[1, 4, 9]</code></p>
         </div>
       </div>
     </section>
 
-    <!-- 17 · FromBody y fuentes -->
+    <!-- 23 · Query: otro nombre y filtros -->
+    <section class="slide" data-chapter="Requests" data-topic="Query: otro nombre y filtros">
+      <h2 class="slide-title">Query string: otro nombre y <span class="accent">filtros</span></h2>
+      <div class="columns">
+        <div>
+          <p><strong>Otro nombre en la URL</strong></p>
+<pre class="code"><span class="k">public</span> <span class="t">IActionResult</span> Texto(
+    [<span class="t">FromQuery</span>(Name = <span class="s">"q"</span>)]
+    <span class="k">string</span> texto)</pre>
+          <p class="small-note"><code>…?q=perez</code> → <code>texto = "perez"</code></p>
+        </div>
+        <div>
+          <p><strong>Muchos filtros</strong>: una clase que los agrupa</p>
+<pre class="code"><span class="k">public class</span> <span class="t">FiltroPacientes</span>
+{
+    <span class="k">public string</span>? Obra { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public int</span> EdadMin { <span class="k">get</span>; <span class="k">set</span>; }
+}
+
+<span class="k">public</span> <span class="t">IActionResult</span> Filtrar(
+    [<span class="t">FromQuery</span>] <span class="t">FiltroPacientes</span> filtro)</pre>
+          <p class="small-note"><code>…?obra=OSDE&amp;edadMin=18</code> → <code>filtro.Obra</code>, <code>filtro.EdadMin</code></p>
+        </div>
+      </div>
+      <div class="callout">⚠ Acá el <code>[FromQuery]</code> es <strong>obligatorio</strong>: sin él, ASP.NET busca la clase en el body y responde <code>415</code>.</div>
+    </section>
+
+    <!-- 24 · FromBody y fuentes -->
     <section class="slide" data-chapter="Requests" data-topic="¿De dónde vienen los datos?">
       <h2 class="slide-title">¿De dónde vienen los <span class="accent">datos</span>?</h2>
       <p>Los atributos <code>From…</code> indican <strong>de qué parte del request</strong> se toma cada parámetro:</p>
@@ -509,7 +623,7 @@ app.Run();</pre>
       <div class="callout">ASP.NET convierte el JSON del body directo en un objeto <code>Paciente</code>: la abstracción viaja por la red.</div>
     </section>
 
-    <!-- 18 · Inferencia de fuentes -->
+    <!-- 25 · Inferencia de fuentes -->
     <section class="slide" data-chapter="Requests" data-topic="Si no ponés ningún From…">
       <h2 class="slide-title">Si no ponés ningún <span class="accent">From…</span></h2>
       <div class="columns">
@@ -522,7 +636,6 @@ app.Run();</pre>
             <li>Los headers <strong>nunca</strong> se deducen: siempre <code>[FromHeader]</code></li>
           </ul>
           <div class="callout">La plantilla del atributo describe <strong>solo la ruta</strong>. El query string y el body no se declaran ahí: ASP.NET los busca solo.</div>
-          <p class="small-note">⚠ <strong>Ojo en los GET:</strong> una clase sin <code>From…</code> se busca en el body, aunque los datos vengan en la URL, y responde <code>415</code>. Para filtros por URL: <code>[FromQuery] FiltroPacientes filtro</code>.</p>
         </div>
         <div>
 <pre class="code">[<span class="t">HttpPut</span>(<span class="s">"{<span class="hl route">id</span>:int}"</span>)]
@@ -541,7 +654,7 @@ Content-Type: application/json
       </div>
     </section>
 
-    <!-- 19 · Dónde viaja cada dato -->
+    <!-- 26 · Dónde viaja cada dato -->
     <section class="slide" data-chapter="Requests" data-topic="Dónde viaja cada dato">
       <h2 class="slide-title">Dónde viaja <span class="accent">cada dato</span></h2>
       <p>Un mismo request puede traer datos en las cuatro fuentes. Mismo color = mismo dato:</p>
@@ -582,7 +695,7 @@ Content-Type: application/json
       </div>
     </section>
 
-    <!-- 20 · Respuestas -->
+    <!-- 27 · Respuestas -->
     <section class="slide" data-chapter="Responses" data-topic="Devolver respuestas">
       <h2 class="slide-title">Devolver <span class="accent">respuestas</span></h2>
       <div class="columns">
@@ -610,7 +723,7 @@ Content-Type: application/json
       </div>
     </section>
 
-    <!-- 21 · OpenAPI -->
+    <!-- 28 · OpenAPI -->
     <section class="slide" data-chapter="OpenAPI" data-topic="Documentar la API">
       <h2 class="slide-title">Documentar la API: <span class="accent">OpenAPI</span></h2>
       <div class="columns">
@@ -633,11 +746,11 @@ Content-Type: application/json
       </div>
     </section>
 
-    <!-- 22 · Swagger setup -->
-    <section class="slide" data-chapter="OpenAPI" data-topic="Swagger UI en 3 pasos">
+    <!-- 29 · Swagger setup -->
+    <section class="slide" data-chapter="OpenAPI" data-topic="Swagger UI en tres pasos">
       <h2 class="slide-title"><span class="accent">Swagger UI</span> en tres pasos</h2>
       <div class="columns">
-        <div class="card">
+        <div>
 <pre class="code"><span class="c"># 1 · instalar el paquete</span>
 <span class="k">dotnet</span> add package Swashbuckle.AspNetCore</pre>
 <pre class="code"><span class="c">// 2 · registrar el servicio (Program.cs)</span>
@@ -651,21 +764,111 @@ builder.Services.AddSwaggerGen();
 }</pre>
         </div>
         <div>
-          <p>Y para que la documentación se escriba sola, <strong>comentarios XML</strong> sobre las acciones:</p>
-<pre class="code"><span class="c">/// &lt;summary&gt;</span>
-<span class="c">/// Obtiene los estudiantes activos</span>
-<span class="c">/// &lt;/summary&gt;</span>
-<span class="c">/// &lt;param name="id"&gt;ID del estudiante&lt;/param&gt;</span>
-<span class="c">/// &lt;response code="200"&gt;Operación exitosa&lt;/response&gt;</span>
-<span class="c">/// &lt;response code="404"&gt;No encontrado&lt;/response&gt;</span>
-[<span class="t">HttpGet</span>(<span class="s">"{id}"</span>)]
-<span class="k">public</span> <span class="t">IActionResult</span> Get(<span class="k">int</span> id) { … }</pre>
-          <p class="small-note">Mismo código → documentación siempre actualizada + una herramienta para probar los endpoints en vivo.</p>
+          <ul class="bullets">
+            <li><code>UseSwagger()</code> publica el documento: <code>/swagger/v1/swagger.json</code></li>
+            <li><code>UseSwaggerUI()</code> publica la página para probar: <code>/swagger</code></li>
+          </ul>
+          <div class="callout">La plantilla de .NET 10 ya trae <code>AddOpenApi()</code>: genera el documento en <code>/openapi/v1.json</code>, pero <strong>sin página para probar</strong>. Por eso sumamos Swashbuckle.</div>
         </div>
       </div>
     </section>
 
-    <!-- 23 · Cierre -->
+    <!-- 30 · Comentarios XML -->
+    <section class="slide" data-chapter="OpenAPI" data-topic="Documentar con comentarios XML">
+      <h2 class="slide-title">Documentar con <span class="accent">comentarios XML</span></h2>
+      <div class="columns">
+        <div>
+          <p>Los comentarios <code>///</code> sobre cada acción se muestran en Swagger:</p>
+<pre class="code"><span class="c">/// &lt;summary&gt;</span>
+<span class="c">/// Obtiene un paciente por su id</span>
+<span class="c">/// &lt;/summary&gt;</span>
+<span class="c">/// &lt;param name="id"&gt;Id del paciente&lt;/param&gt;</span>
+<span class="c">/// &lt;response code="200"&gt;Operación exitosa&lt;/response&gt;</span>
+<span class="c">/// &lt;response code="404"&gt;No encontrado&lt;/response&gt;</span>
+[<span class="t">HttpGet</span>(<span class="s">"{id:int}"</span>)]
+<span class="k">public</span> <span class="t">IActionResult</span> Obtener(<span class="k">int</span> id) { … }</pre>
+        </div>
+        <div>
+          <p>Pero <strong>no aparecen solos</strong>: hay que activar dos cosas.</p>
+<pre class="code"><span class="c">&lt;!-- a · MiWebAPI.csproj, en &lt;PropertyGroup&gt; --&gt;</span>
+&lt;<span class="t">GenerateDocumentationFile</span>&gt;<span class="k">true</span>&lt;/<span class="t">GenerateDocumentationFile</span>&gt;
+&lt;<span class="t">NoWarn</span>&gt;$(NoWarn);1591&lt;/<span class="t">NoWarn</span>&gt;</pre>
+<pre class="code"><span class="c">// b · Program.cs</span>
+builder.Services.AddSwaggerGen(o =&gt;
+    o.IncludeXmlComments(<span class="t">Assembly</span>.GetExecutingAssembly()));</pre>
+          <p class="small-note"><strong>a</strong> genera el archivo con los comentarios al compilar; <code>1591</code> evita un aviso por cada método sin comentar. <strong>b</strong> le dice a Swagger que lo lea (requiere <code>using System.Reflection;</code>).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 31 · Arrancar en Swagger -->
+    <section class="slide" data-chapter="OpenAPI" data-topic="Arrancar en Swagger">
+      <h2 class="slide-title">Que la API <span class="accent">arranque en Swagger</span></h2>
+      <p>En <code>Properties/launchSettings.json</code>, perfil <code>http</code>:</p>
+      <div class="columns">
+        <div>
+<pre class="code">{
+  <span class="s">"profiles"</span>: {
+    <span class="s">"http"</span>: {
+      <span class="s">"commandName"</span>: <span class="s">"Project"</span>,
+      <span class="hl route"><span class="s">"launchBrowser"</span>: <span class="k">true</span></span>,
+      <span class="hl query"><span class="s">"launchUrl"</span>: <span class="s">"swagger"</span></span>,
+      <span class="s">"applicationUrl"</span>: <span class="s">"http://localhost:5186"</span>,
+      …
+    }
+  }
+}</pre>
+        </div>
+        <div>
+          <ul class="bullets">
+            <li><span class="hl route">launchBrowser</span>: abrir el navegador al iniciar. La plantilla lo trae en <code>false</code></li>
+            <li><span class="hl query">launchUrl</span>: en qué ruta abrirlo</li>
+            <li>El puerto cambia en cada proyecto: está en <code>applicationUrl</code></li>
+          </ul>
+          <div class="callout">Resultado: <code>http://localhost:5186/swagger</code></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 32 · Swagger: con qué comando -->
+    <section class="slide" data-chapter="OpenAPI" data-topic="¿Con qué comando?">
+      <h2 class="slide-title">¿Con qué <span class="accent">comando</span>?</h2>
+      <table class="tbl roomy">
+        <tr><th>Cómo la corrés</th><th>¿Abre Swagger?</th></tr>
+        <tr><td><code>dotnet watch</code></td><td><strong>Sí</strong>, y además recarga la API cada vez que guardás</td></tr>
+        <tr><td>Visual Studio (<code>F5</code>)</td><td><strong>Sí</strong></td></tr>
+        <tr><td><code>dotnet run</code></td><td><strong>No</strong>: ignora <code>launchBrowser</code>. Hay que entrar a mano a <code>/swagger</code></td></tr>
+      </table>
+      <p style="margin-top: 24px">¿Swagger en la raíz del sitio? Se cambia su prefijo en <code>Program.cs</code>:</p>
+<pre class="code">app.UseSwaggerUI(o =&gt; o.RoutePrefix = <span class="k">string</span>.Empty);   <span class="c">// → http://localhost:5186/</span></pre>
+    </section>
+
+    <!-- 33 · Swagger no carga -->
+    <section class="slide" data-chapter="OpenAPI" data-topic="Si Swagger no carga">
+      <h2 class="slide-title">Si Swagger <span class="accent">no carga</span></h2>
+      <div class="columns">
+        <div>
+          <p>Swagger UI muestra:</p>
+          <div class="callout" style="border-left-color: var(--red)"><strong>Failed to load API definition.</strong><br><code>/swagger/v1/swagger.json</code> → <code>500</code></div>
+          <ul class="bullets" style="margin-top: 16px">
+            <li>Casi siempre: un <strong>método público sin atributo de verbo</strong></li>
+            <li>Swagger no sabe qué verbo documentar y falla</li>
+          </ul>
+        </div>
+        <div>
+<pre class="code"><span class="k">public void</span> Ayudante() { … }   <span class="c">// ✗ rompe Swagger</span></pre>
+          <p><strong>Solución</strong>, según qué sea:</p>
+<pre class="code"><span class="c">// era una acción: decile el verbo</span>
+[<span class="t">HttpGet</span>(<span class="s">"ayuda"</span>)]
+<span class="k">public</span> <span class="t">IActionResult</span> Ayudante() { … }
+
+<span class="c">// no era una acción</span>
+<span class="k">private void</span> Ayudante() { … }</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 34 · Cierre -->
     <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
       <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
       <p class="subtitle">Próximo: excepciones y logs — que la API no se caiga, y que cuente qué le pasó.</p>

@@ -263,46 +263,49 @@
       <h2 class="slide-title">Anatomía de un <span class="accent">mensaje HTTP</span></h2>
       <p>El request y la response tienen la <strong>misma forma</strong>: cuatro partes, siempre en este orden.</p>
       <div class="columns">
-        <div class="http-msg">
+        <div class="http-msg lg">
           <div class="msg-title">Request · lo manda el cliente</div>
-          <div class="part" style="--c: var(--accent)"><div class="tag">Línea inicial</div><pre>GET /productos?activos=1 HTTP/1.1</pre></div>
+          <div class="part" style="--c: var(--accent)"><div class="tag">Línea inicial</div><pre>GET /productos HTTP/1.1</pre></div>
           <div class="part" style="--c: var(--yellow)"><div class="tag">Headers</div><pre>Host: api.tienda.com
-Accept: application/json
-User-Agent: Mozilla/5.0</pre></div>
+Accept: application/json</pre></div>
           <div class="part" style="--c: var(--muted)"><div class="tag">Línea vacía</div><pre class="empty">↵</pre></div>
-          <div class="part" style="--c: var(--accent-2)"><div class="tag">Body</div><pre class="empty">(vacío: un GET no manda datos)</pre></div>
+          <div class="part" style="--c: var(--accent-2)"><div class="tag">Body</div><pre class="empty">(vacío en un GET)</pre></div>
         </div>
-        <div class="http-msg">
+        <div class="http-msg lg">
           <div class="msg-title">Response · la devuelve el servidor</div>
           <div class="part" style="--c: var(--accent)"><div class="tag">Línea de estado</div><pre>HTTP/1.1 200 OK</pre></div>
           <div class="part" style="--c: var(--yellow)"><div class="tag">Headers</div><pre>Content-Type: application/json
-Content-Length: 29
-Date: Wed, 16 Sep 2026 18:22:56 GMT</pre></div>
+Content-Length: 29</pre></div>
           <div class="part" style="--c: var(--muted)"><div class="tag">Línea vacía</div><pre class="empty">↵</pre></div>
           <div class="part" style="--c: var(--accent-2)"><div class="tag">Body</div><pre>[{"id":1,"nombre":"Teclado"}]</pre></div>
         </div>
       </div>
-      <div class="url-defs four" style="margin-top: 14px">
-        <div class="def" style="--c: var(--accent)">
-          <h4>Línea inicial</h4>
-          <p>En el request: <strong>verbo + ruta + versión</strong>. En la response: <strong>versión + código + frase</strong> (<code>200 OK</code>).</p>
+    </section>
+
+    <!-- 11 · Las cuatro partes -->
+    <section class="slide" data-chapter="HTTP" data-topic="Las cuatro partes">
+      <h2 class="slide-title">Las <span class="accent">cuatro partes</span></h2>
+      <div class="columns">
+        <div class="card" style="border-left: 4px solid var(--accent)">
+          <h3>Línea inicial</h3>
+          <p>En el request: <strong>verbo + ruta + versión</strong>.<br>En la response: <strong>versión + código + frase</strong> (<code>200 OK</code>).</p>
         </div>
-        <div class="def" style="--c: var(--yellow)">
-          <h4>Headers (cabeceras)</h4>
-          <p><strong>Metadatos</strong> sobre el mensaje, uno por línea como <code>Nombre: valor</code>: formato, tamaño, quién lo manda, credenciales…</p>
+        <div class="card" style="border-left: 4px solid var(--yellow)">
+          <h3 style="color: var(--yellow)">Headers (cabeceras)</h3>
+          <p><strong>Datos sobre el mensaje</strong>, uno por línea: <code>Nombre: valor</code>. Formato, tamaño, credenciales…</p>
         </div>
-        <div class="def" style="--c: var(--muted)">
-          <h4>Línea vacía</h4>
+        <div class="card" style="border-left: 4px solid var(--muted)">
+          <h3 style="color: var(--muted)">Línea vacía</h3>
           <p><strong>Obligatoria.</strong> Marca dónde terminan los headers y empieza el body.</p>
         </div>
-        <div class="def" style="--c: var(--accent-2)">
-          <h4>Body (cuerpo)</h4>
-          <p>Los <strong>datos en sí</strong>: JSON, HTML, una imagen… Es opcional, y el header <code>Content-Type</code> dice qué formato tiene.</p>
+        <div class="card" style="border-left: 4px solid var(--accent-2)">
+          <h3 style="color: var(--accent-2)">Body (cuerpo)</h3>
+          <p>Los <strong>datos en sí</strong>: JSON, HTML, una imagen… Es opcional; <code>Content-Type</code> dice su formato.</p>
         </div>
       </div>
     </section>
 
-    <!-- 11 · Request HTTP -->
+    <!-- 12 · Request HTTP -->
     <section class="slide" data-chapter="HTTP" data-topic="El Request HTTP">
       <h2 class="slide-title">Estructura de un <span class="accent">Request</span></h2>
       <div class="columns">
@@ -334,7 +337,7 @@ Date: Wed, 16 Sep 2026 18:22:56 GMT</pre></div>
       </div>
     </section>
 
-    <!-- 12 · Verbos -->
+    <!-- 13 · Verbos -->
     <section class="slide" data-chapter="HTTP" data-topic="Verbos HTTP">
       <h2 class="slide-title">Los <span class="accent">verbos</span> HTTP</h2>
       <table class="tbl">
@@ -349,7 +352,7 @@ Date: Wed, 16 Sep 2026 18:22:56 GMT</pre></div>
       <div class="callout">La gracia de REST: <strong>el verbo dice qué hacés, la URI dice sobre qué</strong>. <code>DELETE /productos/5</code> se lee solo.</div>
     </section>
 
-    <!-- 13 · Response -->
+    <!-- 14 · Response -->
     <section class="slide" data-chapter="HTTP" data-topic="El Response HTTP">
       <h2 class="slide-title">Estructura de un <span class="accent">Response</span></h2>
       <div class="columns">
@@ -375,7 +378,7 @@ Date: Wed, 16 Sep 2026 18:22:56 GMT</pre></div>
       </div>
     </section>
 
-    <!-- 14 · Headers comunes -->
+    <!-- 15 · Headers comunes -->
     <section class="slide" data-chapter="HTTP" data-topic="Headers más usados">
       <h2 class="slide-title">Los <span class="accent">headers</span> más usados</h2>
       <table class="tbl roomy">
@@ -392,7 +395,7 @@ Date: Wed, 16 Sep 2026 18:22:56 GMT</pre></div>
       <div class="callout">Los nombres de los headers <strong>no distinguen mayúsculas</strong>. Una aplicación puede inventar los suyos: por costumbre suelen empezar con <code>X-</code>, como <code>X-Api-Key</code>.</div>
     </section>
 
-    <!-- 15 · Status codes -->
+    <!-- 16 · Status codes -->
     <section class="slide" data-chapter="HTTP" data-topic="Códigos de estado">
       <h2 class="slide-title">Códigos de <span class="accent">estado</span></h2>
       <div class="columns four">
@@ -412,7 +415,7 @@ Date: Wed, 16 Sep 2026 18:22:56 GMT</pre></div>
       </table>
     </section>
 
-    <!-- 16 · Cierre -->
+    <!-- 17 · Cierre -->
     <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
       <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
       <p class="subtitle">Próximo: Tema 06 — construimos nuestra propia API REST con ASP.NET Core.</p>

@@ -140,23 +140,7 @@
       </div>
     </section>
 
-    <!-- 6 · Middleware -->
-    <section class="slide" data-chapter="Pipeline" data-topic="Middleware">
-      <h2 class="slide-title"><span class="accent">Middleware</span></h2>
-      <ul class="bullets">
-        <li>Es el mecanismo que permite <strong>procesar las solicitudes HTTP de manera modular</strong>: cada pieza hace una tarea y pasa el control a la siguiente</li>
-        <li>Se organizan en una cadena o <strong>“pipeline”</strong>: la solicitud los atraviesa <strong>en orden</strong>, y la respuesta vuelve por el mismo camino</li>
-        <li>Cada middleware puede <strong>procesar la solicitud, tomar decisiones o modificar la respuesta</strong> — incluso cortar el viaje (ej.: si no estás autenticado, nunca llegás al controlador)</li>
-      </ul>
-      <div class="columns four">
-        <div class="card"><h3>Autenticación</h3><p class="small-note">¿quién sos?</p></div>
-        <div class="card"><h3>Autorización</h3><p class="small-note">¿podés hacer esto?</p></div>
-        <div class="card"><h3>Ruteo</h3><p class="small-note">¿a qué controlador va?</p></div>
-        <div class="card"><h3>Logging · compresión</h3><p class="small-note">registro y encabezados</p></div>
-      </div>
-    </section>
-
-    <!-- 7 · Program.cs -->
+    <!-- 6 · Program.cs -->
     <section class="slide" data-chapter="Pipeline" data-topic="Program.cs">
       <h2 class="slide-title"><span class="accent">Program.cs</span>: armar la aplicación</h2>
       <div class="columns">
@@ -190,6 +174,22 @@ app.Run();</pre>
       </div>
     </section>
 
+    <!-- 7 · Middleware -->
+    <section class="slide" data-chapter="Pipeline" data-topic="Middleware">
+      <h2 class="slide-title"><span class="accent">Middleware</span></h2>
+      <ul class="bullets">
+        <li>Es el mecanismo que permite <strong>procesar las solicitudes HTTP de manera modular</strong>: cada pieza hace una tarea y pasa el control a la siguiente</li>
+        <li>Se organizan en una cadena o <strong>“pipeline”</strong>: la solicitud los atraviesa <strong>en orden</strong>, y la respuesta vuelve por el mismo camino</li>
+        <li>Cada middleware puede <strong>procesar la solicitud, tomar decisiones o modificar la respuesta</strong> — incluso cortar el viaje (ej.: si no estás autenticado, nunca llegás al controlador)</li>
+      </ul>
+      <div class="columns four">
+        <div class="card"><h3>Autenticación</h3><p class="small-note">¿quién sos?</p></div>
+        <div class="card"><h3>Autorización</h3><p class="small-note">¿podés hacer esto?</p></div>
+        <div class="card"><h3>Ruteo</h3><p class="small-note">¿a qué controlador va?</p></div>
+        <div class="card"><h3>Logging · compresión</h3><p class="small-note">registro y encabezados</p></div>
+      </div>
+    </section>
+
     <!-- 8 · Controladores -->
     <section class="slide" data-chapter="Controladores" data-topic="¿Qué es un controlador?">
       <h2 class="slide-title">¿Qué es un <span class="accent">controlador</span>?</h2>
@@ -213,7 +213,47 @@ app.Run();</pre>
       </div>
     </section>
 
-    <!-- 9 · Atributos -->
+    <!-- 9 · Método de acción -->
+    <section class="slide" data-chapter="Controladores" data-topic="Métodos de acción">
+      <h2 class="slide-title">Métodos de <span class="accent">acción</span> <span style="color:var(--muted);font-weight:600;font-size:0.6em">(action methods)</span></h2>
+      <div class="columns">
+        <div>
+          <ul class="bullets" style="font-size:18px; line-height:1.45">
+            <li>Son los <strong>métodos públicos</strong> del controlador: cada uno atiende un tipo de request</li>
+            <li>Reciben los datos del request como <strong>parámetros</strong></li>
+            <li>Devuelven la response: con <code>Ok(objeto)</code> se arma un <code>200 OK</code> con el objeto convertido a JSON</li>
+          </ul>
+<pre class="code">[<span class="t">ApiController</span>]
+[<span class="t">Route</span>(<span class="s">"[controller]"</span>)]
+<span class="k">public class</span> <span class="t">SaludoController</span> : <span class="t">ControllerBase</span>
+{
+    [<span class="t">HttpGet</span>]                     <span class="c">// ← atiende GET</span>
+    <span class="k">public</span> <span class="t">IActionResult</span> Saludar()  <span class="c">// ← método de acción</span>
+    {
+        <span class="k">return</span> Ok(<span class="k">new</span> { mensaje = <span class="s">"Hola, mundo"</span> });
+    }
+}</pre>
+          <p class="small-note">Los corchetes (<code>[ApiController]</code>, <code>[HttpGet]</code>…) son <strong>atributos</strong>: los vemos en la próxima slide.</p>
+        </div>
+        <div>
+          <div class="http-msg">
+            <div class="msg-title">Request</div>
+            <div class="part" style="--c: var(--accent)"><div class="tag">Línea inicial</div><pre>GET /Saludo HTTP/1.1</pre></div>
+            <div class="part" style="--c: var(--yellow)"><div class="tag">Headers</div><pre>Host: localhost:5001</pre></div>
+          </div>
+          <p style="text-align:center; margin: 6px 0; color: var(--muted)">↓ <code>Saludar()</code> se ejecuta ↓</p>
+          <div class="http-msg">
+            <div class="msg-title">Response</div>
+            <div class="part" style="--c: var(--accent)"><div class="tag">Línea de estado</div><pre>HTTP/1.1 <strong>200 OK</strong></pre></div>
+            <div class="part" style="--c: var(--yellow)"><div class="tag">Headers</div><pre>Content-Type: application/json; charset=utf-8</pre></div>
+            <div class="part" style="--c: var(--accent-2)"><div class="tag">Body</div><pre>{"mensaje":"Hola, mundo"}</pre></div>
+          </div>
+          <div class="callout">⚠ <strong>Todo</strong> método público es una acción, aunque no tenga atributos: queda publicado y responde a cualquier verbo. Los métodos auxiliares van <code>private</code>, o se marcan con <code>[NonAction]</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 · Atributos -->
     <section class="slide" data-chapter="Controladores" data-topic="Atributos en C#">
       <h2 class="slide-title"><span class="accent">Atributos</span> en C#</h2>
       <div class="columns">
@@ -241,7 +281,7 @@ app.Run();</pre>
       </div>
     </section>
 
-    <!-- 10 · Ruteo -->
+    <!-- 11 · Ruteo -->
     <section class="slide" data-chapter="Controladores" data-topic="Ruteo">
       <h2 class="slide-title"><span class="accent">Ruteo</span>: de la URL a la acción</h2>
       <p>El middleware de <em>routing</em> hace coincidir la URL entrante con un controlador y una acción. Dos formas de controlarlo:</p>
@@ -262,7 +302,7 @@ app.Run();</pre>
       </div>
     </section>
 
-    <!-- 11 · Controlador ejemplo -->
+    <!-- 12 · Controlador ejemplo -->
     <section class="slide" data-chapter="Controladores" data-topic="Un controlador completo">
       <h2 class="slide-title">Un controlador, <span class="accent">anotado</span></h2>
       <div class="columns">
@@ -292,7 +332,7 @@ app.Run();</pre>
       </div>
     </section>
 
-    <!-- 12 · Atributos por verbo -->
+    <!-- 13 · Atributos por verbo -->
     <section class="slide" data-chapter="Requests" data-topic="Un atributo por verbo">
       <h2 class="slide-title">Un <span class="accent">atributo</span> por verbo</h2>
       <p>Cada acción declara qué verbo atiende. El texto entre paréntesis es una <strong>plantilla de ruta</strong> que se suma a la del controlador.</p>
@@ -308,7 +348,7 @@ app.Run();</pre>
       <div class="callout"><code>[Route("api/[controller]")]</code> + <code>[HttpGet("{id}")]</code> = <code>GET api/pacientes/5</code>. Sin texto (<code>[HttpGet]</code>), la acción responde en la ruta del controlador tal cual.</div>
     </section>
 
-    <!-- 13 · CRUD completo -->
+    <!-- 14 · CRUD completo -->
     <section class="slide" data-chapter="Requests" data-topic="Un controlador CRUD">
       <h2 class="slide-title">Un controlador <span class="accent">CRUD</span></h2>
       <div class="columns wide-left">
@@ -356,12 +396,16 @@ app.Run();</pre>
       </div>
     </section>
 
-    <!-- 14 · Parámetros de ruta -->
+    <!-- 15 · Parámetros de ruta -->
     <section class="slide" data-chapter="Requests" data-topic="Parámetros en la ruta">
       <h2 class="slide-title">Parámetros en la <span class="accent">ruta</span></h2>
+      <div class="url-split">
+        <div class="seg route"><code>/api/pacientes/4</code><span>ruta · dice <strong>cuál</strong> recurso</span></div>
+        <div class="seg query dim"><code>?activo=true&amp;pagina=2</code><span>query string · dice <strong>cómo</strong> lo querés</span></div>
+      </div>
       <div class="columns wide-left">
         <div>
-<pre class="code sm"><span class="c">// obligatorio: el nombre entre llaves = el nombre del parámetro</span>
+<pre class="code sm" style="margin-top:0"><span class="c">// obligatorio: el nombre entre llaves = el nombre del parámetro</span>
 [<span class="t">HttpGet</span>(<span class="s">"{id}"</span>)]
 <span class="k">public</span> <span class="t">IActionResult</span> Obtener(<span class="k">int</span> id)
 <span class="c">// api/pacientes/5 → id = 5</span>
@@ -402,12 +446,16 @@ app.Run();</pre>
       </div>
     </section>
 
-    <!-- 15 · Parámetros de query string -->
+    <!-- 16 · Parámetros de query string -->
     <section class="slide" data-chapter="Requests" data-topic="Parámetros por query string">
       <h2 class="slide-title">Parámetros por <span class="accent">query string</span></h2>
+      <div class="url-split">
+        <div class="seg route dim"><code>/api/pacientes/4</code><span>ruta · dice <strong>cuál</strong> recurso</span></div>
+        <div class="seg query"><code>?activo=true&amp;pagina=2</code><span>query string · dice <strong>cómo</strong> lo querés</span></div>
+      </div>
       <div class="columns wide-left">
         <div>
-<pre class="code sm"><span class="c">// simples: se vinculan por nombre, sin importar el orden</span>
+<pre class="code sm" style="margin-top:0"><span class="c">// simples: se vinculan por nombre, sin importar el orden</span>
 [<span class="t">HttpGet</span>(<span class="s">"buscar"</span>)]
 <span class="k">public</span> <span class="t">IActionResult</span> Buscar(<span class="k">string</span> nombre, <span class="k">int</span> edad)
 <span class="c">// api/pacientes/buscar?edad=3&amp;nombre=Carlos</span>
@@ -446,7 +494,7 @@ app.Run();</pre>
       </div>
     </section>
 
-    <!-- 16 · FromBody y fuentes -->
+    <!-- 17 · FromBody y fuentes -->
     <section class="slide" data-chapter="Requests" data-topic="¿De dónde vienen los datos?">
       <h2 class="slide-title">¿De dónde vienen los <span class="accent">datos</span>?</h2>
       <p>Los atributos <code>From…</code> indican <strong>de qué parte del request</strong> se toma cada parámetro:</p>
@@ -461,7 +509,7 @@ app.Run();</pre>
       <div class="callout">ASP.NET convierte el JSON del body directo en un objeto <code>Paciente</code>: la abstracción viaja por la red.</div>
     </section>
 
-    <!-- 17 · Inferencia de fuentes -->
+    <!-- 18 · Inferencia de fuentes -->
     <section class="slide" data-chapter="Requests" data-topic="Si no ponés ningún From…">
       <h2 class="slide-title">Si no ponés ningún <span class="accent">From…</span></h2>
       <div class="columns">
@@ -474,6 +522,7 @@ app.Run();</pre>
             <li>Los headers <strong>nunca</strong> se deducen: siempre <code>[FromHeader]</code></li>
           </ul>
           <div class="callout">La plantilla del atributo describe <strong>solo la ruta</strong>. El query string y el body no se declaran ahí: ASP.NET los busca solo.</div>
+          <p class="small-note">⚠ <strong>Ojo en los GET:</strong> una clase sin <code>From…</code> se busca en el body, aunque los datos vengan en la URL, y responde <code>415</code>. Para filtros por URL: <code>[FromQuery] FiltroPacientes filtro</code>.</p>
         </div>
         <div>
 <pre class="code">[<span class="t">HttpPut</span>(<span class="s">"{<span class="hl route">id</span>:int}"</span>)]
@@ -492,7 +541,7 @@ Content-Type: application/json
       </div>
     </section>
 
-    <!-- 18 · Dónde viaja cada dato -->
+    <!-- 19 · Dónde viaja cada dato -->
     <section class="slide" data-chapter="Requests" data-topic="Dónde viaja cada dato">
       <h2 class="slide-title">Dónde viaja <span class="accent">cada dato</span></h2>
       <p>Un mismo request puede traer datos en las cuatro fuentes. Mismo color = mismo dato:</p>
@@ -533,7 +582,7 @@ Content-Type: application/json
       </div>
     </section>
 
-    <!-- 19 · Respuestas -->
+    <!-- 20 · Respuestas -->
     <section class="slide" data-chapter="Responses" data-topic="Devolver respuestas">
       <h2 class="slide-title">Devolver <span class="accent">respuestas</span></h2>
       <div class="columns">
@@ -561,7 +610,7 @@ Content-Type: application/json
       </div>
     </section>
 
-    <!-- 20 · OpenAPI -->
+    <!-- 21 · OpenAPI -->
     <section class="slide" data-chapter="OpenAPI" data-topic="Documentar la API">
       <h2 class="slide-title">Documentar la API: <span class="accent">OpenAPI</span></h2>
       <div class="columns">
@@ -584,7 +633,7 @@ Content-Type: application/json
       </div>
     </section>
 
-    <!-- 21 · Swagger setup -->
+    <!-- 22 · Swagger setup -->
     <section class="slide" data-chapter="OpenAPI" data-topic="Swagger UI en 3 pasos">
       <h2 class="slide-title"><span class="accent">Swagger UI</span> en tres pasos</h2>
       <div class="columns">
@@ -616,7 +665,7 @@ builder.Services.AddSwaggerGen();
       </div>
     </section>
 
-    <!-- 22 · Cierre -->
+    <!-- 23 · Cierre -->
     <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
       <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
       <p class="subtitle">Próximo: excepciones y logs — que la API no se caiga, y que cuente qué le pasó.</p>

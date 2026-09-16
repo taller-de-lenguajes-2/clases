@@ -121,7 +121,7 @@ pre.code.sm { font-size: 13px; line-height: 1.4; padding: 12px 16px; }
   background: var(--panel-2); border-bottom: 1px solid var(--border);
 }
 .http-msg .part {
-  display: grid; grid-template-columns: 128px 1fr;
+  display: grid; grid-template-columns: 136px 1fr;
   border-top: 1px dashed var(--border);
 }
 .http-msg .msg-title + .part { border-top: none; }
@@ -146,3 +146,19 @@ pre.code.sm { font-size: 13px; line-height: 1.4; padding: 12px 16px; }
 .hl.header { background: color-mix(in srgb, var(--yellow) 28%, transparent); }
 .hl.body   { background: color-mix(in srgb, var(--accent-2) 20%, transparent); }
 .tbl.roomy code { white-space: nowrap; }
+
+/* --- URL partida en ruta | query string, con la parte que se explica resaltada --- */
+.url-split { display: flex; justify-content: center; margin: -8px 0 8px; }
+.url-split .seg { display: flex; flex-direction: column; align-items: center; }
+.url-split .seg code {
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  font-size: 18px; font-weight: 600; padding: 2px 6px; color: var(--text);
+}
+.url-split .seg > span {
+  align-self: stretch; text-align: center; margin-top: 3px; padding-top: 3px;
+  font-size: 13px; color: var(--muted); border-top: 3px solid var(--c);
+}
+.url-split .seg.route { --c: var(--accent); }
+.url-split .seg.query { --c: var(--green); }
+.url-split .seg code { background: color-mix(in srgb, var(--c) 18%, transparent); }
+.url-split .seg.dim { opacity: 0.4; }

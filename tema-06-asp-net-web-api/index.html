@@ -46,9 +46,10 @@
           <p>Todo desde la terminal, con el SDK de .NET:</p>
           <ul class="bullets">
             <li><code>dotnet --list-sdks</code> — qué SDKs tengo instalados</li>
-            <li><code>dotnet new --list</code> — qué plantillas de proyecto existen</li>
-            <li><code>dotnet new webapi --use-controllers</code> — crea la Web API basada en controladores</li>
-            <li><code>code -r MiWebAPI</code> — abre el proyecto en VS Code</li>
+            <li><code>dotnet new list</code> — qué plantillas de proyecto existen</li>
+            <li><code>dotnet new webapi --use-controllers -o MiWebAPI</code> — crea la Web API basada en controladores, en la carpeta <code>MiWebAPI</code></li>
+            <li><code>cd MiWebAPI</code> — entrar a la carpeta: <strong>los comandos <code>dotnet</code> buscan el proyecto en la carpeta actual</strong></li>
+            <li><code>code .</code> — abre el proyecto en VS Code</li>
           </ul>
         </div>
         <div class="card">
@@ -58,10 +59,11 @@
 <span class="c"># crear la Web API con controladores</span>
 <span class="k">dotnet</span> new webapi --use-controllers -o MiWebAPI
 
-<span class="c"># abrirla en VS Code</span>
-<span class="k">code</span> -r MiWebAPI
+<span class="c"># entrar a la carpeta y abrirla en VS Code</span>
+<span class="k">cd</span> MiWebAPI
+<span class="k">code</span> .
 
-<span class="c"># correrla</span>
+<span class="c"># correrla (desde adentro de MiWebAPI)</span>
 <span class="k">dotnet</span> run</pre>
         </div>
       </div>

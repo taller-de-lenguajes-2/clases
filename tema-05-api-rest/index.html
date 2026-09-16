@@ -196,32 +196,66 @@
       <h2 class="slide-title">Anatomía de una <span class="accent">URL</span></h2>
       <p>La <strong>URI</strong> identifica el recurso; la <strong>URL</strong> además dice dónde está y cómo acceder:</p>
       <div class="diagram">
-        <svg viewBox="0 0 1080 240" width="1040" role="img" aria-label="Partes de una URL">
+        <!-- cada segmento usa textLength = caracteres × 16 para que los subrayados calcen sin depender de la fuente -->
+        <svg viewBox="0 0 1020 136" width="1020" role="img" aria-label="Partes de una URL: protocolo, subdominio, dominio, puerto, ruta y query string">
+          <g stroke="var(--muted)" stroke-width="2" fill="none">
+            <path d="M 148 48 V 40 H 404 V 48"/>
+          </g>
+          <text x="276" y="30" text-anchor="middle" fill="var(--muted)" font-size="15" font-weight="600">host</text>
           <g font-size="26" font-weight="600" class="mono">
-            <text x="30" y="90" fill="var(--accent)">https://</text>
-            <text x="152" y="90" fill="var(--text)">www.</text>
-            <text x="225" y="90" fill="var(--text)">servicio.com</text>
-            <text x="415" y="90" fill="var(--yellow)">:80</text>
-            <text x="470" y="90" fill="var(--accent-2)">/productos/electronicos</text>
-            <text x="835" y="90" fill="var(--green)">?Activos=1</text>
+            <text x="20"  y="82" textLength="128" lengthAdjust="spacingAndGlyphs" fill="var(--accent)">https://</text>
+            <text x="148" y="82" textLength="48" lengthAdjust="spacingAndGlyphs" fill="var(--red)">www</text>
+            <text x="196" y="82" textLength="16" lengthAdjust="spacingAndGlyphs" fill="var(--muted)">.</text>
+            <text x="212" y="82" textLength="192" lengthAdjust="spacingAndGlyphs" fill="var(--text)">servicio.com</text>
+            <text x="404" y="82" textLength="64" lengthAdjust="spacingAndGlyphs" fill="var(--yellow)">:443</text>
+            <text x="468" y="82" textLength="368" lengthAdjust="spacingAndGlyphs" fill="var(--accent-2)">/productos/electronicos</text>
+            <text x="836" y="82" textLength="160" lengthAdjust="spacingAndGlyphs" fill="var(--green)">?activos=1</text>
           </g>
           <g stroke-width="3">
-            <line x1="30" y1="105" x2="140" y2="105" stroke="var(--accent)"/>
-            <line x1="152" y1="105" x2="405" y2="105" stroke="var(--text)"/>
-            <line x1="415" y1="105" x2="458" y2="105" stroke="var(--yellow)"/>
-            <line x1="470" y1="105" x2="822" y2="105" stroke="var(--accent-2)"/>
-            <line x1="835" y1="105" x2="1000" y2="105" stroke="var(--green)"/>
+            <line x1="22"  y1="96" x2="146" y2="96" stroke="var(--accent)"/>
+            <line x1="150" y1="96" x2="194" y2="96" stroke="var(--red)"/>
+            <line x1="214" y1="96" x2="402" y2="96" stroke="var(--text)"/>
+            <line x1="406" y1="96" x2="466" y2="96" stroke="var(--yellow)"/>
+            <line x1="470" y1="96" x2="834" y2="96" stroke="var(--accent-2)"/>
+            <line x1="838" y1="96" x2="994" y2="96" stroke="var(--green)"/>
           </g>
-          <g font-size="16" text-anchor="middle">
-            <text x="85" y="140" fill="var(--accent)" font-weight="600">protocolo</text>
-            <text x="280" y="140" fill="var(--text)" font-weight="600">host (subdominio + dominio)</text>
-            <text x="437" y="170" fill="var(--yellow)" font-weight="600">puerto</text>
-            <text x="646" y="140" fill="var(--accent-2)" font-weight="600">recurso (URI)</text>
-            <text x="917" y="140" fill="var(--green)" font-weight="600">query string</text>
+          <g font-size="16" font-weight="600" text-anchor="middle">
+            <text x="84"  y="124" fill="var(--accent)">protocolo</text>
+            <text x="172" y="124" fill="var(--red)">subdominio</text>
+            <text x="308" y="124" fill="var(--text)">dominio</text>
+            <text x="436" y="124" fill="var(--yellow)">puerto</text>
+            <text x="652" y="124" fill="var(--accent-2)">ruta (path)</text>
+            <text x="916" y="124" fill="var(--green)">query string</text>
           </g>
-          <text x="540" y="215" text-anchor="middle" fill="var(--muted)" font-size="15">query string: pares <tspan class="mono">nombre=valor</tspan> que empiezan con <tspan class="mono">?</tspan> y se concatenan con <tspan class="mono">&amp;</tspan> → <tspan class="mono">?edad=3&amp;nombre=Carlos</tspan></text>
         </svg>
       </div>
+      <div class="url-defs">
+        <div class="def" style="--c: var(--accent)">
+          <h4>Protocolo <code>https://</code></h4>
+          <p>Las reglas con que se hablan cliente y servidor. <code>https</code> es HTTP <strong>cifrado</strong>; <code>http</code> viaja en claro.</p>
+        </div>
+        <div class="def" style="--c: var(--red)">
+          <h4>Subdominio <code>www</code></h4>
+          <p>Una subdivisión <strong>opcional</strong> que define el dueño del dominio: <code>api.</code>, <code>mail.</code>, <code>campus.</code>…</p>
+        </div>
+        <div class="def" style="--c: var(--text)">
+          <h4>Dominio <code>servicio.com</code></h4>
+          <p>El <strong>nombre registrado</strong> del sitio; el DNS lo traduce a una IP. Termina en la extensión: <code>.com</code>, <code>.ar</code>, <code>.com.ar</code>.</p>
+        </div>
+        <div class="def" style="--c: var(--yellow)">
+          <h4>Puerto <code>:443</code></h4>
+          <p>La “puerta” del servidor donde escucha el servicio. Si se omite, se usa la de siempre: <strong>80</strong> para http, <strong>443</strong> para https.</p>
+        </div>
+        <div class="def" style="--c: var(--accent-2)">
+          <h4>Ruta <code>/productos/…</code></h4>
+          <p>Identifica el <strong>recurso</strong> dentro del servidor, como carpetas. Es la parte que en REST nombra lo que pedimos.</p>
+        </div>
+        <div class="def" style="--c: var(--green)">
+          <h4>Query string <code>?activos=1</code></h4>
+          <p>Parámetros <strong>opcionales</strong> <code>nombre=valor</code>: empieza con <code>?</code> y se encadenan con <code>&amp;</code> → <code>?edad=3&amp;nombre=Carlos</code></p>
+        </div>
+      </div>
+      <p class="small-note">El <strong>host</strong> es subdominio + dominio: le dice a la red <em>a qué máquina</em> ir; el puerto, <em>a qué programa</em> dentro de ella.</p>
     </section>
 
     <!-- 10 · Request HTTP -->

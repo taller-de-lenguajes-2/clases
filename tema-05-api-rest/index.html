@@ -258,7 +258,51 @@
       <p class="small-note">El <strong>host</strong> es subdominio + dominio: le dice a la red <em>a qué máquina</em> ir; el puerto, <em>a qué programa</em> dentro de ella.</p>
     </section>
 
-    <!-- 10 · Request HTTP -->
+    <!-- 10 · Anatomía de un mensaje HTTP -->
+    <section class="slide" data-chapter="HTTP" data-topic="Anatomía de un mensaje HTTP">
+      <h2 class="slide-title">Anatomía de un <span class="accent">mensaje HTTP</span></h2>
+      <p>El request y la response tienen la <strong>misma forma</strong>: cuatro partes, siempre en este orden.</p>
+      <div class="columns">
+        <div class="http-msg">
+          <div class="msg-title">Request · lo manda el cliente</div>
+          <div class="part" style="--c: var(--accent)"><div class="tag">Línea inicial</div><pre>GET /productos?activos=1 HTTP/1.1</pre></div>
+          <div class="part" style="--c: var(--yellow)"><div class="tag">Headers</div><pre>Host: api.tienda.com
+Accept: application/json
+User-Agent: Mozilla/5.0</pre></div>
+          <div class="part" style="--c: var(--muted)"><div class="tag">Línea vacía</div><pre class="empty">↵</pre></div>
+          <div class="part" style="--c: var(--accent-2)"><div class="tag">Body</div><pre class="empty">(vacío: un GET no manda datos)</pre></div>
+        </div>
+        <div class="http-msg">
+          <div class="msg-title">Response · la devuelve el servidor</div>
+          <div class="part" style="--c: var(--accent)"><div class="tag">Línea de estado</div><pre>HTTP/1.1 200 OK</pre></div>
+          <div class="part" style="--c: var(--yellow)"><div class="tag">Headers</div><pre>Content-Type: application/json
+Content-Length: 29
+Date: Wed, 16 Sep 2026 18:22:56 GMT</pre></div>
+          <div class="part" style="--c: var(--muted)"><div class="tag">Línea vacía</div><pre class="empty">↵</pre></div>
+          <div class="part" style="--c: var(--accent-2)"><div class="tag">Body</div><pre>[{"id":1,"nombre":"Teclado"}]</pre></div>
+        </div>
+      </div>
+      <div class="url-defs four" style="margin-top: 14px">
+        <div class="def" style="--c: var(--accent)">
+          <h4>Línea inicial</h4>
+          <p>En el request: <strong>verbo + ruta + versión</strong>. En la response: <strong>versión + código + frase</strong> (<code>200 OK</code>).</p>
+        </div>
+        <div class="def" style="--c: var(--yellow)">
+          <h4>Headers (cabeceras)</h4>
+          <p><strong>Metadatos</strong> sobre el mensaje, uno por línea como <code>Nombre: valor</code>: formato, tamaño, quién lo manda, credenciales…</p>
+        </div>
+        <div class="def" style="--c: var(--muted)">
+          <h4>Línea vacía</h4>
+          <p><strong>Obligatoria.</strong> Marca dónde terminan los headers y empieza el body.</p>
+        </div>
+        <div class="def" style="--c: var(--accent-2)">
+          <h4>Body (cuerpo)</h4>
+          <p>Los <strong>datos en sí</strong>: JSON, HTML, una imagen… Es opcional, y el header <code>Content-Type</code> dice qué formato tiene.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · Request HTTP -->
     <section class="slide" data-chapter="HTTP" data-topic="El Request HTTP">
       <h2 class="slide-title">Estructura de un <span class="accent">Request</span></h2>
       <div class="columns">
@@ -290,21 +334,22 @@
       </div>
     </section>
 
-    <!-- 11 · Verbos -->
+    <!-- 12 · Verbos -->
     <section class="slide" data-chapter="HTTP" data-topic="Verbos HTTP">
       <h2 class="slide-title">Los <span class="accent">verbos</span> HTTP</h2>
       <table class="tbl">
         <tr><th>Verbo</th><th>Para qué se usa</th><th>¿Datos visibles en la URL?</th></tr>
         <tr><td><code>GET</code></td><td>Solicitar un recurso — el más común</td><td>Sí, en la URL y el query string</td></tr>
         <tr><td><code>POST</code></td><td>Enviar datos para crear — típico de formularios</td><td>No, viajan en el body</td></tr>
-        <tr><td><code>PUT</code></td><td>Actualizar contenidos (también puede crearlos)</td><td>No</td></tr>
+        <tr><td><code>PUT</code></td><td>Reemplazar el recurso completo (también puede crearlo)</td><td>No, viajan en el body</td></tr>
+        <tr><td><code>PATCH</code></td><td>Modificar <strong>una parte</strong> del recurso</td><td>No, viajan en el body</td></tr>
         <tr><td><code>DELETE</code></td><td>Eliminar el recurso identificado en la URI</td><td>—</td></tr>
         <tr><td><code>HEAD</code></td><td>Como GET pero sin el contenido: solo headers y código</td><td>—</td></tr>
       </table>
       <div class="callout">La gracia de REST: <strong>el verbo dice qué hacés, la URI dice sobre qué</strong>. <code>DELETE /productos/5</code> se lee solo.</div>
     </section>
 
-    <!-- 12 · Response -->
+    <!-- 13 · Response -->
     <section class="slide" data-chapter="HTTP" data-topic="El Response HTTP">
       <h2 class="slide-title">Estructura de un <span class="accent">Response</span></h2>
       <div class="columns">
@@ -330,7 +375,24 @@
       </div>
     </section>
 
-    <!-- 13 · Status codes -->
+    <!-- 14 · Headers comunes -->
+    <section class="slide" data-chapter="HTTP" data-topic="Headers más usados">
+      <h2 class="slide-title">Los <span class="accent">headers</span> más usados</h2>
+      <table class="tbl roomy">
+        <tr><th>Header</th><th>Viaja en</th><th>Para qué sirve</th><th>Ejemplo</th></tr>
+        <tr><td><code>Host</code></td><td>Request</td><td>A qué sitio va: un mismo servidor puede atender varios dominios</td><td><code>Host: api.tienda.com</code></td></tr>
+        <tr><td><code>Accept</code></td><td>Request</td><td>En qué formato <strong>quiere</strong> el cliente la respuesta</td><td><code>Accept: application/json</code></td></tr>
+        <tr><td><code>Content-Type</code></td><td>Los dos</td><td>En qué formato <strong>viene</strong> el body de este mensaje</td><td><code>Content-Type: application/json</code></td></tr>
+        <tr><td><code>Content-Length</code></td><td>Los dos</td><td>Cuántos bytes mide el body</td><td><code>Content-Length: 123</code></td></tr>
+        <tr><td><code>Authorization</code></td><td>Request</td><td>Credenciales de quien pide (usuario, token)</td><td><code>Authorization: Bearer eyJhb…</code></td></tr>
+        <tr><td><code>User-Agent</code></td><td>Request</td><td>Qué programa hace el pedido</td><td><code>User-Agent: Mozilla/5.0 …</code></td></tr>
+        <tr><td><code>Location</code></td><td>Response</td><td>Dónde quedó el recurso recién creado (acompaña al <code>201</code>)</td><td><code>Location: /productos/7</code></td></tr>
+        <tr><td><code>Cache-Control</code></td><td>Los dos</td><td>Si la respuesta se puede guardar en caché, y por cuánto tiempo</td><td><code>Cache-Control: max-age=3600</code></td></tr>
+      </table>
+      <div class="callout">Los nombres de los headers <strong>no distinguen mayúsculas</strong>. Una aplicación puede inventar los suyos: por costumbre suelen empezar con <code>X-</code>, como <code>X-Api-Key</code>.</div>
+    </section>
+
+    <!-- 15 · Status codes -->
     <section class="slide" data-chapter="HTTP" data-topic="Códigos de estado">
       <h2 class="slide-title">Códigos de <span class="accent">estado</span></h2>
       <div class="columns four">
@@ -350,7 +412,7 @@
       </table>
     </section>
 
-    <!-- 14 · Cierre -->
+    <!-- 16 · Cierre -->
     <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
       <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
       <p class="subtitle">Próximo: Tema 06 — construimos nuestra propia API REST con ASP.NET Core.</p>

@@ -490,7 +490,27 @@ finally: se ejecuta siempre</pre>
       </div>
     </section>
 
-    <!-- 19 · using -->
+    <!-- 19a · Recursos e IDisposable -->
+    <section class="slide" data-chapter="Gestión" data-topic="Memoria vs. recursos">
+      <h2 class="slide-title">Memoria no es lo mismo que <span class="accent">recursos</span></h2>
+      <div class="columns three">
+        <div class="card accent-top">
+          <h3>1 · El GC libera memoria</h3>
+          <p>El <em>garbage collector</em> recupera la <strong>memoria</strong> de los objetos que ya no se usan… pero pasa <strong>cuando él decide</strong>: pueden ser segundos o minutos.</p>
+        </div>
+        <div class="card accent-top">
+          <h3>2 · Algunos objetos tienen algo más</h3>
+          <p>Un <code>StreamReader</code> tiene un <strong>archivo abierto</strong>; una conexión, un <strong>canal con la base de datos</strong>. Son recursos del sistema operativo, y el GC no sabe liberarlos a tiempo.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>3 · <code>IDisposable</code></h3>
+          <p>Es la interfaz de los objetos que <strong>tienen algo que devolver</strong>. Su único método, <code>Dispose()</code>, lo devuelve <strong>en ese momento</strong>: cierra el archivo, libera la conexión.</p>
+        </div>
+      </div>
+      <div class="callout">¿Y qué tiene que ver con las excepciones? Si salta una excepción <strong>antes</strong> de llamar a <code>Dispose()</code>, esa línea nunca se ejecuta y el recurso queda tomado: el archivo sigue bloqueado, la conexión sigue ocupada. Por eso <code>Dispose()</code> va en un <code>finally</code>.</div>
+    </section>
+
+    <!-- 19b · using -->
     <section class="slide" data-chapter="Gestión" data-topic="using: finally automático">
       <h2 class="slide-title"><code>using</code>: el <span class="accent">finally</span> que escribe el compilador</h2>
       <div class="columns">
@@ -513,10 +533,11 @@ finally: se ejecuta siempre</pre>
 <span class="t">Console</span>.WriteLine(lector.ReadLine());
 <span class="c">// Dispose() se llama solo al salir del bloque,</span>
 <span class="c">// haya o no excepción</span></pre>
-          <p class="small-note">Sirve para todo lo que implementa <code>IDisposable</code>: archivos, conexiones a la base de datos (<strong>tema 08, ADO.NET</strong>), clientes HTTP…</p>
+          <p class="small-note">El compilador lo convierte exactamente en el <code>try-finally</code> de la izquierda. Funciona con cualquier objeto que implemente <code>IDisposable</code>.</p>
+          <p class="small-note">Lo vamos a usar sí o sí en el <strong>tema 08 (ADO.NET)</strong>: <code>using var conexion = new SqliteConnection(…);</code> — sin él, cada error deja una conexión abierta y la aplicación termina quedándose sin conexiones.</p>
         </div>
       </div>
-      <div class="callout"><code>using</code> <strong>no captura</strong> la excepción: solo garantiza la limpieza. Si hace falta manejarla, sigue haciendo falta un <code>try-catch</code>.</div>
+      <div class="callout"><code>using</code> <strong>no es un destructor</strong> ni apura al garbage collector, y <strong>no captura</strong> la excepción: solo garantiza que el recurso se libere. Si hace falta manejar el error, sigue haciendo falta un <code>try-catch</code>.</div>
     </section>
 
     <!-- 20 · Filtros when -->

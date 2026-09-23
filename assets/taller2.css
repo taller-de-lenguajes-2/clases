@@ -171,3 +171,56 @@ pre.code.sm { font-size: 13px; line-height: 1.4; padding: 12px 16px; }
 .url-split.lg { margin: 0 0 18px; }
 .url-split.lg .seg code { font-size: 22px; padding: 3px 8px; }
 .url-split.lg .seg > span { font-size: 15px; }
+
+/* --- Figuras: imagen centrada con alto máximo, para slides con foto/diagrama --- */
+.fig { display: flex; flex-direction: column; align-items: center; margin: 6px 0; }
+.fig img { max-width: 100%; max-height: var(--h, 400px); border-radius: 10px; display: block; }
+.fig.framed img { border: 1px solid var(--border); box-shadow: 0 8px 28px rgba(20,30,55,0.14); }
+.fig figcaption { font-size: 13px; color: var(--muted); margin-top: 8px; text-align: center; }
+
+/* Íconos con fondo transparente/negro: siempre sobre fondo claro para que se vean en tema oscuro */
+.icon-tile {
+  display: flex; align-items: center; justify-content: center;
+  width: 92px; height: 92px; padding: 12px; margin: 0 auto 10px;
+  background: #fff; border-radius: 16px; border: 1px solid var(--border);
+}
+.icon-tile img { max-width: 100%; max-height: 100%; }
+
+/* --- Cifra destacada (dato grande + etiqueta) --- */
+.stat { text-align: center; }
+.stat .num { display: block; font-size: 54px; font-weight: 800; line-height: 1.05; color: var(--accent); letter-spacing: -0.02em; }
+.stat .lbl { display: block; font-size: 16px; color: var(--muted); margin-top: 6px; }
+
+/* --- Salida de consola (lo que imprime el programa) --- */
+pre.out {
+  margin: 8px 0 0; padding: 10px 14px; border-radius: 10px;
+  background: #0d1117; color: #c9d1d9; border: 1px solid var(--border);
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 13.5px; line-height: 1.5;
+  white-space: pre;
+}
+pre.out .ok  { color: #7ee787; }
+pre.out .bad { color: #ff7b72; }
+pre.out .dim { color: #8b949e; }
+
+/* --- Pasos dentro de una slide (ver assets/pasos.js) --- */
+.deck > .slide[data-pasos] [data-paso] { transition: opacity 0.35s ease; }
+.deck > .slide[data-pasos] [data-paso]:not(.visto) { opacity: 0; }
+@media print { .deck > .slide[data-pasos] [data-paso] { opacity: 1 !important; } }
+
+/* Flecha "viva": el trazo punteado corre en el sentido de la flecha */
+.flujo { animation: flujo 0.9s linear infinite; }
+@keyframes flujo { to { stroke-dashoffset: -24; } }
+
+/* --- Escala de niveles de log: los que no pasan el filtro quedan apagados --- */
+.niveles { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 6px 0 14px; }
+.niveles .rotulo { min-width: 190px; font-size: 14px; color: var(--muted); }
+.niveles .rotulo code { color: var(--accent-2); background: var(--panel-2); padding: 1px 6px; border-radius: 4px; }
+.niveles .nv {
+  padding: 5px 12px; border-radius: 999px; font-size: 14px; font-weight: 700;
+  font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+  color: var(--c); background: color-mix(in srgb, var(--c) 14%, transparent);
+  border: 1.5px solid var(--c);
+}
+.niveles .nv.off { opacity: 0.28; text-decoration: line-through; }
+.nv.trc { --c: var(--muted); } .nv.dbg { --c: var(--accent-2); } .nv.inf { --c: var(--green); }
+.nv.wrn { --c: var(--yellow); } .nv.err { --c: var(--red); } .nv.crt { --c: #b91c1c; }

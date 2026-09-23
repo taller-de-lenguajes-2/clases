@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 16 — Excepciones · Taller de Lenguajes 2</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <div class="title-grid">
+        <div>
+          <p class="slide-eyebrow">Tema 16 · .NET 10</p>
+          <h1 class="title">Manejo de <span class="accent">excepciones</span></h1>
+          <p class="subtitle">Errores en el software · try-catch-finally · la clase Exception · lanzar, filtrar y crear excepciones</p>
+        </div>
+        <div class="title-photo" style="max-width:380px; justify-self:center"><img src="img/portada.jpeg" alt="Notebook con código sobre un libro abierto" /></div>
+      </div>
+    </section>
+
+    <!-- 2 · Agenda -->
+    <section class="slide" data-chapter="Intro" data-topic="Agenda">
+      <h2 class="slide-title">Qué vamos a <span class="accent">ver</span></h2>
+      <div class="columns three">
+        <div class="card accent-top">
+          <h3>1 · Los errores</h3>
+          <ul>
+            <li>Errores en el software</li>
+            <li>Ciclo de vida de una aplicación</li>
+            <li>Tipos de errores</li>
+            <li>Qué es una excepción</li>
+          </ul>
+        </div>
+        <div class="card accent-top">
+          <h3>2 · Gestionarlas</h3>
+          <ul>
+            <li><code>try</code> · <code>catch</code> · <code>finally</code></li>
+            <li>Varios <code>catch</code> y filtros <code>when</code></li>
+            <li>La clase <code>Exception</code></li>
+            <li>Lanzar y relanzar: <code>throw</code></li>
+          </ul>
+        </div>
+        <div class="card accent-top alt">
+          <h3>3 · Hacerlo bien</h3>
+          <ul>
+            <li>Cláusulas de guarda (<code>ThrowIf…</code>)</li>
+            <li>Excepciones propias</li>
+            <li>Cuándo <strong>no</strong> usar excepciones</li>
+            <li>Excepciones en la Web API</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · Nadie es perfecto -->
+    <section class="slide" data-chapter="Errores" data-topic="Errores en el software">
+      <h2 class="slide-title">Errores en el <span class="accent">software</span></h2>
+      <figure class="fig framed" style="--h: 420px"><img src="img/nadie-es-perfecto.jpeg" alt="Grafiti en una pared: Nadie es ferpecto" /></figure>
+      <p class="small-note" style="text-align:center">Todo programa que hagamos va a tener errores. La pregunta no es <em>si</em> van a aparecer, sino <strong>qué hace el programa cuando aparecen</strong>.</p>
+    </section>
+
+    <!-- 4 · ¿Cuánto tarda? -->
+    <section class="slide" data-chapter="Errores" data-topic="¿Cuánto cuesta corregir?">
+      <h2 class="slide-title">¿Cuánto tiempo lleva corregir un <span class="accent">error</span>?</h2>
+      <figure class="fig framed" style="--h: 120px"><img src="img/quora.png" alt="Respuesta en Quora: Between a few minutes and never" /></figure>
+      <div class="callout" style="font-size:26px; text-align:center; margin-top:28px">“Entre algunos minutos y <strong>nunca</strong>.”</div>
+      <p class="small-note" style="text-align:center">Fuente: <a href="https://www.quora.com/How-long-does-it-take-you-to-fix-a-program-bug">quora.com — How long does it take you to fix a program bug?</a></p>
+    </section>
+
+    <!-- 5 · Economía -->
+    <section class="slide" data-chapter="Errores" data-topic="Desde la economía">
+      <h2 class="slide-title">Los errores, desde la <span class="accent">economía</span> y lo humano</h2>
+      <p class="small-note">Solo en el año 2016 — informe de la empresa de testing Tricentis, que analizó <strong>606 fallas</strong> de software en <strong>314 empresas</strong>.</p>
+      <div class="columns three" style="margin-top:22px">
+        <div class="card stat"><span class="num">4.400 M</span><span class="lbl">de personas afectadas</span></div>
+        <div class="card stat"><span class="num">1,1 billones</span><span class="lbl">de dólares en activos comprometidos<br/>(<em>1.1 trillion</em> en inglés)</span></div>
+        <div class="card stat"><span class="num">315 años</span><span class="lbl">de tiempo de inactividad acumulado</span></div>
+      </div>
+      <p class="small-note" style="margin-top:22px">Fuente: <a href="https://www.tricentis.com/blog/1-1-trillion-in-assets-impacted-by-software-defects-a-software-testing-fail/">Tricentis — Software Fail Watch</a></p>
+    </section>
+
+    <!-- 6 · Tiempo de un desarrollador -->
+    <section class="slide" data-chapter="Errores" data-topic="Desde el tiempo del dev">
+      <h2 class="slide-title">Los errores, desde el tiempo de un <span class="accent">desarrollador</span></h2>
+      <div class="columns wide-left">
+        <figure class="fig framed" style="--h: 430px"><img src="img/tiempo-devs.png" alt="Cómo reparten su tiempo los desarrolladores" /></figure>
+        <div>
+          <ul class="bullets">
+            <li>Solo un <strong>32 %</strong> del tiempo se va en escribir o mejorar código</li>
+            <li>Mantenimiento (<strong>19 %</strong>) y testing (<strong>12 %</strong>) suman casi otro tanto</li>
+            <li>Buena parte de ese tiempo es <strong>encontrar y arreglar errores</strong></li>
+          </ul>
+          <p class="small-note">Encuesta de Tidelift y The New Stack, junio de 2019. <a href="https://thenewstack.io/how-much-time-do-developers-spend-actually-writing-code/">thenewstack.io</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · Costo relativo IBM -->
+    <section class="slide" data-chapter="Errores" data-topic="Costo según la etapa">
+      <h2 class="slide-title">Cuanto más tarde, más <span class="accent">caro</span></h2>
+      <p class="small-note">Costo relativo de corregir un error según la etapa en la que se detecta (IBM System Science Institute).</p>
+      <div class="diagram">
+        <svg viewBox="0 0 1000 330" width="960" role="img" aria-label="Diseño 1x, implementación 6,5x, testing 15x, mantenimiento 100x">
+          <line x1="60" y1="280" x2="960" y2="280" stroke="var(--border)" stroke-width="2"/>
+          <rect x="110" y="276" width="140" height="4" rx="2" fill="var(--green)"/>
+          <rect x="330" y="254" width="140" height="26" rx="4" fill="var(--yellow)"/>
+          <rect x="550" y="229" width="140" height="51" rx="4" fill="var(--accent-2)"/>
+          <rect x="770" y="20" width="140" height="260" rx="4" fill="var(--red)"/>
+          <text x="180" y="262" text-anchor="middle" font-size="24" font-weight="800" fill="var(--text)">1×</text>
+          <text x="400" y="240" text-anchor="middle" font-size="24" font-weight="800" fill="var(--text)">6,5×</text>
+          <text x="620" y="215" text-anchor="middle" font-size="24" font-weight="800" fill="var(--text)">15×</text>
+          <text x="840" y="150" text-anchor="middle" font-size="34" font-weight="800" fill="#fff">100×</text>
+          <text x="180" y="310" text-anchor="middle" font-size="18" fill="var(--muted)">Diseño</text>
+          <text x="400" y="310" text-anchor="middle" font-size="18" fill="var(--muted)">Implementación</text>
+          <text x="620" y="310" text-anchor="middle" font-size="18" fill="var(--muted)">Testing</text>
+          <text x="840" y="310" text-anchor="middle" font-size="18" fill="var(--muted)">Mantenimiento</text>
+        </svg>
+      </div>
+      <p class="small-note">Fuente: Dawson, Burrell, Rahim y Brewster (2010), <em>Integrating Software Assurance into the SDLC</em>.</p>
+    </section>
+
+    <!-- 8 · Todos se equivocan -->
+    <section class="slide" data-chapter="Errores" data-topic="Todos se equivocan">
+      <h2 class="slide-title">Todos se <span class="accent">equivocan</span></h2>
+      <div class="columns three">
+        <div class="card accent-top">
+          <h3>Ariane 5 · vuelo 501</h3>
+          <p class="small-note">4 de junio de 1996</p>
+          <p>Un número de <strong>64 bits</strong> convertido a un espacio de <strong>16 bits</strong>: desbordamiento y el cohete se autodestruye a los 37 segundos.</p>
+          <p class="stat"><span class="num" style="font-size:34px">US$ 508 M</span></p>
+        </div>
+        <div class="card accent-top">
+          <h3>Mars Climate Orbiter</h3>
+          <p class="small-note">NASA · Marte, 1998–1999</p>
+          <p>Un equipo usaba <strong>unidades imperiales</strong> y el otro <strong>métricas</strong>. La sonda entró demasiado bajo en la atmósfera.</p>
+          <p class="stat"><span class="num" style="font-size:34px">US$ 125 M</span></p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Manutención infantil</h3>
+          <p class="small-note">Reino Unido, 2004</p>
+          <p>Errores en la <strong>migración de datos</strong> del nuevo sistema de la agencia de manutención infantil.</p>
+          <p class="stat"><span class="num" style="font-size:34px">≈ US$ 1.000 M</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 · Ciclo de vida -->
+    <section class="slide" data-chapter="Errores" data-topic="Ciclo de vida">
+      <h2 class="slide-title">Ciclo de vida de una <span class="accent">aplicación</span></h2>
+      <div class="columns wide-left">
+        <figure class="fig" style="--h: 440px"><img src="img/ciclo-desarrollo.gif" alt="Ciclo de desarrollo del software: necesidades, diseño, desarrollo, prueba, lanzamiento, mantenimiento" /></figure>
+        <div>
+          <ul class="bullets">
+            <li>Una aplicación no termina cuando compila: pasa por <strong>prueba</strong>, <strong>lanzamiento</strong> y años de <strong>mantenimiento</strong></li>
+            <li>En cada vuelta del ciclo los datos <strong>aumentan</strong> y se vuelven críticos para el negocio</li>
+            <li>Un error puede aparecer en <strong>cualquier etapa</strong> — y ya vimos que cuanto más tarde, más caro</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 · Tipos de errores -->
+    <section class="slide" data-chapter="Errores" data-topic="Tipos de errores">
+      <h2 class="slide-title">Tipos de <span class="accent">errores</span></h2>
+      <div class="columns three">
+        <div class="card accent-top">
+          <div class="icon-tile" style="width:150px;height:92px"><img src="img/etapa-diseno.png" alt="" /></div>
+          <h3>De sintaxis</h3>
+          <p class="small-note">Al escribir el programa · <strong>no compila</strong></p>
+          <ul>
+            <li>Falta un <code>;</code> o una llave de cierre</li>
+            <li>Falta una librería o un <code>using</code></li>
+          </ul>
+        </div>
+        <div class="card accent-top">
+          <div class="icon-tile" style="width:150px;height:92px"><img src="img/etapa-compilacion.png" alt="" /></div>
+          <h3>De ejecución</h3>
+          <p class="small-note">Con el programa <strong>funcionando</strong></p>
+          <ul>
+            <li>División entre cero</li>
+            <li>Conversiones forzadas de tipos</li>
+            <li>Acceso a un recurso que no está</li>
+          </ul>
+        </div>
+        <div class="card accent-top alt">
+          <div class="icon-tile" style="width:150px;height:92px"><img src="img/etapa-ejecucion.png" alt="" /></div>
+          <h3>Semánticos (de lógica)</h3>
+          <p class="small-note">El programa corre… pero <strong>hace otra cosa</strong></p>
+          <ul>
+            <li>Algoritmo incorrecto</li>
+            <li>Algoritmo mal usado o mal diseñado</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout">El compilador nos salva de los primeros. Los terceros se buscan con <strong>tests</strong>. Hoy nos ocupan los del medio.</div>
+    </section>
+
+    <!-- 11 · Qué es una excepción -->
+    <section class="slide" data-chapter="Excepciones" data-topic="¿Qué es una excepción?">
+      <h2 class="slide-title"><span class="accent">Excepciones</span></h2>
+      <div class="columns">
+        <figure class="fig framed" style="--h: 380px"><img src="img/excepciones.jpeg" alt="Persona trabajando en una notebook" /></figure>
+        <div>
+          <div class="callout" style="font-size:22px; margin-top:0">Los errores en <strong>tiempo de ejecución</strong> se llaman comúnmente <strong>excepciones</strong>.</div>
+          <ul class="bullets">
+            <li>Una excepción es un <strong>objeto</strong> que describe algo que salió mal</li>
+            <li>Cuando ocurre, el flujo normal del programa se <strong>interrumpe</strong></li>
+            <li>El programa puede <strong>capturarla y manejarla</strong>… o morir en el intento</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 · Situaciones -->
+    <section class="slide" data-chapter="Excepciones" data-topic="Situaciones que las provocan">
+      <h2 class="slide-title">Situaciones que pueden provocar una <span class="accent">excepción</span></h2>
+      <div class="columns three">
+        <div class="card accent-top" style="text-align:center">
+          <div style="display:flex; gap:10px; justify-content:center">
+            <div class="icon-tile" style="margin:0 0 10px"><img src="img/icono-bd.png" alt="Base de datos" /></div>
+            <div class="icon-tile" style="margin:0 0 10px"><img src="img/icono-archivo.png" alt="Archivo" /></div>
+            <div class="icon-tile" style="margin:0 0 10px"><img src="img/icono-api.png" alt="API" /></div>
+          </div>
+          <h3>Falta de un recurso</h3>
+          <p class="small-note">La base de datos no responde · el archivo no existe · la API está caída</p>
+        </div>
+        <div class="card accent-top" style="text-align:center">
+          <div class="icon-tile" style="width:200px"><img src="img/div0.png" alt="#DIV/0!" /></div>
+          <h3>Usos indebidos</h3>
+          <p class="small-note">Dividir por cero · índice fuera de rango · usar algo que es <code>null</code></p>
+        </div>
+        <div class="card accent-top alt" style="text-align:center">
+          <div style="display:flex; gap:10px; justify-content:center">
+            <div class="icon-tile" style="margin:0 0 10px"><img src="img/icono-hardware.png" alt="Hardware" /></div>
+            <div class="icon-tile" style="margin:0 0 10px"><img src="img/icono-red.png" alt="Red" /></div>
+          </div>
+          <h3>Fallos de hardware</h3>
+          <p class="small-note">Sin memoria · disco lleno · se cortó la red</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 · Implícitas / explícitas -->
+    <section class="slide" data-chapter="Excepciones" data-topic="Tipos de excepciones">
+      <h2 class="slide-title">Tipos de <span class="accent">excepciones</span></h2>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>Implícitas</h3>
+          <p>Definidas por el <strong>lenguaje o el framework</strong>. .NET las lanza solo.</p>
+<pre class="code sm"><span class="k">int</span>[] v = <span class="k">new int</span>[<span class="n">3</span>];
+v[<span class="n">5</span>] = <span class="n">1</span>;       <span class="c">// IndexOutOfRangeException</span>
+
+<span class="k">int</span> x = <span class="t">int</span>.Parse(<span class="s">"hola"</span>); <span class="c">// FormatException</span></pre>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Explícitas</h3>
+          <p>Definidas y lanzadas por el <strong>programador</strong> cuando detecta algo inválido.</p>
+<pre class="code sm"><span class="k">if</span> (monto &gt; Saldo)
+    <span class="k">throw new</span> <span class="t">SaldoInsuficienteException</span>(…);</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 · Propagación -->
+    <section class="slide" data-chapter="Excepciones" data-topic="Propagación">
+      <h2 class="slide-title">Propagación de <span class="accent">excepciones</span></h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1040 330" width="1000" role="img" aria-label="main llama a A, A llama a B; B lanza una excepción que sube por A hasta main; si nadie la captura, el programa se interrumpe">
+          <defs>
+            <marker id="p16" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
+            <marker id="p16r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--red)"/></marker>
+          </defs>
+          <rect x="40" y="60" width="220" height="80" rx="14" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+          <text x="150" y="108" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)" class="mono">Main()</text>
+          <rect x="410" y="60" width="220" height="80" rx="14" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+          <text x="520" y="108" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)" class="mono">FuncionA()</text>
+          <rect x="780" y="60" width="220" height="80" rx="14" fill="var(--panel-2)" stroke="var(--red)" stroke-width="2.5"/>
+          <text x="890" y="108" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)" class="mono">FuncionB()</text>
+          <line x1="262" y1="85" x2="405" y2="85" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#p16)"/>
+          <line x1="632" y1="85" x2="775" y2="85" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#p16)"/>
+          <text x="333" y="72" text-anchor="middle" font-size="15" fill="var(--muted)">llama</text>
+          <text x="703" y="72" text-anchor="middle" font-size="15" fill="var(--muted)">llama</text>
+          <text x="890" y="40" text-anchor="middle" font-size="26">💥</text>
+          <line x1="775" y1="120" x2="637" y2="120" stroke="var(--red)" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#p16r)"/>
+          <line x1="405" y1="120" x2="267" y2="120" stroke="var(--red)" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#p16r)"/>
+          <text x="706" y="148" text-anchor="middle" font-size="15" font-weight="700" fill="var(--red)">excepción</text>
+          <text x="336" y="148" text-anchor="middle" font-size="15" font-weight="700" fill="var(--red)">excepción</text>
+          <line x1="150" y1="142" x2="150" y2="210" stroke="var(--red)" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#p16r)"/>
+          <rect x="20" y="215" width="260" height="70" rx="14" fill="color-mix(in srgb, var(--red) 14%, transparent)" stroke="var(--red)" stroke-width="2"/>
+          <text x="150" y="245" text-anchor="middle" font-size="17" font-weight="700" fill="var(--red)">Interrupción de la</text>
+          <text x="150" y="268" text-anchor="middle" font-size="17" font-weight="700" fill="var(--red)">ejecución del programa</text>
+        </svg>
+      </div>
+      <div class="callout">La excepción <strong>sube por la pila de llamadas</strong> buscando un <code>catch</code> que la atienda. Si llega hasta <code>Main()</code> sin que nadie la capture, el programa termina.</div>
+    </section>
+
+    <!-- 14b · Propagación paso a paso (escalera, avanza con clic o →) -->
+    <section class="slide" data-pasos data-chapter="Excepciones" data-topic="Propagación paso a paso">
+      <h2 class="slide-title">La excepción <span class="accent">sube</span> por la pila de llamadas</h2>
+      <p class="small-note">Clic sobre el diagrama o → para avanzar paso a paso.</p>
+      <div class="diagram">
+        <svg viewBox="0 0 1040 360" width="980" role="img" aria-label="Main llama a FuncionA, que llama a FuncionB; FuncionB lanza una excepción que sube hasta FuncionA y luego hasta Main; como nadie la captura, el programa se interrumpe">
+          <defs>
+            <marker id="e16" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
+            <marker id="e16r" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--red)"/></marker>
+          </defs>
+
+          <!-- Main (siempre visible) -->
+          <rect x="40" y="20" width="240" height="70" rx="14" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+          <text x="160" y="62" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)" class="mono">Main()</text>
+
+          <!-- 1 · Main llama a FuncionA -->
+          <g data-paso="1">
+            <path d="M120,92 V175 H334" fill="none" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#e16)"/>
+            <text x="230" y="165" text-anchor="middle" font-size="15" fill="var(--muted)">llama</text>
+            <rect x="340" y="140" width="240" height="70" rx="14" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="460" y="182" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)" class="mono">FuncionA()</text>
+          </g>
+
+          <!-- 2 · FuncionA llama a FuncionB -->
+          <g data-paso="2">
+            <path d="M420,212 V295 H634" fill="none" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#e16)"/>
+            <text x="530" y="285" text-anchor="middle" font-size="15" fill="var(--muted)">llama</text>
+            <rect x="640" y="260" width="240" height="70" rx="14" fill="var(--panel-2)" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="760" y="302" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)" class="mono">FuncionB()</text>
+          </g>
+
+          <!-- 3 · FuncionB lanza la excepción -->
+          <g data-paso="3">
+            <rect x="640" y="260" width="240" height="70" rx="14" fill="color-mix(in srgb, var(--red) 12%, transparent)" stroke="var(--red)" stroke-width="3"/>
+            <text x="760" y="302" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)" class="mono">FuncionB()</text>
+            <text x="900" y="304" font-size="30">💥</text>
+            <text x="945" y="302" font-size="15" font-weight="700" fill="var(--red)">throw</text>
+          </g>
+
+          <!-- 4 · sube a FuncionA (no tiene catch) -->
+          <g data-paso="4">
+            <path d="M820,258 V175 H586" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-dasharray="8 4" class="flujo" marker-end="url(#e16r)"/>
+            <text x="832" y="222" font-size="15" font-weight="700" fill="var(--red)">excepción</text>
+            <text x="600" y="162" font-size="14" fill="var(--muted)">sin catch: sigue subiendo</text>
+          </g>
+
+          <!-- 5 · sube a Main (tampoco tiene catch) -->
+          <g data-paso="5">
+            <path d="M520,138 V55 H286" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-dasharray="8 4" class="flujo" marker-end="url(#e16r)"/>
+            <text x="532" y="102" font-size="15" font-weight="700" fill="var(--red)">excepción</text>
+          </g>
+
+          <!-- 6 · nadie la capturó: el programa termina -->
+          <g data-paso="6">
+            <rect x="40" y="20" width="240" height="70" rx="14" fill="color-mix(in srgb, var(--red) 12%, transparent)" stroke="var(--red)" stroke-width="3"/>
+            <text x="160" y="62" text-anchor="middle" font-size="22" font-weight="700" fill="var(--text)" class="mono">Main()</text>
+            <rect x="620" y="18" width="390" height="74" rx="14" fill="color-mix(in srgb, var(--red) 14%, transparent)" stroke="var(--red)" stroke-width="2"/>
+            <text x="815" y="48" text-anchor="middle" font-size="17" font-weight="700" fill="var(--red)">Main() tampoco la captura:</text>
+            <text x="815" y="72" text-anchor="middle" font-size="17" font-weight="700" fill="var(--red)">se interrumpe la ejecución del programa</text>
+          </g>
+        </svg>
+      </div>
+      <div class="callout" data-paso="6">Con un <code>try-catch</code> en <strong>cualquiera</strong> de los escalones, la excepción se detiene ahí y el programa sigue.</div>
+    </section>
+
+    <!-- 15 · try / catch / finally -->
+    <section class="slide" data-chapter="Gestión" data-topic="try · catch · finally">
+      <h2 class="slide-title">Gestión de excepciones: <span class="accent">try-catch</span></h2>
+      <div class="columns three">
+        <div class="card accent-top">
+          <h3><code>try</code></h3>
+          <p>Pone en alerta al programa sobre el código que <strong>puede lanzar</strong> una excepción.</p>
+        </div>
+        <div class="card accent-top">
+          <h3><code>catch</code></h3>
+          <p><strong>Captura y maneja</strong> cada excepción que se lance dentro del <code>try</code>.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3><code>finally</code></h3>
+          <p>Bloque <strong>opcional</strong> que se ejecuta <strong>haya o no</strong> excepciones.</p>
+        </div>
+      </div>
+      <h3 style="margin-top:26px">Beneficios</h3>
+      <ul class="bullets">
+        <li>Detectar errores y, cuando se puede, <strong>recuperarse</strong></li>
+        <li>Limpiar recursos y <strong>salir con elegancia</strong> ante errores no esperados</li>
+        <li><strong>Dejar registro</strong> de qué error ocurrió en tiempo de ejecución <span class="small-note">(→ tema 17, logs)</span></li>
+        <li>Propagar los errores de forma <strong>sistemática</strong> por la cadena de llamadas</li>
+      </ul>
+    </section>
+
+    <!-- 16 · Ejemplo 1 -->
+    <section class="slide" data-chapter="Gestión" data-topic="Ejemplo 1 · capturar">
+      <h2 class="slide-title">Ejemplo 1 · <span class="accent">capturar</span> una excepción</h2>
+      <div class="columns">
+        <div>
+<pre class="code"><span class="k">try</span>
+{
+    <span class="c">// Código que se intenta ejecutar</span>
+}
+<span class="k">catch</span>
+{
+    <span class="c">// Código que se ejecuta si se produce</span>
+    <span class="c">// una excepción</span>
+}</pre>
+          <p class="small-note">Un <code>catch</code> sin paréntesis atrapa <strong>cualquier</strong> excepción, pero no nos deja saber cuál fue.</p>
+        </div>
+        <div>
+<pre class="code"><span class="k">try</span>
+{
+    <span class="c">// Código que se intenta ejecutar</span>
+}
+<span class="k">catch</span> (<span class="t">Exception</span> ex)
+{
+    <span class="t">Console</span>.WriteLine(ex.Message);
+}</pre>
+          <p class="small-note">Con <code>(Exception ex)</code> tenemos el <strong>objeto</strong> excepción: mensaje, tipo, dónde ocurrió…</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17 · Varios catch -->
+    <section class="slide" data-chapter="Gestión" data-topic="Varios catch">
+      <h2 class="slide-title">Un <code>catch</code> por cada <span class="accent">tipo</span> de error</h2>
+      <div class="columns wide-left">
+        <div>
+<pre class="code sm"><span class="k">string</span> entrada = <span class="t">Console</span>.ReadLine();
+<span class="k">try</span>
+{
+    <span class="k">int</span> numero = <span class="t">int</span>.Parse(entrada);
+    <span class="t">Console</span>.WriteLine(<span class="s">$"Ingresó un int válido: {numero}"</span>);
+}
+<span class="k">catch</span> (<span class="t">FormatException</span>)
+{
+    <span class="t">Console</span>.WriteLine(<span class="s">$"'{entrada}' no es un número"</span>);
+}
+<span class="k">catch</span> (<span class="t">OverflowException</span>)
+{
+    <span class="t">Console</span>.WriteLine(<span class="s">$"'{entrada}' es demasiado grande"</span>);
+}</pre>
+<pre class="out"><span class="dim">42          →</span> <span class="ok">Ingresó un int válido: 42</span>
+<span class="dim">hola        →</span> <span class="bad">'hola' no es un número</span>
+<span class="dim">99999999999 →</span> <span class="bad">'99999999999' es demasiado grande</span></pre>
+        </div>
+        <div>
+          <ul class="bullets">
+            <li>Se prueban <strong>en orden</strong>, de arriba hacia abajo; entra en el primero que coincide</li>
+            <li>Van de lo <strong>más específico</strong> a lo <strong>más general</strong></li>
+            <li>Si <code>catch (Exception)</code> va primero, los demás nunca se alcanzan — el compilador lo marca como error (CS0160)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 · finally -->
+    <section class="slide" data-chapter="Gestión" data-topic="Ejemplo 2 · finally">
+      <h2 class="slide-title">Ejemplo 2 · <span class="accent">finally</span></h2>
+      <div class="columns">
+        <div>
+<pre class="code sm"><span class="k">try</span>
+{
+    <span class="t">Console</span>.WriteLine(<span class="s">$"10 / {divisor} = {10 / divisor}"</span>);
+}
+<span class="k">catch</span> (<span class="t">DivideByZeroException</span> ex)
+{
+    <span class="t">Console</span>.WriteLine(<span class="s">$"Error: {ex.Message}"</span>);
+}
+<span class="k">finally</span>
+{
+    <span class="t">Console</span>.WriteLine(<span class="s">"finally: se ejecuta siempre"</span>);
+}</pre>
+<pre class="out"><span class="dim">divisor = 2</span>
+<span class="ok">10 / 2 = 5</span>
+finally: se ejecuta siempre
+<span class="dim">divisor = 0</span>
+<span class="bad">Error: Attempted to divide by zero.</span>
+finally: se ejecuta siempre</pre>
+        </div>
+        <div>
+          <ul class="bullets">
+            <li><code>try</code> separa el código que puede fallar</li>
+            <li><code>catch</code> controla la excepción resultante</li>
+            <li><code>finally</code> se ejecuta <strong>siempre</strong> al salir del <code>try</code> o del <code>catch</code> — incluso si hay un <code>return</code></li>
+            <li>Es el lugar para <strong>liberar recursos</strong>: cerrar archivos, conexiones…</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 19 · using -->
+    <section class="slide" data-chapter="Gestión" data-topic="using: finally automático">
+      <h2 class="slide-title"><code>using</code>: el <span class="accent">finally</span> que escribe el compilador</h2>
+      <div class="columns">
+        <div>
+          <h3>A mano</h3>
+<pre class="code sm"><span class="t">StreamReader</span>? lector = <span class="k">null</span>;
+<span class="k">try</span>
+{
+    lector = <span class="k">new</span> <span class="t">StreamReader</span>(<span class="s">"datos.txt"</span>);
+    <span class="t">Console</span>.WriteLine(lector.ReadLine());
+}
+<span class="k">finally</span>
+{
+    lector?.Dispose();   <span class="c">// cierra el archivo</span>
+}</pre>
+        </div>
+        <div>
+          <h3>Con <code>using</code></h3>
+<pre class="code sm"><span class="k">using</span> <span class="k">var</span> lector = <span class="k">new</span> <span class="t">StreamReader</span>(<span class="s">"datos.txt"</span>);
+<span class="t">Console</span>.WriteLine(lector.ReadLine());
+<span class="c">// Dispose() se llama solo al salir del bloque,</span>
+<span class="c">// haya o no excepción</span></pre>
+          <p class="small-note">Sirve para todo lo que implementa <code>IDisposable</code>: archivos, conexiones a la base de datos (<strong>tema 08, ADO.NET</strong>), clientes HTTP…</p>
+        </div>
+      </div>
+      <div class="callout"><code>using</code> <strong>no captura</strong> la excepción: solo garantiza la limpieza. Si hace falta manejarla, sigue haciendo falta un <code>try-catch</code>.</div>
+    </section>
+
+    <!-- 20 · Filtros when -->
+    <section class="slide" data-chapter="Gestión" data-topic="Filtros: when">
+      <h2 class="slide-title">Filtros de excepción: <span class="accent">when</span></h2>
+      <div class="columns wide-left">
+        <div>
+<pre class="code sm"><span class="k">try</span>
+{
+    <span class="k">var</span> json = <span class="k">await</span> http.GetStringAsync(url);
+}
+<span class="k">catch</span> (<span class="t">HttpRequestException</span> ex)
+    <span class="k">when</span> (ex.StatusCode == <span class="t">HttpStatusCode</span>.NotFound)
+{
+    <span class="t">Console</span>.WriteLine(<span class="s">"404: el recurso no existe, seguimos sin él"</span>);
+}
+<span class="k">catch</span> (<span class="t">HttpRequestException</span> ex)
+{
+    <span class="t">Console</span>.WriteLine(<span class="s">$"Otro error HTTP ({(int?)ex.StatusCode})"</span>);
+}</pre>
+        </div>
+        <div>
+          <ul class="bullets">
+            <li>Además del <strong>tipo</strong>, el <code>catch</code> puede pedir una <strong>condición</strong></li>
+            <li>Si el <code>when</code> da <code>false</code>, ese <code>catch</code> se saltea y se prueba el siguiente</li>
+            <li>Permite separar casos de la <strong>misma</strong> excepción sin <code>if</code> adentro del <code>catch</code></li>
+          </ul>
+          <p class="small-note">Aparece mucho al consumir APIs: el mismo tipo de error, distinto código de estado (<strong>tema 05</strong>).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 21 · Clase Exception -->
+    <section class="slide" data-chapter="Clase Exception" data-topic="System.Exception">
+      <h2 class="slide-title">La clase <span class="accent">System.Exception</span></h2>
+      <div class="columns wide-left">
+        <table class="tbl compact">
+          <tr><th>Propiedad</th><th>Qué contiene</th></tr>
+          <tr><td><code>Message</code></td><td>Descripción del error, legible por una persona</td></tr>
+          <tr><td><code>StackTrace</code></td><td>La pila de llamadas: <strong>dónde</strong> ocurrió</td></tr>
+          <tr><td><code>InnerException</code></td><td>La excepción <strong>original</strong>, si esta la envuelve</td></tr>
+          <tr><td><code>Source</code></td><td>Nombre de la aplicación u objeto que la causó</td></tr>
+          <tr><td><code>TargetSite</code></td><td>El método que la lanzó</td></tr>
+          <tr><td><code>HelpLink</code></td><td>URL con información relacionada</td></tr>
+          <tr><td><code>Data</code></td><td>Diccionario con información adicional</td></tr>
+        </table>
+        <figure class="fig framed" style="--h: 440px"><img src="img/clase-exception.png" alt="Diagrama de la clase Exception con sus propiedades y métodos" /></figure>
+      </div>
+      <p class="small-note"><code>Exception</code> es la clase <strong>base</strong> de todas las excepciones de .NET.</p>
+    </section>
+
+    <!-- 22 · Información -->
+    <section class="slide" data-chapter="Clase Exception" data-topic="Leer la información">
+      <h2 class="slide-title">Información que podemos <span class="accent">recuperar</span></h2>
+<pre class="code"><span class="k">try</span>
+{
+    MetodoQueProvocaUnaExcepcion();
+}
+<span class="k">catch</span> (<span class="t">Exception</span> ex)
+{
+    <span class="k">var</span> mensaje = <span class="s">$"Error: {ex.Message}"</span>;                        <span class="c">// qué pasó</span>
+
+    <span class="k">if</span> (ex.InnerException <span class="k">is not null</span>)                              <span class="c">// qué lo causó</span>
+        mensaje += <span class="s">$" · Causa: {ex.InnerException.Message}"</span>;
+
+    mensaje += <span class="s">$" · Stack trace: {ex.StackTrace}"</span>;                  <span class="c">// dónde pasó</span>
+}</pre>
+      <div class="callout">Toda esta información es exactamente lo que después vamos a querer <strong>guardar en un log</strong>. Y ojo: el <code>StackTrace</code> sirve al programador, <strong>no se le muestra al usuario</strong>.</div>
+      <p class="small-note"><a href="https://learn.microsoft.com/es-es/dotnet/standard/exceptions/">learn.microsoft.com — Control y generación de excepciones en .NET</a></p>
+    </section>
+
+    <!-- 23 · Jerarquía -->
+    <section class="slide" data-chapter="Clase Exception" data-topic="Excepciones derivadas">
+      <h2 class="slide-title">Excepciones <span class="accent">derivadas</span></h2>
+      <div class="columns wide-left">
+        <figure class="fig framed" style="--h: 440px"><img src="img/jerarquia.png" alt="Jerarquía: Object, Exception, SystemException, ApplicationException y derivadas" /></figure>
+        <div>
+          <ul class="bullets">
+            <li>Todas <strong>heredan</strong> de <code>Exception</code> (<strong>tema 03</strong>: herencia)</li>
+            <li>Un <code>catch (ArgumentException)</code> también atrapa a sus hijas: <code>ArgumentNullException</code>, <code>ArgumentOutOfRangeException</code>…</li>
+            <li>Por eso el orden de los <code>catch</code> va de las hijas a las madres</li>
+          </ul>
+          <p class="small-note"><code>ApplicationException</code> ya no se recomienda como base de las excepciones propias: se hereda directamente de <code>Exception</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 24 · throw -->
+    <section class="slide" data-chapter="Lanzar" data-topic="throw; vs throw ex;">
+      <h2 class="slide-title">Relanzar: <code>throw;</code> y no <code>throw ex;</code></h2>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>✓ Así</h3>
+<pre class="code sm"><span class="k">try</span> { Explota(); }
+<span class="k">catch</span> (<span class="t">Exception</span>)
+{
+    <span class="c">// algo con el error…</span>
+    <span class="k">throw</span>;
+}</pre>
+<pre class="out">origen según el StackTrace: <span class="ok">Explota</span></pre>
+          <p class="small-note">Relanza la <strong>misma</strong> excepción y conserva el lugar real donde ocurrió.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>✗ Así no</h3>
+<pre class="code sm"><span class="k">try</span> { Explota(); }
+<span class="k">catch</span> (<span class="t">Exception</span> ex)
+{
+    <span class="c">// algo con el error…</span>
+    <span class="k">throw</span> ex;
+}</pre>
+<pre class="out">origen según el StackTrace: <span class="bad">RelanzarMal</span></pre>
+          <p class="small-note"><strong>Pisa</strong> el <code>StackTrace</code>: parece que el error nació en el <code>catch</code>. El analizador lo avisa (CA2200).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 25 · Envolver -->
+    <section class="slide" data-chapter="Lanzar" data-topic="Agregar contexto">
+      <h2 class="slide-title">Lanzar agregando <span class="accent">contexto</span></h2>
+      <p>Es recomendable <strong>agregar información</strong> a una excepción que se vuelve a lanzar, para facilitar la depuración. La original viaja adentro, como <code>InnerException</code>.</p>
+<pre class="code sm"><span class="k">string</span> CargarConfiguracion(<span class="k">string</span> ruta)
+{
+    <span class="k">try</span>
+    {
+        <span class="k">return</span> <span class="t">File</span>.ReadAllText(ruta);
+    }
+    <span class="k">catch</span> (<span class="t">FileNotFoundException</span> ex)
+    {
+        <span class="k">throw new</span> <span class="t">InvalidOperationException</span>(
+            <span class="s">$"No se pudo cargar la configuración desde '{ruta}'"</span>, ex);   <span class="c">// ← la original</span>
+    }
+}</pre>
+<pre class="out">Message:        No se pudo cargar la configuración desde 'config.json'
+InnerException: FileNotFoundException — Could not find file '…\config.json'.</pre>
+    </section>
+
+    <!-- 26 · Guardas -->
+    <section class="slide" data-chapter="Lanzar" data-topic="Cláusulas de guarda">
+      <h2 class="slide-title">Lanzar temprano: <span class="accent">cláusulas de guarda</span></h2>
+      <div class="columns">
+        <div>
+          <h3>Antes</h3>
+<pre class="code sm"><span class="k">public void</span> Depositar(<span class="k">decimal</span> monto)
+{
+    <span class="k">if</span> (monto &lt;= <span class="n">0</span>)
+        <span class="k">throw new</span> <span class="t">ArgumentOutOfRangeException</span>(
+            <span class="k">nameof</span>(monto), <span class="s">"Debe ser positivo"</span>);
+    Saldo += monto;
+}</pre>
+          <h3>Ahora (.NET 8 en adelante)</h3>
+<pre class="code sm"><span class="k">public void</span> Depositar(<span class="k">decimal</span> monto)
+{
+    <span class="t">ArgumentOutOfRangeException</span>.ThrowIfNegativeOrZero(monto);
+    Saldo += monto;
+}</pre>
+        </div>
+        <div>
+          <table class="tbl compact">
+            <tr><th>Guarda</th><th>Lanza si…</th></tr>
+            <tr><td><code>ArgumentNullException.ThrowIfNull(x)</code></td><td><code>x</code> es <code>null</code></td></tr>
+            <tr><td><code>ArgumentException.ThrowIfNullOrWhiteSpace(s)</code></td><td>el texto está vacío</td></tr>
+            <tr><td><code>ArgumentOutOfRangeException.ThrowIfNegative(n)</code></td><td><code>n &lt; 0</code></td></tr>
+            <tr><td><code>…ThrowIfNegativeOrZero(n)</code></td><td><code>n &lt;= 0</code></td></tr>
+            <tr><td><code>…ThrowIfGreaterThan(n, max)</code></td><td><code>n &gt; max</code></td></tr>
+          </table>
+          <p class="small-note">El nombre del parámetro va solo en el mensaje: <code>(Parameter 'monto')</code>.</p>
+        </div>
+      </div>
+      <div class="callout">Validar <strong>al entrar</strong> al método: si los datos son inválidos, que falle ahí y no tres métodos más adelante.</div>
+    </section>
+
+    <!-- 27 · Excepción propia -->
+    <section class="slide" data-chapter="Lanzar" data-topic="Crear una excepción">
+      <h2 class="slide-title">Crear una excepción <span class="accent">propia</span></h2>
+      <div class="columns">
+        <div>
+<pre class="code sm"><span class="k">public class</span> <span class="t">SaldoInsuficienteException</span>(<span class="k">decimal</span> faltante)
+    : <span class="t">Exception</span>(<span class="s">"Saldo insuficiente para la extracción"</span>)
+{
+    <span class="k">public decimal</span> Faltante { <span class="k">get</span>; } = faltante;
+}</pre>
+<pre class="code sm"><span class="k">public void</span> Extraer(<span class="k">decimal</span> monto)
+{
+    <span class="k">if</span> (monto &gt; Saldo)
+        <span class="k">throw new</span> <span class="t">SaldoInsuficienteException</span>(monto - Saldo);
+    Saldo -= monto;
+}</pre>
+<pre class="code sm"><span class="k">catch</span> (<span class="t">SaldoInsuficienteException</span> ex)
+{
+    <span class="t">Console</span>.WriteLine(<span class="s">$"{ex.Message} (faltan ${ex.Faltante})"</span>);
+}</pre>
+        </div>
+        <div>
+          <ul class="bullets">
+            <li>Hereda de <code>Exception</code> y su nombre <strong>termina en</strong> <code>Exception</code></li>
+            <li>Tiene sentido cuando el error es <strong>del dominio</strong> y alguien lo va a capturar por su tipo</li>
+            <li>Puede llevar <strong>datos propios</strong> (<code>Faltante</code>)</li>
+            <li>El constructor primario (C# 12) la deja en pocas líneas</li>
+          </ul>
+          <p class="small-note">En material viejo aparece <code>[Serializable]</code> y un constructor con <code>SerializationInfo</code>: en .NET 8+ eso está <strong>obsoleto</strong> y ya no se escribe.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 28 · Cuándo no -->
+    <section class="slide" data-chapter="Buenas prácticas" data-topic="Cuándo no usarlas">
+      <h2 class="slide-title">Cuándo <span class="accent">no</span> usar excepciones</h2>
+      <div class="columns">
+        <div class="card accent-top alt">
+          <h3>✗ Excepción como <code>if</code></h3>
+<pre class="code sm"><span class="k">try</span>
+{
+    edad = <span class="t">int</span>.Parse(texto);
+}
+<span class="k">catch</span> (<span class="t">FormatException</span>)
+{
+    edad = <span class="n">0</span>;
+}</pre>
+        </div>
+        <div class="card accent-top">
+          <h3>✓ El patrón <code>TryParse</code></h3>
+<pre class="code sm"><span class="k">if</span> (!<span class="t">int</span>.TryParse(texto, <span class="k">out int</span> edad))
+{
+    edad = <span class="n">0</span>;
+}</pre>
+          <p class="small-note">Mismo resultado, sin excepción: devuelve <code>bool</code>. Existen <code>TryGetValue</code>, <code>TryAdd</code>, <code>TryDequeue</code>…</p>
+        </div>
+      </div>
+      <div class="callout">Las excepciones son para lo <strong>excepcional</strong>. Si el error es esperable (el usuario tipea mal), se chequea antes. Lanzar y capturar es <strong>lento</strong> y ensucia el flujo.</div>
+    </section>
+
+    <!-- 29 · Reglas -->
+    <section class="slide" data-chapter="Buenas prácticas" data-topic="Reglas de oro">
+      <h2 class="slide-title">Reglas de <span class="accent">oro</span></h2>
+      <ol class="steps">
+        <li><strong>Nunca un <code>catch</code> vacío.</strong> Tragarse el error lo esconde: el programa sigue en un estado inválido y nadie se entera.</li>
+        <li><strong>Capturar solo lo que se sabe manejar.</strong> Si no hay nada útil para hacer, que la excepción suba.</li>
+        <li><strong>Capturar lo específico</strong> (<code>FormatException</code>), no <code>Exception</code> en todos lados.</li>
+        <li><strong>Relanzar con <code>throw;</code></strong>, o envolver agregando contexto — nunca <code>throw ex;</code>.</li>
+        <li><strong>Al usuario, un mensaje amable;</strong> al programador, el detalle técnico (en el log).</li>
+        <li><strong>Usar lo que ya existe</strong> (<code>ArgumentException</code>, <code>InvalidOperationException</code>…) antes de inventar una propia.</li>
+      </ol>
+    </section>
+
+    <!-- 30 · En la API -->
+    <section class="slide" data-chapter="En la API" data-topic="IExceptionHandler">
+      <h2 class="slide-title">Excepciones en la <span class="accent">Web API</span></h2>
+      <p class="small-note">En vez de un <code>try-catch</code> en cada acción, un <strong>manejador global</strong> en el pipeline (tema 06) atrapa lo que se escape de cualquier controlador.</p>
+      <div class="columns wide-left">
+<pre class="code sm"><span class="k">public class</span> <span class="t">ManejadorGlobal</span>(<span class="t">IProblemDetailsService</span> problemDetails)
+    : <span class="t">IExceptionHandler</span>
+{
+    <span class="k">public async</span> <span class="t">ValueTask</span>&lt;<span class="k">bool</span>&gt; TryHandleAsync(
+        <span class="t">HttpContext</span> http, <span class="t">Exception</span> ex, <span class="t">CancellationToken</span> ct)
+    {
+        http.Response.StatusCode = ex <span class="k">switch</span>
+        {
+            <span class="t">KeyNotFoundException</span> =&gt; <span class="t">StatusCodes</span>.Status404NotFound,
+            <span class="t">ArgumentException</span>    =&gt; <span class="t">StatusCodes</span>.Status400BadRequest,
+            _                    =&gt; <span class="t">StatusCodes</span>.Status500InternalServerError
+        };
+        <span class="k">return await</span> problemDetails.TryWriteAsync(<span class="k">new</span>()
+        {
+            HttpContext = http,
+            Exception = ex,
+            ProblemDetails = { Title = <span class="s">"Ocurrió un error"</span>, Detail = ex.Message }
+        });
+    }
+}</pre>
+        <div>
+          <h3><code>Program.cs</code></h3>
+<pre class="code sm">builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler&lt;<span class="t">ManejadorGlobal</span>&gt;();
+
+<span class="k">var</span> app = builder.Build();
+app.UseExceptionHandler();   <span class="c">// ← primero en el pipeline</span></pre>
+          <ul class="bullets">
+            <li>Cada tipo de excepción → su <strong>código de estado</strong> HTTP</li>
+            <li>La respuesta sale en formato estándar <strong>ProblemDetails</strong> (RFC 9457)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 31 · Respuesta -->
+    <section class="slide" data-chapter="En la API" data-topic="La respuesta">
+      <h2 class="slide-title">Lo que recibe el <span class="accent">cliente</span></h2>
+      <div class="columns">
+        <div>
+<pre class="code sm">[<span class="t">HttpGet</span>(<span class="s">"{id}"</span>)]
+<span class="k">public</span> <span class="t">IActionResult</span> Get(<span class="k">int</span> id)
+{
+    <span class="k">var</span> producto = _productos.Find(p =&gt; p.Id == id)
+        ?? <span class="k">throw new</span> <span class="t">KeyNotFoundException</span>(<span class="s">$"No existe el producto {id}"</span>);
+    <span class="k">return</span> Ok(producto);
+}</pre>
+          <div class="http-msg lg">
+            <div class="msg-title">GET /productos/5 → response</div>
+            <div class="part" style="--c: var(--red)"><div class="tag">Línea inicial</div><pre>HTTP/1.1 404 Not Found</pre></div>
+            <div class="part" style="--c: var(--yellow)"><div class="tag">Headers</div><pre>Content-Type: application/problem+json</pre></div>
+            <div class="part" style="--c: var(--accent-2)"><div class="tag">Body</div><pre>{
+  "title": "Ocurrió un error",
+  "status": 404,
+  "detail": "No existe el producto 5",
+  "traceId": "00-2b606e1e…"
+}</pre></div>
+          </div>
+        </div>
+        <div>
+          <ul class="bullets">
+            <li>La API <strong>no se cae</strong> y el cliente recibe un error <strong>entendible</strong></li>
+            <li>Sin <code>StackTrace</code> hacia afuera: el detalle técnico no se expone</li>
+            <li>El <code>traceId</code> permite encontrar ese request puntual… <strong>en los logs</strong></li>
+          </ul>
+          <div class="callout"><strong>Novedad de .NET 10:</strong> si nuestro <code>IExceptionHandler</code> devuelve <code>true</code> (la manejó), el framework <strong>ya no la registra</strong> en el log. Si queremos que quede constancia, la tenemos que loguear nosotros → <strong>tema 17</strong>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 32 · Ejemplos y práctica -->
+    <section class="slide" data-chapter="Cierre" data-topic="Ejemplos y práctica">
+      <h2 class="slide-title">Ejemplos y <span class="accent">práctica</span></h2>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>Ejemplos de la clase</h3>
+          <p>Todos los ejemplos del tema en un proyecto de consola .NET 10, en la carpeta <code>proyecto-ejemplo</code> de este tema.</p>
+<pre class="code sm"><span class="k">cd</span> tema-16-excepciones/proyecto-ejemplo
+<span class="k">dotnet</span> run</pre>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Propuesta práctica</h3>
+          <p>Identificar en el código dado <strong>el tipo de excepción y qué la provocó</strong>, y proponer una solución para cada error.</p>
+          <p><span class="todo-placeholder">link de GitHub Classroom 2026</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 33 · Bibliografía -->
+    <section class="slide" data-chapter="Cierre" data-topic="Bibliografía">
+      <h2 class="slide-title"><span class="accent">Bibliografía</span></h2>
+      <ul class="bullets" style="font-size:16px">
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/dotnet/standard/exceptions/">Control y generación de excepciones en .NET</a> · <a href="https://learn.microsoft.com/es-es/dotnet/standard/exceptions/best-practices-for-exceptions">Procedimientos recomendados</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/web-api/handle-errors">Control de errores en las API web de ASP.NET Core</a></li>
+        <li>Dawson, Burrell, Rahim y Brewster (2010). <em>Integrating Software Assurance into the Software Development Life Cycle (SDLC)</em>. Journal of Information Systems Technology and Planning, 3, 49-53.</li>
+        <li>Tricentis — <a href="https://www.tricentis.com/blog/1-1-trillion-in-assets-impacted-by-software-defects-a-software-testing-fail/">$1.1 trillion in assets impacted by software defects</a></li>
+        <li>The New Stack — <a href="https://thenewstack.io/how-much-time-do-developers-spend-actually-writing-code/">How much time do developers spend actually writing code?</a></li>
+        <li>Wachenchauzer y otros — <a href="https://uniwebsidad.com/libros/algoritmos-python/capitulo-12">Algoritmos y programación con Python, cap. 12</a></li>
+        <li>Quora — <a href="https://www.quora.com/How-long-does-it-take-you-to-fix-a-program-bug">How long does it take you to fix a program bug?</a></li>
+      </ul>
+    </section>
+
+    <!-- 34 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Próximo: logs — que el programa cuente qué le pasó, aunque nadie esté mirando.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+  <script src="../assets/pasos.js"></script>
+</body>
+</html>

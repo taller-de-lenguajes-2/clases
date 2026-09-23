@@ -387,7 +387,7 @@ v[<span class="n">5</span>] = <span class="n">1</span>;       <span class="c">//
       <ul class="bullets">
         <li>Detectar errores y, cuando se puede, <strong>recuperarse</strong></li>
         <li>Limpiar recursos y <strong>salir con elegancia</strong> ante errores no esperados</li>
-        <li><strong>Dejar registro</strong> de qué error ocurrió en tiempo de ejecución <span class="small-note">(→ tema 17, logs)</span></li>
+        <li><strong>Dejar registro</strong> de qué error ocurrió en tiempo de ejecución <span class="small-note">(→ más adelante, en el tema de logs)</span></li>
         <li>Propagar los errores de forma <strong>sistemática</strong> por la cadena de llamadas</li>
       </ul>
     </section>
@@ -852,7 +852,7 @@ app.UseExceptionHandler();   <span class="c">// ← primero en el pipeline</span
             <li>Sin <code>StackTrace</code> hacia afuera: el detalle técnico no se expone</li>
             <li>El <code>traceId</code> permite encontrar ese request puntual… <strong>en los logs</strong></li>
           </ul>
-          <div class="callout"><strong>Novedad de .NET 10:</strong> si nuestro <code>IExceptionHandler</code> devuelve <code>true</code> (la manejó), el framework <strong>ya no la registra</strong> en el log. Si queremos que quede constancia, la tenemos que loguear nosotros → <strong>tema 17</strong>.</div>
+          <div class="callout"><strong>Novedad de .NET 10:</strong> si nuestro <code>IExceptionHandler</code> devuelve <code>true</code> (la manejó), el framework <strong>ya no la registra</strong> en el log. Si queremos que quede constancia, la tenemos que loguear nosotros: lo vemos <strong>más adelante</strong>, en el tema de logs.</div>
         </div>
       </div>
     </section>
@@ -892,7 +892,7 @@ app.UseExceptionHandler();   <span class="c">// ← primero en el pipeline</span
     <!-- 34 · Cierre -->
     <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
       <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
-      <p class="subtitle">Próximo: logs — que el programa cuente qué le pasó, aunque nadie esté mirando.</p>
+      <p class="subtitle">Próximo: bases de datos — los datos que hoy viven en una lista en memoria pasan a una base de verdad.</p>
     </section>
 
   </div>

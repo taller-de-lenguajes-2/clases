@@ -37,7 +37,7 @@ El material se organiza **por tema** (estable entre años); el orden de dictado 
 | 2 | 03 · 04 |
 | 3 | 05 |
 | 4 | 06 |
-| 5 | 16 · 17 _(excepciones y logs se adelantan este año)_ |
+| 5 | 16 _(excepciones se adelanta este año; logs, tema 17, queda para más adelante)_ |
 | 6 | 07 |
 | 7 | 08 · 09 |
 | 8 | 10 · 11 |

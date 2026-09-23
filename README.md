@@ -13,10 +13,10 @@ El material se organiza **por tema** (estable entre años); el orden de dictado 
 | 00 | Sobre la materia (presentación, cursado, evaluación) | [tema-00-sobre-la-materia](./tema-00-sobre-la-materia) |
 | 01 | POO: Abstracción y ocultamiento de información | [tema-01-abstraccion-y-ocultamiento](./tema-01-abstraccion-y-ocultamiento) |
 | 02 | POO: Composición y agregación | [tema-02-composicion-y-agregacion](./tema-02-composicion-y-agregacion) |
-| 03 | POO: Herencia y polimorfismo | _pendiente_ |
-| 04 | POO: Interfaces y clases abstractas | _pendiente_ |
-| 05 | API REST | _pendiente_ |
-| 06 | ASP.NET con API REST | _pendiente_ |
+| 03 | POO: Herencia y polimorfismo | [tema-03-herencia-y-polimorfismo](./tema-03-herencia-y-polimorfismo) |
+| 04 | POO: Interfaces y clases abstractas | [tema-04-interfaces-y-clases-abstractas](./tema-04-interfaces-y-clases-abstractas) |
+| 05 | API REST | [tema-05-api-rest](./tema-05-api-rest) |
+| 06 | ASP.NET con API REST | [tema-06-asp-net-web-api](./tema-06-asp-net-web-api) |
 | 07 | Bases de datos | _pendiente_ |
 | 08 | Bases de datos: ADO.NET | _pendiente_ |
 | 09 | Repositorios | _pendiente_ |
@@ -26,8 +26,8 @@ El material se organiza **por tema** (estable entre años); el orden de dictado 
 | 13 | Validación | _pendiente_ |
 | 14 | Inyección de dependencias e interfaces | _pendiente_ |
 | 15 | Cookies y variables de sesión | _pendiente_ |
-| 16 | Excepciones | _pendiente_ |
-| 17 | Logs | _pendiente_ |
+| 16 | Excepciones | [tema-16-excepciones](./tema-16-excepciones) |
+| 17 | Logs | [tema-17-logs](./tema-17-logs) |
 
 ## Mapeo temas → clases 2026
 

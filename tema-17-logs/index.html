@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 17 — Logs · Taller de Lenguajes 2</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <div class="title-grid">
+        <div>
+          <p class="slide-eyebrow">Tema 17 · .NET 10</p>
+          <h1 class="title"><span class="accent">Logs</span> de aplicaciones</h1>
+          <p class="subtitle">ILogger · niveles · log estructurado · Serilog · registrar las excepciones</p>
+        </div>
+        <div class="title-photo" style="max-width:380px; justify-self:center"><img src="img/portada.jpg" alt="Notebook con código sobre un libro abierto" /></div>
+      </div>
+    </section>
+
+    <!-- 2 · Dónde quedamos -->
+    <section class="slide" data-chapter="Intro" data-topic="Dónde quedamos">
+      <h2 class="slide-title">Dónde <span class="accent">quedamos</span></h2>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>Tema 16 · Excepciones</h3>
+          <ul>
+            <li>Capturamos los errores con <code>try-catch</code></li>
+            <li>La Web API ya <strong>no se cae</strong>: responde un 404 o un 500 prolijo</li>
+            <li>Al usuario, un mensaje amable, <strong>sin</strong> el <code>StackTrace</code></li>
+          </ul>
+        </div>
+        <div class="card accent-top alt">
+          <h3>El problema</h3>
+          <ul>
+            <li>El error <strong>ocurrió</strong>… y nadie se enteró</li>
+            <li>En .NET 10, si nuestro manejador atrapa la excepción, el framework <strong>no la registra</strong></li>
+            <li>El detalle técnico no se le muestra al usuario: ¿<strong>dónde</strong> queda, entonces?</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout" style="font-size:20px">Hoy: que el programa <strong>cuente qué le pasó</strong>, aunque nadie esté mirando.</div>
+    </section>
+
+    <!-- 3 · Definición -->
+    <section class="slide" data-chapter="¿Qué es?" data-topic="Definición">
+      <h2 class="slide-title">Logs o <span class="accent">registros</span></h2>
+      <div class="callout" style="font-size:22px; margin-top:0">Un <strong>log</strong> es el registro <strong>secuencial</strong>, en un archivo o en una base de datos, de los <strong>eventos</strong> que afectan a un proceso: una aplicación, una red, un sistema.</div>
+      <ul class="bullets">
+        <li><strong>Logging</strong> es el procedimiento de grabar y guardar esos eventos</li>
+        <li>Cada entrada dice <strong>cuándo</strong> pasó, <strong>qué tan grave</strong> es, <strong>quién</strong> la escribió y <strong>qué</strong> pasó</li>
+        <li>Constituye una <strong>evidencia</strong> del comportamiento del sistema: lo que pasó a las 3 de la mañana se puede leer a las 9</li>
+      </ul>
+    </section>
+
+    <!-- 4 · Utilidad -->
+    <section class="slide" data-chapter="¿Qué es?" data-topic="Para qué sirven">
+      <h2 class="slide-title">¿Para qué <span class="accent">sirven</span>?</h2>
+      <div class="columns three">
+        <div class="card accent-top"><h3>Depuración</h3><p>Reconstruir qué pasó antes de un error que no se puede reproducir.</p></div>
+        <div class="card accent-top"><h3>Monitoreo</h3><p>Ver en vivo cómo se comporta la aplicación: cuántos errores, qué tan lenta responde.</p></div>
+        <div class="card accent-top"><h3>Auditoría</h3><p>Quién hizo qué y cuándo: quién borró ese registro, quién cambió ese precio.</p></div>
+        <div class="card accent-top alt"><h3>Análisis forense</h3><p>Después de un incidente, entender cómo ocurrió y qué alcance tuvo.</p></div>
+        <div class="card accent-top alt"><h3>Detección de intrusos</h3><p>Patrones raros: cien intentos de login fallidos en un minuto.</p></div>
+        <div class="card accent-top alt"><h3>Cumplir la ley</h3><p>Un proveedor de internet, por ejemplo, está obligado a registrar las conexiones de sus clientes.</p></div>
+      </div>
+    </section>
+
+    <!-- 5 · Anatomía de una línea -->
+    <section class="slide" data-chapter="¿Qué es?" data-topic="Anatomía de una línea">
+      <h2 class="slide-title">Anatomía de una <span class="accent">línea de log</span></h2>
+      <div class="url-split lg" style="margin-top:10px">
+        <div class="seg" style="--c: var(--muted)"><code>2026-09-22 22:25:58</code><span>cuándo</span></div>
+        <div class="seg" style="--c: var(--yellow)"><code>[WRN]</code><span>nivel</span></div>
+        <div class="seg" style="--c: var(--accent-2)"><code>ManejadorGlobal:</code><span>categoría (quién)</span></div>
+        <div class="seg" style="--c: var(--accent)"><code>Pedido inválido en /productos/9</code><span>mensaje (qué)</span></div>
+      </div>
+      <div class="columns" style="margin-top:18px">
+        <figure class="fig framed" style="--h: 250px"><img src="img/linea-de-log.jpeg" alt="Consola de ASP.NET Core con una línea de log señalada: nivel, categoría, event id y mensaje" /><figcaption>La salida por consola que trae ASP.NET Core de fábrica.</figcaption></figure>
+        <ul class="bullets">
+          <li>El <strong>nivel</strong> permite filtrar: ver solo los errores</li>
+          <li>La <strong>categoría</strong> dice qué clase lo escribió</li>
+          <li>El <strong>mensaje</strong> lo escribimos nosotros: tiene que servirle a quien lo lea dentro de seis meses</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 6 · ILogger -->
+    <section class="slide" data-chapter="ILogger" data-topic="Una API, muchos destinos">
+      <h2 class="slide-title"><span class="accent">ILogger</span>: una API, muchos destinos</h2>
+      <p class="small-note">.NET trae una API de registro, <code>ILogger</code>, de alto rendimiento y con soporte para log estructurado. El código escribe siempre igual; los <strong>proveedores</strong> deciden adónde va cada mensaje.</p>
+      <div class="diagram">
+        <svg viewBox="0 0 1040 300" width="990" role="img" aria-label="El código llama a ILogger, que reparte el mensaje entre los proveedores: consola, debug, EventLog, EventSource y proveedores de terceros como Serilog o NLog">
+          <defs>
+            <marker id="l17" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
+          </defs>
+          <rect x="10" y="115" width="190" height="70" rx="14" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+          <text x="105" y="145" text-anchor="middle" font-size="17" font-weight="700" fill="var(--text)">Nuestro código</text>
+          <text x="105" y="168" text-anchor="middle" font-size="13" fill="var(--muted)" class="mono">_logger.LogError(…)</text>
+          <line x1="202" y1="150" x2="290" y2="150" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#l17)"/>
+          <rect x="295" y="105" width="190" height="90" rx="14" fill="color-mix(in srgb, var(--accent) 14%, transparent)" stroke="var(--accent)" stroke-width="2.5"/>
+          <text x="390" y="147" text-anchor="middle" font-size="24" font-weight="800" fill="var(--accent)" class="mono">ILogger</text>
+          <text x="390" y="172" text-anchor="middle" font-size="13" fill="var(--muted)">la interfaz</text>
+          <g stroke="var(--accent)" stroke-width="2" fill="none">
+            <path d="M487,150 C560,150 560,30 640,30" marker-end="url(#l17)"/>
+            <path d="M487,150 C560,150 560,90 640,90" marker-end="url(#l17)"/>
+            <path d="M487,150 L640,150" marker-end="url(#l17)"/>
+            <path d="M487,150 C560,150 560,210 640,210" marker-end="url(#l17)"/>
+            <path d="M487,150 C560,150 560,270 640,270" marker-end="url(#l17)" stroke="var(--accent-2)"/>
+          </g>
+          <g font-size="16" fill="var(--text)">
+            <rect x="645" y="10" width="380" height="40" rx="10" fill="var(--panel-2)" stroke="var(--border)"/>
+            <text x="665" y="36"><tspan font-weight="700">Consola</tspan><tspan fill="var(--muted)" font-size="14">  · el que viene por defecto</tspan></text>
+            <rect x="645" y="70" width="380" height="40" rx="10" fill="var(--panel-2)" stroke="var(--border)"/>
+            <text x="665" y="96"><tspan font-weight="700">Debug</tspan><tspan fill="var(--muted)" font-size="14">  · ventana de salida del IDE</tspan></text>
+            <rect x="645" y="130" width="380" height="40" rx="10" fill="var(--panel-2)" stroke="var(--border)"/>
+            <text x="665" y="156"><tspan font-weight="700">EventLog</tspan><tspan fill="var(--muted)" font-size="14">  · visor de eventos de Windows</tspan></text>
+            <rect x="645" y="190" width="380" height="40" rx="10" fill="var(--panel-2)" stroke="var(--border)"/>
+            <text x="665" y="216"><tspan font-weight="700">EventSource</tspan><tspan fill="var(--muted)" font-size="14">  · herramientas de diagnóstico</tspan></text>
+            <rect x="645" y="250" width="380" height="40" rx="10" fill="color-mix(in srgb, var(--accent-2) 12%, transparent)" stroke="var(--accent-2)"/>
+            <text x="665" y="276"><tspan font-weight="700">Terceros</tspan><tspan fill="var(--muted)" font-size="14">  · Serilog, NLog… archivos, BD, la nube</tspan></text>
+          </g>
+        </svg>
+      </div>
+      <div class="callout">Si no se configura nada, ASP.NET Core usa el proveedor de <strong>consola</strong>. <strong>Ninguno</strong> de los que vienen de fábrica escribe a un archivo.</div>
+    </section>
+
+    <!-- 7 · Obtener el logger -->
+    <section class="slide" data-chapter="ILogger" data-topic="Cómo se obtiene">
+      <h2 class="slide-title">¿Cómo llega el <span class="accent">logger</span> a nuestra clase?</h2>
+      <p>Lo pedimos en el <strong>constructor</strong> y el framework nos lo entrega solo: es <strong>inyección de dependencias</strong> (lo vemos a fondo en el tema 14).</p>
+      <div class="columns">
+        <div>
+          <h3>Forma clásica</h3>
+<pre class="code sm"><span class="k">public class</span> <span class="t">ProductosController</span> : <span class="t">ControllerBase</span>
+{
+    <span class="k">private readonly</span> <span class="t">ILogger</span>&lt;<span class="t">ProductosController</span>&gt; _logger;
+
+    <span class="k">public</span> ProductosController(<span class="t">ILogger</span>&lt;<span class="t">ProductosController</span>&gt; logger)
+    {
+        _logger = logger;
+    }
+}</pre>
+        </div>
+        <div>
+          <h3>Con constructor primario (C# 12)</h3>
+<pre class="code sm"><span class="k">public class</span> <span class="t">ProductosController</span>(<span class="t">ILogger</span>&lt;<span class="t">ProductosController</span>&gt; logger)
+    : <span class="t">ControllerBase</span>
+{
+    <span class="c">// "logger" se usa directo en los métodos</span>
+}</pre>
+          <ul class="bullets">
+            <li>El <code>&lt;T&gt;</code> define la <strong>categoría</strong>: cada línea dirá que la escribió <code>ProductosController</code></li>
+            <li>Funciona igual en controladores, servicios, repositorios…</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 · Niveles -->
+    <section class="slide" data-chapter="Niveles" data-topic="Niveles de log">
+      <h2 class="slide-title">Niveles de <span class="accent">log</span></h2>
+      <table class="tbl compact">
+        <tr><th>Nivel</th><th>Valor</th><th>Método</th><th>Para qué</th></tr>
+        <tr><td><span class="nv trc">Trace</span></td><td>0</td><td><code>LogTrace</code></td><td>El máximo detalle. Puede incluir datos sensibles: <strong>nunca</strong> en producción.</td></tr>
+        <tr><td><span class="nv dbg">Debug</span></td><td>1</td><td><code>LogDebug</code></td><td>Información para depurar durante el desarrollo.</td></tr>
+        <tr><td><span class="nv inf">Information</span></td><td>2</td><td><code>LogInformation</code></td><td>El flujo normal: se creó un pedido, se inició la aplicación.</td></tr>
+        <tr><td><span class="nv wrn">Warning</span></td><td>3</td><td><code>LogWarning</code></td><td>Algo anómalo o inesperado que <strong>no</strong> detuvo la aplicación.</td></tr>
+        <tr><td><span class="nv err">Error</span></td><td>4</td><td><code>LogError</code></td><td>Falló la operación actual (este request), no toda la aplicación.</td></tr>
+        <tr><td><span class="nv crt">Critical</span></td><td>5</td><td><code>LogCritical</code></td><td>Requiere atención inmediata: pérdida de datos, disco lleno.</td></tr>
+        <tr><td><code>None</code></td><td>6</td><td>—</td><td>No se escribe ningún mensaje.</td></tr>
+      </table>
+      <p class="small-note">De menor a mayor gravedad. Elegir bien el nivel es lo que después permite <strong>filtrar</strong>.</p>
+    </section>
+
+    <!-- 9 · Filtrar -->
+    <section class="slide" data-chapter="Niveles" data-topic="Nivel mínimo">
+      <h2 class="slide-title">El nivel <span class="accent">mínimo</span> filtra</h2>
+      <p>Se configura un nivel mínimo: se registra ese nivel <strong>y todos los más graves</strong>. Los de abajo se descartan.</p>
+      <div class="niveles">
+        <span class="rotulo">Mínimo <code>Information</code></span>
+        <span class="nv trc off">Trace</span><span class="nv dbg off">Debug</span><span class="nv inf">Information</span><span class="nv wrn">Warning</span><span class="nv err">Error</span><span class="nv crt">Critical</span>
+      </div>
+      <div class="niveles">
+        <span class="rotulo">Mínimo <code>Warning</code></span>
+        <span class="nv trc off">Trace</span><span class="nv dbg off">Debug</span><span class="nv inf off">Information</span><span class="nv wrn">Warning</span><span class="nv err">Error</span><span class="nv crt">Critical</span>
+      </div>
+      <div class="niveles">
+        <span class="rotulo">Mínimo <code>Debug</code></span>
+        <span class="nv trc off">Trace</span><span class="nv dbg">Debug</span><span class="nv inf">Information</span><span class="nv wrn">Warning</span><span class="nv err">Error</span><span class="nv crt">Critical</span>
+      </div>
+      <div class="columns" style="margin-top:10px">
+<pre class="code sm">logger.LogDebug(<span class="s">"Buscando el producto {ProductoId}"</span>, id);
+logger.LogInformation(<span class="s">"Se consultó el producto {ProductoId}"</span>, id);
+logger.LogWarning(<span class="s">"Pedido inválido en {Ruta}"</span>, ruta);</pre>
+        <div class="callout" style="margin-top:0">Lo típico: <code>Debug</code> mientras desarrollamos y <code>Information</code> o <code>Warning</code> en producción. Mismo código, <strong>otra configuración</strong>.</div>
+      </div>
+    </section>
+
+    <!-- 10 · Configuración -->
+    <section class="slide" data-chapter="Niveles" data-topic="appsettings.json">
+      <h2 class="slide-title">Se configura en <span class="accent">appsettings.json</span></h2>
+      <div class="columns wide-left">
+        <div>
+<pre class="code sm">{
+  <span class="s">"Logging"</span>: {
+    <span class="s">"LogLevel"</span>: {
+      <span class="s">"Default"</span>: <span class="s">"Information"</span>,
+      <span class="s">"Microsoft.AspNetCore"</span>: <span class="s">"Warning"</span>
+    }
+  }
+}</pre>
+          <ul class="bullets">
+            <li><code>Default</code>: el mínimo para <strong>todas</strong> las categorías</li>
+            <li>Una <strong>categoría</strong> (un espacio de nombres) puede tener su propio mínimo: acá, lo interno de ASP.NET Core solo muestra de <code>Warning</code> para arriba</li>
+            <li>Es la sección que ya trae el proyecto que crea <code>dotnet new webapi</code></li>
+          </ul>
+        </div>
+        <div>
+          <figure class="fig framed" style="--h: 150px"><img src="img/appsettings-archivos.png" alt="Explorador de VS Code: appsettings.json y appsettings.Development.json" /></figure>
+          <p class="small-note"><code>appsettings.Development.json</code> <strong>pisa</strong> lo del general cuando la aplicación corre en desarrollo: ahí se puede bajar a <code>Debug</code> sin tocar la configuración de producción.</p>
+          <p class="small-note"><a href="https://learn.microsoft.com/es-es/dotnet/core/extensions/logging">learn.microsoft.com — Registro en C# y .NET</a></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · Estructurado -->
+    <section class="slide" data-chapter="Log estructurado" data-topic="Plantillas de mensaje">
+      <h2 class="slide-title">Log <span class="accent">estructurado</span>: plantillas, no strings armados</h2>
+      <div class="columns">
+        <div class="card accent-top alt">
+          <h3>✗ Así no</h3>
+<pre class="code sm">logger.LogInformation(
+    <span class="s">"Se consultó el producto "</span> + producto.Id);
+
+logger.LogInformation(
+    <span class="s">$"Se consultó el producto {producto.Id}"</span>);</pre>
+          <p class="small-note">Llega un <strong>texto ya armado</strong>: el número quedó enterrado adentro. Además, el string se arma aunque ese nivel esté filtrado.</p>
+        </div>
+        <div class="card accent-top">
+          <h3>✓ Así</h3>
+<pre class="code sm">logger.LogInformation(
+    <span class="s">"Se consultó el producto {ProductoId} ({Nombre})"</span>,
+    producto.Id, producto.Nombre);</pre>
+          <p class="small-note">Una <strong>plantilla</strong> con marcadores con nombre, y los valores aparte. Sin <code>$</code>.</p>
+        </div>
+      </div>
+      <div class="callout">En pantalla las dos se ven igual: <code>Se consultó el producto 2 (Mate)</code>. La diferencia está en lo que se <strong>guarda</strong>.</div>
+    </section>
+
+    <!-- 12 · Por qué importa -->
+    <section class="slide" data-chapter="Log estructurado" data-topic="Qué se guarda">
+      <h2 class="slide-title">Lo que se guarda: <span class="accent">datos</span>, no solo texto</h2>
+      <p>El mismo evento de la diapo anterior, guardado en formato JSON (salida real del proyecto de ejemplo, resumida):</p>
+<pre class="out">{
+  "@t":  "2026-09-23T01:26:11.158Z",
+  "@mt": "Se consultó el producto {ProductoId} ({Nombre})",
+  "@tr": "24117f2a45415505d052c3e294278259",
+  <span class="ok">"ProductoId": 2,</span>
+  <span class="ok">"Nombre": "Mate",</span>
+  "SourceContext": "ProductosController",
+  "RequestPath": "/productos/2"
+}</pre>
+      <ul class="bullets">
+        <li><code>ProductoId</code> es un <strong>campo</strong>, con su tipo: se puede buscar <em>“todos los eventos del producto 2”</em> sin adivinar cómo estaba redactado el mensaje</li>
+        <li>Los nombres de los marcadores (<code>{ProductoId}</code>) conviene escribirlos en <strong>PascalCase</strong> y usar siempre los mismos</li>
+      </ul>
+    </section>
+
+    <!-- 13 · Excepciones -->
+    <section class="slide" data-chapter="Log estructurado" data-topic="Registrar una excepción">
+      <h2 class="slide-title">Registrar una <span class="accent">excepción</span></h2>
+      <div class="columns">
+        <div class="card accent-top alt">
+          <h3>✗ Armar el mensaje a mano</h3>
+<pre class="code sm"><span class="k">catch</span> (<span class="t">Exception</span> ex)
+{
+    <span class="k">var</span> mensaje = <span class="s">"Error: "</span> + ex.Message;
+    <span class="k">if</span> (ex.InnerException != <span class="k">null</span>)
+        mensaje += <span class="s">" Inner: "</span> + ex.InnerException.Message;
+    mensaje += <span class="s">" Stack: "</span> + ex.StackTrace;
+    _logger.LogError(mensaje);
+}</pre>
+          <p class="small-note">Mucho trabajo, y todo termina en un único texto.</p>
+        </div>
+        <div class="card accent-top">
+          <h3>✓ Pasar la excepción como primer argumento</h3>
+<pre class="code sm"><span class="k">catch</span> (<span class="t">Exception</span> ex)
+{
+    _logger.LogError(ex,
+        <span class="s">"No se pudo guardar el pedido {PedidoId}"</span>,
+        pedido.Id);
+    <span class="k">throw</span>;
+}</pre>
+          <p class="small-note">El logger guarda <strong>solo</strong> el tipo, el <code>Message</code>, las <code>InnerException</code> y el <code>StackTrace</code> completos. El mensaje nuestro agrega el <strong>contexto</strong>: qué estábamos haciendo.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 · Dónde loguear -->
+    <section class="slide" data-pasos data-chapter="Log estructurado" data-topic="¿Dónde colocar el log?">
+      <h2 class="slide-title">¿<span class="accent">Dónde</span> colocar el log?</h2>
+      <p class="small-note">→ para ver cada caso.</p>
+      <div class="columns three">
+        <div class="card accent-top" data-paso="1">
+          <h3>El <code>catch</code> que resuelve</h3>
+<pre class="code sm"><span class="k">catch</span> (<span class="t">HttpRequestException</span> ex)
+{
+    logger.LogWarning(ex,
+      <span class="s">"Sin cotización, uso la de ayer"</span>);
+    cotizacion = _ultimaConocida;
+}</pre>
+          <p class="small-note">✓ Se loguea: el error <strong>desaparece</strong> ahí, y si no queda escrito, nadie lo va a saber.</p>
+        </div>
+        <div class="card accent-top alt" data-paso="2">
+          <h3>El <code>catch</code> que relanza</h3>
+<pre class="code sm"><span class="k">catch</span> (<span class="t">Exception</span> ex)
+{
+    logger.LogError(ex, <span class="s">"…"</span>);  <span class="c">// ✗</span>
+    <span class="k">throw</span>;
+}</pre>
+          <p class="small-note">✗ Si sube, alguien de más arriba la va a registrar: queda <strong>duplicada</strong>. <strong>O se loguea, o se relanza</strong>, salvo que se agregue contexto que arriba no existe.</p>
+        </div>
+        <div class="card accent-top" data-paso="3">
+          <h3>El manejador global</h3>
+<pre class="code sm"><span class="k">public class</span> <span class="t">ManejadorGlobal</span>(…)
+    : <span class="t">IExceptionHandler</span>
+{
+    <span class="c">// todo lo que nadie capturó</span>
+    <span class="c">// termina acá: se loguea</span>
+    <span class="c">// una sola vez</span>
+}</pre>
+          <p class="small-note">✓ La red de seguridad: lo que se escapa de cualquier controlador se registra en un <strong>único lugar</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 · El archivo -->
+    <section class="slide" data-chapter="Serilog" data-topic="¿Y el archivo?">
+      <h2 class="slide-title">¿Y el <span class="accent">archivo</span>?</h2>
+      <div class="columns">
+        <div>
+          <ul class="bullets">
+            <li>La consola se pierde al cerrar la aplicación; en un servidor, nadie la está mirando</li>
+            <li>Los proveedores de fábrica de .NET <strong>no escriben a archivo</strong> (tampoco en .NET 10)</li>
+            <li>Para eso se usa una librería de terceros: la más difundida es <strong>Serilog</strong></li>
+          </ul>
+        </div>
+        <div class="card accent-top">
+          <h3>Serilog se enchufa <strong>detrás</strong> de ILogger</h3>
+          <p>Nuestro código sigue usando <code>ILogger&lt;T&gt;</code> y <code>LogInformation</code>, sin cambiar una línea. Serilog solo reemplaza <strong>adónde va</strong> cada mensaje: consola, archivo, base de datos, servicios en la nube…</p>
+          <p class="small-note">Cada destino se llama <strong><em>sink</em></strong> (sumidero).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16 · Instalar -->
+    <section class="slide" data-chapter="Serilog" data-topic="Instalación">
+      <h2 class="slide-title">Instalar <span class="accent">Serilog</span></h2>
+      <div class="columns">
+        <div>
+          <h3>1 · El paquete</h3>
+<pre class="code"><span class="k">dotnet</span> add package Serilog.AspNetCore</pre>
+          <p class="small-note">Trae Serilog, los <em>sinks</em> de consola y de archivo, y la lectura de configuración desde <code>appsettings.json</code>.</p>
+        </div>
+        <div>
+          <h3>2 · <code>Program.cs</code></h3>
+<pre class="code sm"><span class="k">using</span> Serilog;
+
+<span class="k">var</span> builder = <span class="t">WebApplication</span>.CreateBuilder(args);
+
+<span class="c">// Serilog reemplaza al logger por defecto</span>
+<span class="c">// y lee su configuración de appsettings.json</span>
+builder.Services.AddSerilog(config =&gt;
+    config.ReadFrom.Configuration(builder.Configuration));
+
+builder.Services.AddControllers();
+
+<span class="k">var</span> app = builder.Build();
+app.UseSerilogRequestLogging();  <span class="c">// una línea por request</span>
+app.MapControllers();
+app.Run();</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17 · Configurar -->
+    <section class="slide" data-chapter="Serilog" data-topic="Configuración">
+      <h2 class="slide-title">Configurar Serilog en <span class="accent">appsettings.json</span></h2>
+      <div class="columns wide-left">
+<pre class="code sm">{
+  <span class="s">"Serilog"</span>: {
+    <span class="s">"MinimumLevel"</span>: {
+      <span class="s">"Default"</span>: <span class="s">"Information"</span>,
+      <span class="s">"Override"</span>: { <span class="s">"Microsoft.AspNetCore"</span>: <span class="s">"Warning"</span> }
+    },
+    <span class="s">"WriteTo"</span>: [
+      { <span class="s">"Name"</span>: <span class="s">"Console"</span> },
+      {
+        <span class="s">"Name"</span>: <span class="s">"File"</span>,
+        <span class="s">"Args"</span>: {
+          <span class="s">"path"</span>: <span class="s">"logs/log-.txt"</span>,
+          <span class="s">"rollingInterval"</span>: <span class="s">"Day"</span>,
+          <span class="s">"outputTemplate"</span>: <span class="s">"{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}]</span>
+<span class="s">             {SourceContext}: {Message:lj} (trace {TraceId}){NewLine}{Exception}"</span>
+        }
+      }
+    ]
+  }
+}</pre>
+        <div>
+          <ul class="bullets">
+            <li>Reemplaza a la sección <code>"Logging"</code>: los niveles mínimos ahora van en <code>MinimumLevel</code></li>
+            <li><code>WriteTo</code>: la lista de <em>sinks</em>. Acá, consola <strong>y</strong> archivo a la vez</li>
+            <li><code>rollingInterval: Day</code>: un archivo nuevo por día → <code>log-20260922.txt</code></li>
+            <li><code>outputTemplate</code>: el formato de cada línea</li>
+          </ul>
+          <p class="small-note">En el ejemplo, <code>outputTemplate</code> va en una sola línea: acá está partido para que entre.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 · Resultado -->
+    <section class="slide" data-chapter="Serilog" data-topic="El resultado">
+      <h2 class="slide-title">El <span class="accent">resultado</span>: <code>logs/log-20260922.txt</code></h2>
+<pre class="out" style="font-size:12.5px">2026-09-22 22:25:58 [INF] Microsoft.Hosting.Lifetime: Now listening on: http://localhost:5198 (trace )
+2026-09-22 22:25:58 [INF] ProductosController: Se consultó el producto 1 (Yerba) (trace c9a857db59d2ba68834b7b84b17be62b)
+2026-09-22 22:25:58 [INF] Serilog.AspNetCore.RequestLoggingMiddleware: HTTP GET /productos/1 responded 200 in 39.5703 ms (trace c9a857db…)
+<span class="dim">2026-09-22 22:25:58</span> [WRN] ManejadorGlobal: Pedido inválido en /productos/9: No existe el producto 9 (trace 250eefa86ab310bd0a9070c6aaf0c1c0)
+2026-09-22 22:25:58 [INF] Serilog.AspNetCore.RequestLoggingMiddleware: HTTP GET /productos/9 responded 404 in 19.6179 ms (trace 250eefa8…)
+<span class="bad">2026-09-22 22:25:58 [ERR] ManejadorGlobal: Error no controlado en /productos/boom (trace 7b05a4271d2184b4ebea738b079a5dfc)
+System.InvalidOperationException: La base de datos no responde
+   at ProductosController.Boom() in …\Controllers\ProductosController.cs:line 31
+   …</span>
+2026-09-22 22:25:58 [ERR] Serilog.AspNetCore.RequestLoggingMiddleware: HTTP GET /productos/boom responded 500 in 6.9062 ms (trace 7b05a427…)</pre>
+      <div class="columns" style="margin-top:12px">
+        <p class="small-note">Salida real del proyecto de ejemplo. Cada request deja: lo que escribimos nosotros (<code>ProductosController</code>, <code>ManejadorGlobal</code>) y la línea de resumen de <code>UseSerilogRequestLogging</code>: verbo, ruta, código de estado y tiempo.</p>
+        <p class="small-note">El <code>Error</code> trae la excepción <strong>completa</strong> con su <code>StackTrace</code>, que al cliente no le mostramos. El log es el lugar para ese detalle.</p>
+      </div>
+    </section>
+
+    <!-- 19 · Orden -->
+    <section class="slide" data-chapter="Serilog" data-topic="Cuidado con el orden">
+      <h2 class="slide-title">Cuidado con el <span class="accent">orden</span> del pipeline</h2>
+      <div class="columns">
+        <div class="card accent-top alt">
+          <h3>✗ Request logging después</h3>
+<pre class="code sm">app.UseExceptionHandler();
+app.UseSerilogRequestLogging();</pre>
+<pre class="out"><span class="bad">[ERR] HTTP GET /productos/9 responded 500</span>
+<span class="dim">System.Collections.Generic.KeyNotFoundException…</span>
+[WRN] Pedido inválido en /productos/9 …</pre>
+          <p class="small-note">Ve pasar la excepción <strong>antes</strong> de que el manejador la convierta en 404: registra un <strong>500 que el cliente nunca recibió</strong>, y el error queda duplicado.</p>
+        </div>
+        <div class="card accent-top">
+          <h3>✓ Request logging antes</h3>
+<pre class="code sm">app.UseSerilogRequestLogging();
+app.UseExceptionHandler();</pre>
+<pre class="out">[WRN] Pedido inválido en /productos/9 …
+<span class="ok">[INF] HTTP GET /productos/9 responded 404</span></pre>
+          <p class="small-note">Envuelve a todo el resto: registra la respuesta <strong>final</strong>, la que realmente salió.</p>
+        </div>
+      </div>
+      <div class="callout">Es el mismo concepto del tema 06: los middlewares se ejecutan <strong>en el orden en que se agregan</strong>.</div>
+    </section>
+
+    <!-- 20 · Manejador con log -->
+    <section class="slide" data-chapter="Excepciones + logs" data-topic="El manejador loguea">
+      <h2 class="slide-title">El manejador global, ahora con <span class="accent">log</span></h2>
+      <div class="columns wide-left">
+<pre class="code sm"><span class="k">public class</span> <span class="t">ManejadorGlobal</span>(
+    <span class="t">IProblemDetailsService</span> problemDetails,
+    <span class="t">ILogger</span>&lt;<span class="t">ManejadorGlobal</span>&gt; logger) : <span class="t">IExceptionHandler</span>
+{
+    <span class="k">public async</span> <span class="t">ValueTask</span>&lt;<span class="k">bool</span>&gt; TryHandleAsync(
+        <span class="t">HttpContext</span> http, <span class="t">Exception</span> ex, <span class="t">CancellationToken</span> ct)
+    {
+        http.Response.StatusCode = ex <span class="k">switch</span>
+        {
+            <span class="t">KeyNotFoundException</span> =&gt; <span class="n">404</span>,
+            <span class="t">ArgumentException</span>    =&gt; <span class="n">400</span>,
+            _                    =&gt; <span class="n">500</span>
+        };
+
+        <span class="k">if</span> (http.Response.StatusCode &gt;= <span class="n">500</span>)
+            logger.LogError(ex, <span class="s">"Error no controlado en {Ruta}"</span>, http.Request.Path);
+        <span class="k">else</span>
+            logger.LogWarning(<span class="s">"Pedido inválido en {Ruta}: {Mensaje}"</span>,
+                http.Request.Path, ex.Message);
+
+        <span class="k">return await</span> problemDetails.TryWriteAsync(…);   <span class="c">// igual que en el tema 16</span>
+    }
+}</pre>
+        <div>
+          <ul class="bullets">
+            <li><strong>500</strong>: falla nuestra → <code>Error</code>, con la excepción completa</li>
+            <li><strong>4xx</strong>: el cliente pidió algo inválido → <code>Warning</code>, sin <code>StackTrace</code>: no es un bug</li>
+            <li>Así se cierra lo que dejó abierto .NET 10: la excepción se maneja <strong>y</strong> queda registrada</li>
+          </ul>
+          <p class="small-note">En el ejemplo se usa <code>StatusCodes.Status404NotFound</code>; acá van los números para que entre.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 21 · traceId -->
+    <section class="slide" data-chapter="Excepciones + logs" data-topic="Del traceId al log">
+      <h2 class="slide-title">Del <span class="accent">traceId</span> al log</h2>
+      <p>Un usuario reporta un error y nos pasa lo que recibió. El <code>traceId</code> de la respuesta es el mismo que quedó en el log:</p>
+      <div class="http-msg lg">
+        <div class="msg-title">Lo que recibió el cliente · GET /productos/9</div>
+        <div class="part" style="--c: var(--accent-2)"><div class="tag">Body</div><pre>{ "title": "Ocurrió un error", "status": 404, "detail": "No existe el producto 9",
+  "traceId": "00-<span class="hl route">250eefa86ab310bd0a9070c6aaf0c1c0</span>-8663a514797147fa-00" }</pre></div>
+      </div>
+      <p style="margin-top:18px">Lo que quedó en <code>logs/log-20260922.txt</code>:</p>
+<pre class="out" style="font-size:12.5px">2026-09-22 22:25:58 [WRN] ManejadorGlobal: Pedido inválido en /productos/9: No existe el producto 9 (trace <span class="ok">250eefa86ab310bd0a9070c6aaf0c1c0</span>)
+2026-09-22 22:25:58 [INF] …RequestLoggingMiddleware: HTTP GET /productos/9 responded 404 in 19.6179 ms (trace <span class="ok">250eefa86ab310bd0a9070c6aaf0c1c0</span>)</pre>
+      <div class="callout">Buscando ese número en el archivo aparecen <strong>todas</strong> las líneas de ese request puntual, entre miles. Al usuario no le mostramos el detalle, pero le damos una <strong>referencia</strong> para encontrarlo.</div>
+    </section>
+
+    <!-- 22 · Debate -->
+    <section class="slide" data-chapter="¿Qué registrar?" data-topic="Debate">
+      <h2 class="slide-title">Debate: ¿qué conviene <span class="accent">registrar</span>?</h2>
+      <div class="columns">
+        <figure class="fig" style="--h: 420px"><img src="img/pensando.jpg" alt="Personaje pensativo tomando un café" /></figure>
+        <div style="align-self:center">
+          <h3 style="font-size:28px">¿Solo vamos a loguear los <code>try-catch</code>?</h3>
+          <p class="small-note">Pensemos en una aplicación de pedidos: ¿qué nos gustaría poder leer mañana si algo sale mal… o si todo sale bien?</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 23 · Loguear todo -->
+    <section class="slide" data-chapter="¿Qué registrar?" data-topic="¿Loguear todo?">
+      <h2 class="slide-title">“¡Si logueamos todo, no se <span class="accent">escapa nada</span>!”</h2>
+      <div class="columns">
+        <figure class="fig" style="--h: 400px"><img src="img/si-logueamos-todo.png" alt="Meme de alguien señalándose la sien con cara de idea brillante" /></figure>
+        <div>
+          <p>Suena bien, pero:</p>
+          <ul class="bullets">
+            <li><strong>Ruido</strong>: el error importante queda enterrado entre millones de líneas</li>
+            <li><strong>Espacio y costo</strong>: los archivos crecen, y en la nube se paga por gigabyte</li>
+            <li><strong>Rendimiento</strong>: escribir también lleva tiempo</li>
+            <li><strong>Seguridad</strong>: tarde o temprano se loguea algo que no debía</li>
+          </ul>
+          <div class="callout">Se registra con <strong>intención</strong>: cada línea tiene que poder responder una pregunta.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 24 · Sí / nunca -->
+    <section class="slide" data-chapter="¿Qué registrar?" data-topic="Qué sí y qué nunca">
+      <h2 class="slide-title">Qué <span class="accent">sí</span> y qué <span class="accent">nunca</span></h2>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>✓ Conviene registrar</h3>
+          <ul>
+            <li>Errores y excepciones, <strong>con contexto</strong> (qué pedido, qué usuario)</li>
+            <li>Eventos del negocio: se creó un pedido, se anuló una venta</li>
+            <li>Inicio y fin de la aplicación, cambios de configuración</li>
+            <li>Llamadas a sistemas externos: una API que tardó demasiado</li>
+            <li>Acciones de seguridad: logins fallidos, accesos denegados</li>
+          </ul>
+        </div>
+        <div class="card accent-top alt">
+          <h3>✗ Nunca registrar</h3>
+          <ul>
+            <li><strong>Contraseñas</strong>, aunque sean las que fallaron</li>
+            <li><strong>Tokens</strong>, claves de API, cadenas de conexión</li>
+            <li>Números de <strong>tarjeta</strong> y datos bancarios</li>
+            <li><strong>Datos personales</strong> que no hacen falta (DNI, domicilio, salud)</li>
+          </ul>
+          <p class="small-note">Ojo con <code>{@Producto}</code>: guarda el objeto <strong>entero</strong>. Con un <code>Usuario</code> se iría también su contraseña.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 25 · Conclusiones -->
+    <section class="slide" data-chapter="Cierre" data-topic="Conclusiones">
+      <h2 class="slide-title"><span class="accent">Conclusiones</span></h2>
+      <ol class="steps">
+        <li>Construir el programa pensando en las excepciones lo hace <strong>robusto</strong>; registrarlas lo hace <strong>mantenible</strong>.</li>
+        <li>Al usuario, un mensaje que pueda entender; <strong>el detalle técnico, al log</strong>.</li>
+        <li>Usar <code>ILogger&lt;T&gt;</code> siempre, con <strong>plantillas</strong> y el <strong>nivel</strong> adecuado.</li>
+        <li>Las excepciones se pasan como <strong>primer argumento</strong>: <code>LogError(ex, "…")</code>.</li>
+        <li>Cada error se registra <strong>una vez</strong>: donde se resuelve, o en el manejador global.</li>
+        <li>Para que el log sobreviva, a <strong>archivo</strong>: Serilog, configurado desde <code>appsettings.json</code>.</li>
+      </ol>
+    </section>
+
+    <!-- 26 · Ejemplo y práctica -->
+    <section class="slide" data-chapter="Cierre" data-topic="Ejemplo y práctica">
+      <h2 class="slide-title">Ejemplo y <span class="accent">práctica</span></h2>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>Proyecto de ejemplo</h3>
+          <p>Web API .NET 10 con Serilog y el manejador global, en <code>proyecto-ejemplo</code>. El archivo <code>EjemploLogs.http</code> tiene un request para cada caso (200, 404, 400, 500).</p>
+<pre class="code sm"><span class="k">cd</span> tema-17-logs/proyecto-ejemplo
+<span class="k">dotnet</span> run
+<span class="c"># los logs quedan en logs/log-AAAAMMDD.txt y .json</span></pre>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Propuesta práctica</h3>
+          <p>Agregar Serilog a la Web API del tema 06: registrar a archivo, loguear los eventos importantes con plantillas y capturar los errores en un manejador global.</p>
+          <p><span class="todo-placeholder">link de GitHub Classroom 2026</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 27 · Bibliografía -->
+    <section class="slide" data-chapter="Cierre" data-topic="Bibliografía">
+      <h2 class="slide-title"><span class="accent">Bibliografía</span></h2>
+      <ul class="bullets" style="font-size:16px">
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/dotnet/core/extensions/logging">Registro en C# y .NET</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/fundamentals/logging/">Registro en .NET Core y ASP.NET Core</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/fundamentals/error-handling">Control de errores en ASP.NET Core</a></li>
+        <li>Serilog — <a href="https://github.com/serilog/serilog-aspnetcore">serilog-aspnetcore</a> · <a href="https://github.com/serilog/serilog-settings-configuration">configuración desde appsettings.json</a> · <a href="https://messagetemplates.org/">Message Templates</a></li>
+        <li>OWASP — <a href="https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html">Logging Cheat Sheet</a> (qué registrar y qué no)</li>
+        <li>Wikipedia — <a href="https://es.wikipedia.org/wiki/Registro_(inform%C3%A1tica)">Registro (informática)</a></li>
+      </ul>
+    </section>
+
+    <!-- 28 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Próximo: bases de datos — los datos que hoy viven en una lista en memoria pasan a una base de verdad.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+  <script src="../assets/pasos.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+@base = http://localhost:5093
+
+### Existe → 200 (log Information)
+GET {{base}}/productos/1
+
+### No existe → 404 (log Warning)
+GET {{base}}/productos/9
+
+### Crear → 201 (log con el objeto completo)
+POST {{base}}/productos
+Content-Type: application/json
+
+{ "id": 3, "nombre": "Bombilla", "precio": 4500 }
+
+### Precio inválido → 400 (log Warning)
+POST {{base}}/productos
+Content-Type: application/json
+
+{ "id": 4, "nombre": "Termo", "precio": -1 }
+
+### Falla inesperada → 500 (log Error con la excepción)
+GET {{base}}/productos/boom

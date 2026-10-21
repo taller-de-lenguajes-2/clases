@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 07 — Bases de datos · Taller de Lenguajes 2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css?v=6" />
+  <link rel="stylesheet" href="../assets/estilo-sereno.css?v=6" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <div class="title-grid">
+        <div>
+          <p class="slide-eyebrow">Tema 07 · Persistencia</p>
+          <h1 class="title">Bases de <span class="accent">datos</span></h1>
+        </div>
+        <div class="title-art">
+          <svg viewBox="0 0 360 380" width="340" role="img" aria-label="Ilustración de una base de datos: tres discos apilados">
+            <g fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="3">
+              <path d="M40,270 v50 a140,36 0 0 0 280,0 v-50"/>
+              <ellipse cx="180" cy="270" rx="140" ry="36"/>
+              <path d="M40,170 v50 a140,36 0 0 0 280,0 v-50"/>
+              <ellipse cx="180" cy="170" rx="140" ry="36"/>
+              <path d="M40,70 v50 a140,36 0 0 0 280,0 v-50"/>
+              <ellipse cx="180" cy="70" rx="140" ry="36"/>
+            </g>
+            <g fill="var(--accent-2)">
+              <circle cx="290" cy="122" r="6"/><circle cx="290" cy="222" r="6"/><circle cx="290" cy="322" r="6"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 · Agenda -->
+    <section class="slide" data-chapter="Intro" data-topic="Agenda">
+      <h2 class="slide-title">Qué vamos a <span class="accent">ver</span></h2>
+      <div class="columns three agenda">
+        <div class="card">
+          <span class="num">1</span>
+          <h3>Conceptos</h3>
+          <ul>
+            <li>Datos sin y con una base</li>
+            <li>Qué es una base de datos</li>
+            <li>Motores y herramientas</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">2</span>
+          <h3>Modelo relacional</h3>
+          <ul>
+            <li>Tablas, registros y campos</li>
+            <li>Clave primaria y foránea</li>
+            <li>Integridad referencial</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">3</span>
+          <h3>Lenguaje SQL</h3>
+          <ul>
+            <li><code>CREATE TABLE</code></li>
+            <li><code>SELECT</code> y sus filtros</li>
+            <li><code>JOIN</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · El caso: una clínica -->
+    <section class="slide" data-pasos data-chapter="Conceptos" data-topic="El caso: una clínica">
+      <h2 class="slide-title">El caso: una <span class="accent">clínica</span></h2>
+      <p class="idea" style="font-size:30px; margin-top:0">Supongamos que queremos manejar una <em>clínica</em>.</p>
+      <p class="small-note" style="text-align:center; margin:8px 0 0">La clínica tiene <strong>pacientes</strong>; los pacientes sacan <strong>turnos</strong> y van con los <strong>médicos</strong>.</p>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 310" width="1000" role="img" aria-label="La clínica; dentro, un paciente saca un turno, y el turno es con un médico">
+          <defs>
+            <marker id="flecha-caso" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+            </marker>
+          </defs>
+          <!-- Clínica -->
+          <g>
+            <polygon points="35,118 135,62 235,118" fill="color-mix(in srgb, var(--accent) 22%, var(--panel))" stroke="var(--accent)" stroke-width="3" stroke-linejoin="round"/>
+            <rect x="50" y="118" width="170" height="142" fill="var(--panel)" stroke="var(--accent)" stroke-width="3"/>
+            <rect x="122" y="132" width="26" height="62" rx="4" fill="var(--accent-2)"/>
+            <rect x="104" y="150" width="62" height="26" rx="4" fill="var(--accent-2)"/>
+            <rect x="113" y="212" width="44" height="48" rx="4" fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="2"/>
+            <text x="135" y="295" text-anchor="middle" font-size="21" font-weight="600" fill="var(--text)" class="serif">Clínica</text>
+          </g>
+          <!-- Lo que pasa adentro -->
+          <rect x="290" y="30" width="790" height="270" rx="22" fill="color-mix(in srgb, var(--accent) 6%, transparent)" stroke="var(--border)" stroke-width="1.5" stroke-dasharray="6 6"/>
+          <path d="M235,190 H285" stroke="var(--border)" stroke-width="2" stroke-dasharray="6 6"/>
+
+          <!-- Paciente -->
+          <g data-paso="1">
+            <circle cx="390" cy="108" r="28" fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="3"/>
+            <path d="M340,220 a50,58 0 0 1 100,0 z" fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="3" stroke-linejoin="round"/>
+            <text x="390" y="262" text-anchor="middle" font-size="21" font-weight="600" fill="var(--text)" class="serif">Paciente</text>
+          </g>
+
+          <!-- saca → Turno -->
+          <g data-paso="2">
+            <path d="M455,160 H575" stroke="var(--muted)" stroke-width="2.5" fill="none" marker-end="url(#flecha-caso)"/>
+            <text x="515" y="148" text-anchor="middle" font-size="17" font-style="italic" fill="var(--muted)">saca</text>
+            <rect x="595" y="98" width="130" height="122" rx="14" fill="var(--panel)" stroke="var(--accent-2)" stroke-width="3"/>
+            <path d="M595,134 v-22 a14,14 0 0 1 14,-14 h102 a14,14 0 0 1 14,14 v22 z" fill="color-mix(in srgb, var(--accent-2) 22%, var(--panel))"/>
+            <rect x="625" y="86" width="8" height="24" rx="4" fill="var(--accent-2)"/>
+            <rect x="687" y="86" width="8" height="24" rx="4" fill="var(--accent-2)"/>
+            <text x="660" y="172" text-anchor="middle" font-size="26" font-weight="700" fill="var(--text)" class="mono">20/10</text>
+            <text x="660" y="202" text-anchor="middle" font-size="17" fill="var(--muted)" class="mono">09:00</text>
+            <text x="660" y="262" text-anchor="middle" font-size="21" font-weight="600" fill="var(--text)" class="serif">Turno</text>
+          </g>
+
+          <!-- con → Médico -->
+          <g data-paso="3">
+            <path d="M745,160 H865" stroke="var(--muted)" stroke-width="2.5" fill="none" marker-end="url(#flecha-caso)"/>
+            <text x="805" y="148" text-anchor="middle" font-size="17" font-style="italic" fill="var(--muted)">con</text>
+            <circle cx="935" cy="108" r="28" fill="color-mix(in srgb, var(--accent-2) 16%, var(--panel))" stroke="var(--accent-2)" stroke-width="3"/>
+            <path d="M885,220 a50,58 0 0 1 100,0 z" fill="color-mix(in srgb, var(--accent-2) 16%, var(--panel))" stroke="var(--accent-2)" stroke-width="3" stroke-linejoin="round"/>
+            <rect x="929" y="178" width="12" height="32" rx="2" fill="var(--accent-2)"/>
+            <rect x="919" y="188" width="32" height="12" rx="2" fill="var(--accent-2)"/>
+            <text x="935" y="262" text-anchor="middle" font-size="21" font-weight="600" fill="var(--text)" class="serif">Médico</text>
+          </g>
+        </svg>
+      </div>
+      <div class="callout" data-paso="4" style="text-align:center">¿<strong>Dónde</strong> y <strong>cómo</strong> guardamos los pacientes, los turnos y los médicos?</div>
+    </section>
+
+    <!-- 4 · Sin base de datos -->
+    <section class="slide" data-chapter="Conceptos" data-topic="Sin una base de datos">
+      <h2 class="slide-title">Gestionar datos <span class="accent">sin</span> una base de datos</h2>
+      <table class="tbl" style="margin-top:6px">
+        <tr><th>Forma</th><th>Cómo se guarda</th><th>Hasta dónde llega</th></tr>
+        <tr><td><strong>Lista en memoria</strong></td><td>Un <code>List&lt;Turno&gt;</code> dentro del programa</td><td>Se reinicia la API → <strong>se pierde todo</strong></td></tr>
+        <tr><td><strong>Archivo de texto / CSV</strong></td><td>Una línea por turno, campos separados por coma</td><td>Hay que partir y convertir cada línea a mano</td></tr>
+        <tr><td><strong>Archivo JSON</strong></td><td>La lista entera serializada en <code>turnos.json</code></td><td>Sobrevive, pero el programa hace <strong>todo el trabajo</strong></td></tr>
+      </table>
+<pre class="code sm" style="margin-top:18px"><span class="c">// Para agregar UN turno: leer todo, agregar y volver a escribir todo</span>
+<span class="k">var</span> turnos = <span class="t">JsonSerializer</span>.Deserialize&lt;<span class="t">List</span>&lt;<span class="t">Turno</span>&gt;&gt;(<span class="t">File</span>.ReadAllText(<span class="s">"turnos.json"</span>));
+turnos.Add(nuevo);
+<span class="t">File</span>.WriteAllText(<span class="s">"turnos.json"</span>, <span class="t">JsonSerializer</span>.Serialize(turnos));</pre>
+      <p class="small-note">Con pocos datos y un solo programa, alcanza. El problema aparece cuando los datos <strong>crecen</strong>.</p>
+    </section>
+
+    <!-- 5 · Límites del archivo plano -->
+    <section class="slide" data-pasos data-chapter="Conceptos" data-topic="Límites de un archivo">
+      <h2 class="slide-title">¿Por qué no alcanza un <span class="accent">archivo</span>?</h2>
+      <p class="idea" style="font-size:30px; margin-top:0">El problema es que es un <em>archivo suelto</em>: no se administra solo.</p>
+      <ol class="steps" style="margin-top:28px">
+        <li data-paso="1"><strong>Volumen</strong>: con 1000 turnos, cambiar uno obliga a leer y reescribir el archivo entero.</li>
+        <li data-paso="2"><strong>Búsquedas lentas</strong>: para encontrar los turnos de Ana hay que recorrer todos, uno por uno.</li>
+        <li data-paso="3"><strong>Relaciones a mano</strong>: el turno copia los datos del paciente, o guarda su Id y nadie controla que exista.</li>
+        <li data-paso="4"><strong>Duplicación</strong>: nada impide cargar dos veces al mismo paciente, con el mismo Id o el mismo DNI.</li>
+      </ol>
+      <div class="callout" data-paso="5" style="margin-top:24px; text-align:center">Es un archivo suelto que no se administra solo. Por eso necesitamos una <strong>base de datos</strong>.</div>
+    </section>
+
+    <!-- 6 · Con una base de datos -->
+    <section class="slide" data-chapter="Conceptos" data-topic="Con una base de datos">
+      <h2 class="slide-title">Gestionar datos <span class="accent">con</span> una base de datos</h2>
+      <p class="small-note" style="margin-top:0">El programa ya no lee ni escribe el archivo: le pide los datos a un <strong>motor</strong> (SGBD), que se encarga de guardarlos, encontrarlos y cuidarlos.</p>
+      <div class="columns" style="margin-top:18px">
+        <div class="card accent-top">
+          <h3>Relacional</h3>
+          <ul>
+            <li>Los datos van en <strong>tablas</strong> con columnas fijas</li>
+            <li>Las tablas se <strong>relacionan</strong> por sus claves</li>
+            <li>Se consultan con <strong>SQL</strong></li>
+          </ul>
+          <p class="small-note">SQLite, SQL Server, PostgreSQL, MySQL</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Documental</h3>
+          <ul>
+            <li>Los datos van en <strong>documentos</strong> parecidos a JSON</li>
+            <li>Cada documento puede tener campos distintos</li>
+            <li>Cada motor trae su propio lenguaje de consulta</li>
+          </ul>
+          <p class="small-note">MongoDB, CouchDB, Firestore</p>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:22px">En las dos hay un <strong>motor</strong> en el medio. En la materia trabajamos con bases <strong>relacionales</strong>.</div>
+    </section>
+
+    <!-- 7 · Ventajas -->
+    <section class="slide" data-chapter="Conceptos" data-topic="Ventajas">
+      <h2 class="slide-title">Ventajas de usar una base de <span class="accent">datos</span></h2>
+      <table class="tbl" style="margin-top:6px">
+        <tr><th>Con un archivo</th><th>Lo resuelve el motor con…</th></tr>
+        <tr><td>Reescribir todo por un cambio</td><td>Lee y escribe <strong>solo lo que cambia</strong>, aunque haya millones de registros</td></tr>
+        <tr><td>Recorrer todo para buscar</td><td><strong>Índices</strong>: llega al registro sin recorrer la tabla, como el índice de un libro</td></tr>
+        <tr><td>Relaciones a mano</td><td><strong>Claves foráneas</strong>: el turno apunta al paciente sin copiarlo, y el motor controla que exista</td></tr>
+        <tr><td>Duplicación</td><td><strong>Clave primaria</strong> y restricciones <code>UNIQUE</code>: rechaza lo repetido</td></tr>
+        <tr><td>Varios a la vez</td><td><strong>Ordena</strong> los accesos para que nadie pise a nadie</td></tr>
+        <tr><td>Cortes a mitad de camino</td><td><strong>Transacciones</strong>: se guarda todo o no se guarda nada</td></tr>
+      </table>
+    </section>
+
+    <!-- 8 · Cómo se trabaja -->
+    <section class="slide" data-chapter="Conceptos" data-topic="Cómo se trabaja">
+      <h2 class="slide-title">Cómo se trabaja con una <span class="accent">base</span></h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 250" width="1000" role="img" aria-label="Una API, una app de escritorio y un informe le envían instrucciones SQL al motor; el motor guarda y lee los datos de la base y devuelve los resultados">
+          <defs>
+            <marker id="flecha-bd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+              <path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/>
+            </marker>
+          </defs>
+          <!-- Programas -->
+          <g font-size="18" fill="var(--text)" text-anchor="middle">
+            <rect x="20" y="20" width="230" height="56" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+            <text x="135" y="54">API de turnos</text>
+            <rect x="20" y="97" width="230" height="56" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+            <text x="135" y="131">App de recepción</text>
+            <rect x="20" y="174" width="230" height="56" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+            <text x="135" y="208">Informe mensual</text>
+          </g>
+          <!-- Flechas al motor -->
+          <g stroke="var(--muted)" stroke-width="2.5" fill="none">
+            <path d="M250,48 C340,48 360,125 450,125" marker-end="url(#flecha-bd)"/>
+            <path d="M250,125 H450" marker-end="url(#flecha-bd)"/>
+            <path d="M250,202 C340,202 360,125 450,125" marker-end="url(#flecha-bd)"/>
+          </g>
+          <text x="350" y="112" text-anchor="middle" font-size="16" font-weight="700" fill="var(--accent-2)" class="mono">SQL</text>
+          <!-- Motor -->
+          <rect x="455" y="70" width="250" height="110" rx="18" fill="color-mix(in srgb, var(--accent) 14%, var(--panel))" stroke="var(--accent)" stroke-width="2"/>
+          <text x="580" y="118" text-anchor="middle" font-size="22" font-weight="600" fill="var(--text)" class="serif">Motor</text>
+          <text x="580" y="146" text-anchor="middle" font-size="15" fill="var(--muted)">valida · indexa · guarda</text>
+          <!-- Motor ↔ datos -->
+          <path d="M705,125 H815" stroke="var(--muted)" stroke-width="2.5" fill="none" marker-end="url(#flecha-bd)" marker-start="url(#flecha-bd)"/>
+          <!-- Base -->
+          <g fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="2.5">
+            <path d="M830,70 v110 a110,26 0 0 0 220,0 v-110"/>
+            <ellipse cx="940" cy="70" rx="110" ry="26"/>
+          </g>
+          <text x="940" y="150" text-anchor="middle" font-size="18" fill="var(--text)" class="mono">clinica.db</text>
+        </svg>
+      </div>
+      <ol class="steps" style="margin-top:10px">
+        <li>El programa le manda al motor una instrucción SQL: <code>INSERT</code> para guardar un turno, <code>SELECT</code> para pedir los turnos de Ana.</li>
+        <li>El motor la ejecuta sobre la base y devuelve <strong>solo</strong> lo que se pidió, no el archivo entero.</li>
+        <li>Como los datos viven en la base y no en el programa, otras aplicaciones usan <strong>los mismos</strong> datos.</li>
+      </ol>
+    </section>
+
+    <!-- 9 · Dato e información -->
+    <section class="slide" data-chapter="Conceptos" data-topic="Dato e información">
+      <h2 class="slide-title">Dato e <span class="accent">información</span></h2>
+      <div class="columns" style="margin-top:30px">
+        <div class="card tinte" style="text-align:center; padding:40px">
+          <p class="slide-eyebrow" style="margin:0 0 12px">Dato</p>
+          <p class="idea" style="margin:0">381-4567890</p>
+          <p class="small-note">Un elemento suelto: ¿de quién es?</p>
+        </div>
+        <div class="card tinte alt" style="text-align:center; padding:40px">
+          <p class="slide-eyebrow" style="margin:0 0 12px">Información</p>
+          <p class="idea" style="margin:0">El teléfono <em>de</em> Ana Gómez es 381-4567890</p>
+          <p class="small-note">Datos <strong>relacionados</strong> entre sí</p>
+        </div>
+      </div>
+      <p class="small-note" style="text-align:center; margin-top:30px">Una base de datos guarda <strong>datos</strong> y sus <strong>relaciones</strong>: de ahí sale la información.</p>
+    </section>
+
+    <!-- 10 · Qué es una BD -->
+    <section class="slide" data-pasos data-chapter="Conceptos" data-topic="¿Qué es una base de datos?">
+      <h2 class="slide-title">¿Qué es una base de <span class="accent">datos</span>?</h2>
+      <p class="idea" style="font-size:30px; margin-top:0">Un conjunto de datos <em>relacionados</em> entre sí, de un mismo contexto, guardados de forma <em>organizada</em> para usarlos después.</p>
+      <ol class="steps" style="margin-top:26px">
+        <li data-paso="1"><strong>Representa algo del mundo real</strong>: una clínica, con sus pacientes, médicos y turnos.</li>
+        <li data-paso="2"><strong>Sus datos son coherentes</strong>: siguen reglas; no hay un turno de un paciente que no existe.</li>
+        <li data-paso="3"><strong>Tiene una estructura lógica</strong>: se define antes qué se guarda y de qué tipo es cada dato.</li>
+        <li data-paso="4"><strong>La usa un grupo de usuarios</strong>: recepción, médicos y administración trabajan sobre la misma base.</li>
+      </ol>
+    </section>
+
+    <!-- 11 · Motor -->
+    <section class="slide" data-chapter="Conceptos" data-topic="¿Qué es un motor?">
+      <h2 class="slide-title">El motor de base de <span class="accent">datos</span></h2>
+      <p class="small-note" style="margin-top:0">La base se crea y se mantiene con un <strong>SGBD</strong> (sistema de gestión de bases de datos), o simplemente <strong>motor</strong>: el programa que está entre las aplicaciones y los datos.</p>
+      <div class="columns three" style="margin-top:18px">
+        <div class="card accent-top"><h3>Define</h3><p>Crea las tablas, sus campos, sus tipos y las reglas que tienen que cumplir.</p></div>
+        <div class="card accent-top"><h3>Guarda y busca</h3><p>Recibe instrucciones SQL, usa índices y devuelve solo lo pedido.</p></div>
+        <div class="card accent-top"><h3>Controla</h3><p>Rechaza duplicados y claves foráneas que apuntan a la nada.</p></div>
+        <div class="card accent-top alt"><h3>Coordina</h3><p>Ordena a varios usuarios trabajando al mismo tiempo.</p></div>
+        <div class="card accent-top alt"><h3>Protege</h3><p>Usuarios y permisos: quién puede leer y quién puede modificar.</p></div>
+        <div class="card accent-top alt"><h3>Recupera</h3><p>Transacciones y respaldos: la base sobrevive a cortes y caídas.</p></div>
+      </div>
+      <p class="small-note">La aplicación se ocupa de <strong>qué</strong> datos quiere; el motor, de <strong>cómo</strong> guardarlos y encontrarlos.</p>
+    </section>
+
+    <!-- 12 · Herramientas -->
+    <section class="slide" data-chapter="Conceptos" data-topic="Herramientas">
+      <h2 class="slide-title">Herramientas para manejar el <span class="accent">motor</span></h2>
+      <p class="small-note" style="margin-top:0">El motor no tiene ventanas: se le habla con SQL. Para ver las tablas, editar datos y probar consultas se usa una <strong>herramienta visual</strong>.</p>
+      <div class="columns" style="margin-top:16px">
+        <div class="card accent-top">
+          <h3>La de cada motor</h3>
+          <ul>
+            <li><strong>SQL Server Management Studio</strong> → SQL Server</li>
+            <li><strong>pgAdmin</strong> → PostgreSQL</li>
+            <li><strong>MySQL Workbench</strong> → MySQL</li>
+            <li><strong>DB Browser for SQLite</strong> → SQLite</li>
+          </ul>
+          <div style="display:flex; gap:10px; margin-top:8px">
+            <img src="img/ssms.png" alt="Ventana principal de SQL Server Management Studio" style="width:50%; min-width:0; object-fit:contain">
+            <img src="img/pgadmin.png" alt="Ventana principal de pgAdmin" style="width:50%; min-width:0; object-fit:contain">
+          </div>
+          <p class="small-note" style="margin:4px 0 0">Captura: Wikimedia Commons (SSMS y pgAdmin)</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Multipropósito</h3>
+          <ul>
+            <li><strong>DBeaver</strong>: gratuita, se conecta a casi cualquier motor</li>
+            <li><strong>DataGrip</strong>: de JetBrains, paga (gratis para estudiantes)</li>
+            <li><strong>Beekeeper Studio</strong>: liviana, con versión gratuita</li>
+          </ul>
+          <img src="img/dbeaver.png" alt="Ventana principal de DBeaver" style="width:100%; margin-top:8px; object-fit:contain">
+          <p class="small-note" style="margin:4px 0 0">Captura: Wikimedia Commons</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 · Dónde quedan los datos -->
+    <section class="slide" data-chapter="Conceptos" data-topic="Dónde quedan los datos">
+      <h2 class="slide-title">¿Dónde quedan los <span class="accent">datos</span>?</h2>
+      <p class="small-note" style="margin-top:0">Físicamente, en <strong>archivos</strong> en el disco. La diferencia es que no los toca la aplicación: los administra el motor.</p>
+      <div class="columns three" style="margin-top:16px">
+        <div class="card tinte">
+          <h3>Archivos de datos</h3>
+          <p>Las tablas y los índices: el <code>.mdf</code> de SQL Server, la carpeta <code>data</code> de PostgreSQL, el <code>.db</code> de SQLite.</p>
+        </div>
+        <div class="card tinte">
+          <h3>Registro de transacciones</h3>
+          <p>El <em>log</em> (en PostgreSQL y SQLite, <em>WAL</em>). Cada cambio se anota acá antes de aplicarse: después de un corte, el motor lo relee y no se pierde nada de lo confirmado.</p>
+        </div>
+        <div class="card tinte alt">
+          <h3>Respaldo</h3>
+          <p>Una copia de la base hecha cada tanto (<em>backup</em>), guardada en otro lado.</p>
+        </div>
+      </div>
+      <div class="callout alt" style="margin-top:20px">El log <strong>no reemplaza</strong> al respaldo. Si se rompe o se pierde el disco, se restaura el <strong>backup</strong>, y el log sirve para llevarlo hasta el último momento.</div>
+    </section>
+
+    <!-- 14 · Motores -->
+    <section class="slide" data-chapter="Conceptos" data-topic="Motores conocidos">
+      <h2 class="slide-title">Motor, herramienta y <span class="accent">archivo</span></h2>
+      <table class="tbl" style="margin-top:6px; font-size:16px">
+        <tr><th>Motor</th><th>Tipo</th><th>Cómo corre</th><th>Herramienta visual</th><th>Dónde quedan los datos</th></tr>
+        <tr><td><strong>SQLite</strong></td><td>Relacional</td><td>Biblioteca <strong>dentro</strong> de la app</td><td>DB Browser for SQLite</td><td>Un archivo <code>.db</code></td></tr>
+        <tr><td><strong>PostgreSQL</strong></td><td>Relacional</td><td>Servidor aparte</td><td>pgAdmin</td><td>Carpeta <code>data</code> + WAL en <code>pg_wal</code></td></tr>
+        <tr><td><strong>MySQL / MariaDB</strong></td><td>Relacional</td><td>Servidor aparte</td><td>MySQL Workbench, HeidiSQL</td><td>Carpeta de datos, un <code>.ibd</code> por tabla</td></tr>
+        <tr><td><strong>SQL Server</strong></td><td>Relacional</td><td>Servidor aparte</td><td>SQL Server Management Studio</td><td><code>.mdf</code> (datos) + <code>.ldf</code> (log)</td></tr>
+        <tr><td><strong>Oracle</strong></td><td>Relacional</td><td>Servidor aparte</td><td>SQL Developer</td><td><em>Datafiles</em> <code>.dbf</code> + <em>redo logs</em></td></tr>
+        <tr><td><strong>MongoDB</strong></td><td>Documental (JSON)</td><td>Servidor aparte</td><td>MongoDB Compass</td><td>Carpeta de datos + <em>journal</em></td></tr>
+      </table>
+    </section>
+
+    <!-- 15 · SQLite en la materia -->
+    <section class="slide" data-chapter="Conceptos" data-topic="SQLite">
+      <h2 class="slide-title">En la materia usamos <span class="accent">SQLite</span></h2>
+      <div class="columns" style="align-items:start">
+        <ul class="bullets">
+          <li>La base es <strong>un solo archivo</strong> que viaja con el proyecto</li>
+          <li>El motor es muy chico y va como <strong>biblioteca dentro del programa</strong>: no hay servidor que instalar ni levantar</li>
+          <li>Está en todos lados: <strong>celulares</strong> (Android, iOS), <strong>navegadores</strong> y aplicaciones de un solo usuario</li>
+        </ul>
+        <div class="card accent-top alt">
+          <h3>DB Browser for SQLite</h3>
+          <p>La herramienta visual que usamos para abrir el <code>.db</code>, mirar las tablas y probar consultas.</p>
+          <img src="img/dbbrowser.png" alt="DB Browser for SQLite mostrando una tabla" style="width:100%; margin-top:8px; object-fit:contain">
+          <p class="small-note" style="margin:4px 0 0">Captura: Wikimedia Commons</p>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:20px">SQLite no es solo una herramienta para consultar: es un <strong>motor SQL completo</strong> (transacciones, índices, claves foráneas), solo que <strong>embebido</strong>.</div>
+    </section>
+
+    <!-- 16 · Tabla, registro, campo -->
+    <section class="slide" data-pasos data-chapter="Modelo relacional" data-topic="Tablas, registros y campos">
+      <h2 class="slide-title">El modelo <span class="accent">relacional</span></h2>
+      <p class="idea" style="font-size:27px; margin-top:0">Una base de datos relacional es un conjunto de <em>tablas</em> y las <em>relaciones</em> que se producen entre ellas.</p>
+      <p class="small-note" style="text-align:center; margin:10px auto 0; max-width:960px">Lo propuso <strong>E. F. Codd</strong> en 1970 (<em>A Relational Model of Data for Large Shared Data Banks</em>): los datos se organizan en <strong>relaciones</strong> (tablas), que son conjuntos de <strong>tuplas</strong> (filas) con <strong>atributos</strong> (columnas), y se consultan con operaciones sobre esas relaciones, la base del álgebra relacional.</p>
+      <div class="columns" style="grid-template-columns:auto minmax(0,420px); justify-content:center; column-gap:56px; align-items:center; margin-top:34px">
+        <div class="marco-caja">
+          <table class="filas">
+            <caption>tabla Paciente</caption>
+            <tr><th>Id</th><th>Nombre</th><th>DNI</th><th>Telefono</th></tr>
+            <tr><td class="num">1</td><td>Ana Gómez</td><td class="num">30111222</td><td class="num">381-4567890</td></tr>
+            <tr class="hit"><td class="num">2</td><td>Bruno Díaz</td><td class="num">28999000</td><td class="null">NULL</td></tr>
+            <tr><td class="num">3</td><td>Carla Ruiz</td><td class="num">35444555</td><td class="num">381-5550001</td></tr>
+            <tr><td class="num">4</td><td>Mariana Paz</td><td class="num">40123123</td><td class="num">381-6001234</td></tr>
+          </table>
+          <div class="marco"
+               data-marco-1="table" data-etiqueta-1="Tabla → entidad Paciente"
+               data-marco-2="tr.hit" data-etiqueta-2="Registro (fila)"
+               data-marco-3="th:nth-child(1), td:nth-child(1)" data-etiqueta-3="Campo Id"
+               data-marco-4="th:nth-child(2), td:nth-child(2)" data-etiqueta-4="Campo Nombre"
+               data-marco-5="th:nth-child(3), td:nth-child(3)" data-etiqueta-5="Campo DNI"
+               data-marco-6="tr:nth-child(4) td:nth-child(2)" data-etiqueta-6="Valor"><span class="marco-etiqueta"></span></div>
+        </div>
+        <ul class="bullets" style="font-size:20px">
+          <li data-paso="1"><strong>Tabla</strong>: una entidad (Paciente)</li>
+          <li data-paso="2"><strong>Registro</strong> o fila: un paciente</li>
+          <li data-paso="3"><strong>Campo</strong>, columna o atributo: un dato que tienen todos (Nombre)</li>
+          <li data-paso="6"><strong>Valor</strong>: lo que hay en un campo de un registro ("Carla Ruiz")</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 17 · Clave primaria -->
+    <section class="slide" data-pasos data-chapter="Modelo relacional" data-topic="Clave primaria">
+      <h2 class="slide-title">Clave <span class="accent">primaria</span></h2>
+      <div class="columns wide-left" style="align-items:start">
+        <div>
+          <ul class="bullets" style="font-size:21px">
+            <li>El campo que <strong>identifica</strong> a cada registro</li>
+            <li><strong>Única</strong>: no se repite nunca</li>
+            <li><strong>No cambia</strong> con el tiempo</li>
+            <li>Casi siempre, un <code>Id</code> numérico que genera la base</li>
+          </ul>
+          <div class="marco-caja" style="margin-top:22px">
+            <table class="filas">
+              <caption>tabla Paciente</caption>
+              <tr><th>Id</th><th>Nombre</th><th>DNI</th><th>Telefono</th></tr>
+              <tr><td class="num">1</td><td>Ana Gómez</td><td class="num">30111222</td><td class="num">381-4567890</td></tr>
+              <tr><td class="num">2</td><td>Bruno Díaz</td><td class="num">28999000</td><td class="null">NULL</td></tr>
+              <tr><td class="num">3</td><td>Carla Ruiz</td><td class="num">35444555</td><td class="num">381-5550001</td></tr>
+              <tr><td class="num">4</td><td>Mariana Paz</td><td class="num">40123123</td><td class="num">381-6001234</td></tr>
+            </table>
+            <div class="marco ovalo" data-marco="th:nth-child(1), td:nth-child(1)" data-etiqueta="PK"><span class="marco-etiqueta">PK</span></div>
+          </div>
+        </div>
+        <div class="card accent-top alt" data-paso="1">
+          <h3>¿Y por qué no el nombre?</h3>
+          <ul>
+            <li data-paso="2">Dos pacientes pueden <strong>llamarse igual</strong>: puede haber dos Ana Gómez</li>
+            <li data-paso="3">El nombre (o el DNI) puede <strong>cambiar</strong>, faltar o tener errores de tipeo</li>
+            <li data-paso="4">Un número es más <strong>corto</strong> y más rápido de comparar e indexar</li>
+            <li data-paso="5">El Id <strong>no significa nada</strong>: por eso nunca tiene que cambiar</li>
+          </ul>
+          <p class="small-note" data-paso="5">Se la llama <strong>PK</strong>, por <em>Primary Key</em>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 · Redundancia -->
+    <section class="slide" data-chapter="Modelo relacional" data-topic="El problema: datos repetidos">
+      <h2 class="slide-title">Si guardamos todo <span class="accent">junto</span>…</h2>
+      <table class="filas" style="width:100%">
+        <caption>tabla Turno, sin relaciones</caption>
+        <tr><th>Fecha</th><th>Paciente</th><th>TelPaciente</th><th>Medico</th><th>Especialidad</th></tr>
+        <tr class="hit"><td>20/10 09:00</td><td>Ana Gómez</td><td>381-4567890</td><td>Laura Sosa</td><td>Clínica médica</td></tr>
+        <tr><td>20/10 10:30</td><td>Bruno Díaz</td><td class="null">NULL</td><td>Inés Molina</td><td>Cardiología</td></tr>
+        <tr class="hit"><td>22/10 11:00</td><td>Ana Gómez</td><td>381-4567890</td><td>Inés Molina</td><td>Cardiología</td></tr>
+        <tr><td>27/10 16:00</td><td>Mariana Paz</td><td>381-6001234</td><td>Laura Sosa</td><td>Clínica médica</td></tr>
+      </table>
+      <div class="columns three" style="margin-top:22px">
+        <div class="card tinte alt"><h3>Repetido</h3><p>Los datos de Ana están dos veces.</p></div>
+        <div class="card tinte alt"><h3>Inconsistente</h3><p>Si cambia el teléfono, hay que acordarse de todas las filas.</p></div>
+        <div class="card tinte alt"><h3>Frágil</h3><p>Si se borra el único turno de un médico, el médico desaparece.</p></div>
+      </div>
+    </section>
+
+    <!-- 19 · Relaciones -->
+    <section class="slide" data-chapter="Modelo relacional" data-topic="Relaciones">
+      <h2 class="slide-title">Mejor: tablas <span class="accent">relacionadas</span></h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 320" width="1060" role="img" aria-label="Paciente se relaciona con Turno por PacienteId; Medico se relaciona con Turno por MedicoId. Un paciente tiene muchos turnos, un médico atiende muchos turnos">
+          <!-- Paciente -->
+          <rect x="40" y="40" width="280" height="200" rx="16" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+          <path d="M40,88 v-32 a16,16 0 0 1 16,-16 h248 a16,16 0 0 1 16,16 v32 z" fill="color-mix(in srgb, var(--accent) 14%, var(--panel))"/>
+          <text x="180" y="72" text-anchor="middle" font-size="21" font-weight="600" fill="var(--text)" class="serif">Paciente</text>
+          <text x="64" y="113" font-size="17" fill="var(--text)" class="mono">Id</text>
+          <rect x="250" y="97" width="44" height="22" rx="11" fill="var(--accent)"/><text x="272" y="113" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">PK</text>
+          <text x="64" y="151" font-size="17" fill="var(--muted)" class="mono">Nombre</text>
+          <text x="64" y="189" font-size="17" fill="var(--muted)" class="mono">DNI</text>
+          <text x="64" y="227" font-size="17" fill="var(--muted)" class="mono">Telefono</text>
+
+          <!-- Turno -->
+          <rect x="410" y="40" width="280" height="238" rx="16" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+          <path d="M410,88 v-32 a16,16 0 0 1 16,-16 h248 a16,16 0 0 1 16,16 v32 z" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))"/>
+          <text x="550" y="72" text-anchor="middle" font-size="21" font-weight="600" fill="var(--text)" class="serif">Turno</text>
+          <text x="434" y="113" font-size="17" fill="var(--text)" class="mono">Id</text>
+          <rect x="620" y="97" width="44" height="22" rx="11" fill="var(--accent)"/><text x="642" y="113" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">PK</text>
+          <text x="434" y="151" font-size="17" fill="var(--text)" class="mono">PacienteId</text>
+          <rect x="620" y="135" width="44" height="22" rx="11" fill="var(--accent-2)"/><text x="642" y="151" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">FK</text>
+          <text x="434" y="189" font-size="17" fill="var(--text)" class="mono">MedicoId</text>
+          <rect x="620" y="173" width="44" height="22" rx="11" fill="var(--accent-2)"/><text x="642" y="189" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">FK</text>
+          <text x="434" y="227" font-size="17" fill="var(--muted)" class="mono">Fecha</text>
+          <text x="434" y="265" font-size="17" fill="var(--muted)" class="mono">Observaciones</text>
+
+          <!-- Medico -->
+          <rect x="780" y="40" width="280" height="162" rx="16" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+          <path d="M780,88 v-32 a16,16 0 0 1 16,-16 h248 a16,16 0 0 1 16,16 v32 z" fill="color-mix(in srgb, var(--accent) 14%, var(--panel))"/>
+          <text x="920" y="72" text-anchor="middle" font-size="21" font-weight="600" fill="var(--text)" class="serif">Medico</text>
+          <text x="804" y="113" font-size="17" fill="var(--text)" class="mono">Id</text>
+          <rect x="990" y="97" width="44" height="22" rx="11" fill="var(--accent)"/><text x="1012" y="113" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">PK</text>
+          <text x="804" y="151" font-size="17" fill="var(--muted)" class="mono">Nombre</text>
+          <text x="804" y="189" font-size="17" fill="var(--muted)" class="mono">Especialidad</text>
+
+          <!-- Relaciones -->
+          <path d="M320,108 H365 V146 H410" fill="none" stroke="var(--accent-2)" stroke-width="2.5"/>
+          <text x="332" y="98" font-size="16" font-weight="700" fill="var(--accent-2)">1</text>
+          <text x="388" y="138" font-size="16" font-weight="700" fill="var(--accent-2)">N</text>
+          <path d="M780,108 H735 V184 H690" fill="none" stroke="var(--accent-2)" stroke-width="2.5"/>
+          <text x="760" y="98" font-size="16" font-weight="700" fill="var(--accent-2)">1</text>
+          <text x="700" y="176" font-size="16" font-weight="700" fill="var(--accent-2)">N</text>
+        </svg>
+      </div>
+      <div class="columns">
+        <p class="small-note" style="margin:0">Cada dato se guarda <strong>una sola vez</strong>. Turno no copia al paciente: guarda su <code>Id</code>.</p>
+        <p class="small-note" style="margin:0">Un paciente tiene <strong>muchos</strong> turnos; cada turno es de <strong>un</strong> paciente: relación <strong>1 a N</strong>.</p>
+      </div>
+    </section>
+
+    <!-- 20 · Clave foránea -->
+    <section class="slide" data-pasos data-chapter="Modelo relacional" data-topic="Clave foránea">
+      <h2 class="slide-title">Clave <span class="accent">foránea</span></h2>
+      <div class="columns marco-caja" style="grid-template-columns:auto auto; column-gap:130px; align-items:start; margin-top:36px">
+        <table class="filas t-turno">
+          <caption>Turno</caption>
+          <tr><th>Id</th><th>PacienteId</th><th>MedicoId</th><th>Fecha</th></tr>
+          <tr><td class="num">1</td><td class="num"><strong>1</strong></td><td class="num">1</td><td>20/10 09:00</td></tr>
+          <tr><td class="num">2</td><td class="num"><strong>2</strong></td><td class="num">3</td><td>20/10 10:30</td></tr>
+          <tr><td class="num">3</td><td class="num"><strong>1</strong></td><td class="num">3</td><td>22/10 11:00</td></tr>
+          <tr><td class="num">4</td><td class="num"><strong>3</strong></td><td class="num">2</td><td>23/10 08:15</td></tr>
+        </table>
+        <table class="filas t-paciente">
+          <caption>Paciente</caption>
+          <tr><th>Id</th><th>Nombre</th></tr>
+          <tr><td class="num"><strong>1</strong></td><td>Ana Gómez</td></tr>
+          <tr><td class="num"><strong>2</strong></td><td>Bruno Díaz</td></tr>
+          <tr><td class="num"><strong>3</strong></td><td>Carla Ruiz</td></tr>
+        </table>
+        <!-- Paso n: el PacienteId del turno n y la fila del paciente al que apunta -->
+        <div class="marco marco-fk"
+             data-marco-1=".t-turno tr:nth-child(2) td:nth-child(2)" data-etiqueta-1="PacienteId = 1"
+             data-marco-2=".t-turno tr:nth-child(3) td:nth-child(2)" data-etiqueta-2="PacienteId = 2"
+             data-marco-3=".t-turno tr:nth-child(4) td:nth-child(2)" data-etiqueta-3="PacienteId = 1"
+             data-marco-4=".t-turno tr:nth-child(5) td:nth-child(2)" data-etiqueta-4="PacienteId = 3"><span class="marco-etiqueta"></span></div>
+        <div class="marco marco-pk"
+             data-marco-1=".t-paciente tr:nth-child(2)" data-etiqueta-1="Id 1 → Ana Gómez"
+             data-marco-2=".t-paciente tr:nth-child(3)" data-etiqueta-2="Id 2 → Bruno Díaz"
+             data-marco-3=".t-paciente tr:nth-child(2)" data-etiqueta-3="Id 1 → Ana Gómez"
+             data-marco-4=".t-paciente tr:nth-child(4)" data-etiqueta-4="Id 3 → Carla Ruiz"><span class="marco-etiqueta"></span></div>
+        <svg class="marco-flecha" data-desde=".marco-fk" data-hasta=".marco-pk" aria-hidden="true"></svg>
+      </div>
+      <div class="callout" style="margin-top:28px"><code>Turno.PacienteId</code> es una <strong>clave foránea</strong> (<em>FK</em>): guarda la clave primaria de <strong>otra</strong> tabla. Así se arma la relación.</div>
+    </section>
+
+    <!-- 21 · Integridad referencial -->
+    <section class="slide" data-chapter="Modelo relacional" data-topic="Integridad referencial">
+      <h2 class="slide-title">Integridad <span class="accent">referencial</span></h2>
+      <p class="small-note" style="margin-top:0">La base <strong>no permite</strong> que una clave foránea apunte a algo que no existe.</p>
+      <div class="columns" style="margin-top:14px">
+        <div class="card accent-top alt">
+          <h3>Un turno para el paciente 99</h3>
+<pre class="code sm"><span class="k">INSERT INTO</span> Turno (PacienteId, MedicoId, Fecha)
+<span class="k">VALUES</span> (<span class="n">99</span>, <span class="n">1</span>, <span class="s">'2026-11-01 10:00'</span>);</pre>
+<pre class="out"><span class="bad">FOREIGN KEY constraint failed</span></pre>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Borrar a Ana, que tiene turnos</h3>
+<pre class="code sm"><span class="k">DELETE FROM</span> Paciente
+<span class="k">WHERE</span> Id = <span class="n">1</span>;</pre>
+<pre class="out"><span class="bad">FOREIGN KEY constraint failed</span></pre>
+        </div>
+      </div>
+      <p class="small-note">En SQLite este control depende de <code>PRAGMA foreign_keys = ON;</code> — la librería que usamos desde C# ya lo trae activado.</p>
+    </section>
+
+    <!-- 22 · SQL -->
+    <section class="slide" data-chapter="SQL" data-topic="¿Qué es SQL?">
+      <h2 class="slide-title">Lenguaje <span class="accent">SQL</span></h2>
+      <p class="idea" style="font-size:28px; margin-top:0"><em>Structured Query Language</em>: el lenguaje estándar para hablar con una base relacional.</p>
+      <div class="columns" style="margin-top:30px">
+        <div class="card accent-top">
+          <h3>Definir la estructura</h3>
+          <p><code>CREATE TABLE</code> · <code>ALTER TABLE</code> · <code>DROP TABLE</code></p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Trabajar con los datos</h3>
+          <p><code>SELECT</code> · <code>INSERT</code> · <code>UPDATE</code> · <code>DELETE</code></p>
+        </div>
+      </div>
+      <p class="small-note">Es un estándar, pero cada motor tiene su <strong>dialecto</strong>: lo básico es igual en SQLite, SQL Server o PostgreSQL.</p>
+    </section>
+
+    <!-- 23 · CREATE TABLE -->
+    <section class="slide" data-chapter="SQL" data-topic="CREATE TABLE">
+      <h2 class="slide-title">Crear las <span class="accent">tablas</span></h2>
+      <div class="columns wide-left">
+<pre class="code sm"><span class="k">CREATE TABLE</span> Paciente (
+    Id       <span class="t">INTEGER</span> <span class="k">PRIMARY KEY AUTOINCREMENT</span>,
+    Nombre   <span class="t">TEXT</span> <span class="k">NOT NULL</span>,
+    DNI      <span class="t">TEXT</span> <span class="k">UNIQUE</span>,
+    Telefono <span class="t">TEXT</span>
+);
+
+<span class="k">CREATE TABLE</span> Turno (
+    Id            <span class="t">INTEGER</span> <span class="k">PRIMARY KEY AUTOINCREMENT</span>,
+    PacienteId    <span class="t">INTEGER</span> <span class="k">NOT NULL</span>,
+    MedicoId      <span class="t">INTEGER</span> <span class="k">NOT NULL</span>,
+    Fecha         <span class="t">TEXT</span> <span class="k">NOT NULL</span>,
+    Observaciones <span class="t">TEXT</span>,
+    <span class="k">FOREIGN KEY</span> (PacienteId) <span class="k">REFERENCES</span> Paciente(Id),
+    <span class="k">FOREIGN KEY</span> (MedicoId)   <span class="k">REFERENCES</span> Medico(Id)
+);</pre>
+        <ul class="bullets" style="font-size:19px">
+          <li><code>AUTOINCREMENT</code>: el Id lo pone la base</li>
+          <li><code>NOT NULL</code>: campo obligatorio</li>
+          <li><code>UNIQUE</code>: no se repite</li>
+          <li>Tipos en SQLite: <code>INTEGER</code>, <code>REAL</code>, <code>TEXT</code>, <code>BLOB</code></li>
+          <li>Las fechas van como <code>TEXT</code>: <code>'2026-10-20 09:00'</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 24 · SELECT -->
+    <section class="slide" data-chapter="SQL" data-topic="SELECT">
+      <h2 class="slide-title"><span class="accent">SELECT</span>: leer datos</h2>
+<pre class="code"><span class="k">SELECT</span> <span class="c">campos</span> <span class="k">FROM</span> <span class="c">tabla</span> [<span class="k">WHERE</span> <span class="c">condición</span>] [<span class="k">ORDER BY</span> <span class="c">campo</span>]</pre>
+      <div class="columns" style="margin-top:16px; align-items:start">
+        <div>
+<pre class="code sm"><span class="k">SELECT</span> * <span class="k">FROM</span> Paciente;          <span class="c">-- todo</span>
+
+<span class="k">SELECT</span> Nombre, DNI
+<span class="k">FROM</span> Paciente
+<span class="k">WHERE</span> Id &gt; <span class="n">2</span>
+<span class="k">ORDER BY</span> Nombre;</pre>
+          <p class="small-note">En el <code>WHERE</code>: <code>=</code> <code>&lt;&gt;</code> <code>&lt;</code> <code>&gt;</code> <code>AND</code> <code>OR</code> <code>NOT</code></p>
+        </div>
+        <table class="filas">
+          <tr><th>Nombre</th><th>DNI</th></tr>
+          <tr><td>Carla Ruiz</td><td class="num">35444555</td></tr>
+          <tr><td>Diego Herrera</td><td class="num">33777888</td></tr>
+          <tr><td>Mariana Paz</td><td class="num">40123123</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- 25 · LIKE -->
+    <section class="slide" data-chapter="SQL" data-topic="LIKE">
+      <h2 class="slide-title">Buscar por patrón: <span class="accent">LIKE</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+<pre class="code"><span class="k">SELECT</span> Id, Nombre
+<span class="k">FROM</span> Paciente
+<span class="k">WHERE</span> Nombre <span class="k">LIKE</span> <span class="s">'%ana%'</span>;</pre>
+          <table class="filas" style="margin-top:14px">
+            <tr><th>Id</th><th>Nombre</th></tr>
+            <tr><td class="num">1</td><td><strong>Ana</strong> Gómez</td></tr>
+            <tr><td class="num">4</td><td>Mari<strong>ana</strong> Paz</td></tr>
+          </table>
+        </div>
+        <table class="tbl">
+          <tr><th>Comodín</th><th>Significa</th></tr>
+          <tr><td><code>%</code></td><td>cualquier cantidad de caracteres</td></tr>
+          <tr><td><code>_</code></td><td>exactamente un carácter</td></tr>
+          <tr><td><code>'A%'</code></td><td>empieza con A</td></tr>
+          <tr><td><code>'%z'</code></td><td>termina en z</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- 26 · IN y BETWEEN -->
+    <section class="slide" data-chapter="SQL" data-topic="IN y BETWEEN">
+      <h2 class="slide-title"><span class="accent">IN</span> y <span class="accent">BETWEEN</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3>Una lista de valores</h3>
+<pre class="code sm"><span class="k">SELECT</span> Nombre, Especialidad
+<span class="k">FROM</span> Medico
+<span class="k">WHERE</span> Especialidad <span class="k">IN</span> (<span class="s">'Pediatría'</span>, <span class="s">'Cardiología'</span>);</pre>
+          <table class="filas">
+            <tr><th>Nombre</th><th>Especialidad</th></tr>
+            <tr><td>Martín Vera</td><td>Pediatría</td></tr>
+            <tr><td>Inés Molina</td><td>Cardiología</td></tr>
+          </table>
+        </div>
+        <div>
+          <h3>Un intervalo</h3>
+<pre class="code sm"><span class="k">SELECT</span> Id, PacienteId, Fecha
+<span class="k">FROM</span> Turno
+<span class="k">WHERE</span> Fecha <span class="k">BETWEEN</span> <span class="s">'2026-10-21'</span> <span class="k">AND</span> <span class="s">'2026-10-25'</span>;</pre>
+          <table class="filas">
+            <tr><th>Id</th><th>PacienteId</th><th>Fecha</th></tr>
+            <tr><td class="num">3</td><td class="num">1</td><td>2026-10-22 11:00</td></tr>
+            <tr><td class="num">4</td><td class="num">3</td><td>2026-10-23 08:15</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 27 · NULL -->
+    <section class="slide" data-chapter="SQL" data-topic="Campos vacíos: NULL">
+      <h2 class="slide-title">Campos vacíos: <span class="accent">NULL</span></h2>
+      <div class="columns" style="align-items:start">
+        <div class="card accent-top">
+          <h3>✓ Así</h3>
+<pre class="code sm"><span class="k">SELECT</span> Nombre <span class="k">FROM</span> Paciente
+<span class="k">WHERE</span> Telefono <span class="k">IS NULL</span>;</pre>
+          <table class="filas">
+            <tr><th>Nombre</th></tr>
+            <tr><td>Bruno Díaz</td></tr>
+            <tr><td>Diego Herrera</td></tr>
+          </table>
+        </div>
+        <div class="card accent-top alt">
+          <h3>✗ Así no</h3>
+<pre class="code sm"><span class="k">SELECT</span> Nombre <span class="k">FROM</span> Paciente
+<span class="k">WHERE</span> Telefono = <span class="k">NULL</span>;</pre>
+          <p>No da error… pero devuelve <strong>0 filas</strong>.</p>
+        </div>
+      </div>
+      <div class="callout"><code>NULL</code> no es cero ni texto vacío: es <strong>“no se sabe”</strong>. Por eso se pregunta con <code>IS NULL</code> o <code>IS NOT NULL</code>.</div>
+    </section>
+
+    <!-- 28 · JOIN -->
+    <section class="slide" data-chapter="SQL" data-topic="JOIN">
+      <h2 class="slide-title">Unir tablas: <span class="accent">JOIN</span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="k">SELECT</span> t.Fecha, p.Nombre <span class="k">AS</span> Paciente, m.Nombre <span class="k">AS</span> Medico
+<span class="k">FROM</span> Turno t
+<span class="k">INNER JOIN</span> Paciente p <span class="k">ON</span> t.PacienteId = p.Id
+<span class="k">INNER JOIN</span> Medico   m <span class="k">ON</span> t.MedicoId   = m.Id
+<span class="k">ORDER BY</span> t.Fecha;</pre>
+        <ul class="bullets" style="font-size:19px">
+          <li><code>ON</code> dice <strong>cómo</strong> se relacionan: FK = PK</li>
+          <li><code>t</code>, <code>p</code>, <code>m</code> son <strong>alias</strong></li>
+          <li>Así se recupera la información que separamos</li>
+        </ul>
+      </div>
+      <table class="filas" style="margin-top:10px">
+        <tr><th>Fecha</th><th>Paciente</th><th>Medico</th></tr>
+        <tr><td>2026-10-20 09:00</td><td>Ana Gómez</td><td>Laura Sosa</td></tr>
+        <tr><td>2026-10-20 10:30</td><td>Bruno Díaz</td><td>Inés Molina</td></tr>
+        <tr><td>2026-10-22 11:00</td><td>Ana Gómez</td><td>Inés Molina</td></tr>
+        <tr><td>2026-10-23 08:15</td><td>Carla Ruiz</td><td>Martín Vera</td></tr>
+      </table>
+    </section>
+
+    <!-- 29 · Contar y agrupar -->
+    <section class="slide" data-chapter="SQL" data-topic="Contar y agrupar">
+      <h2 class="slide-title">Contar y <span class="accent">agrupar</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+<pre class="code sm"><span class="k">SELECT COUNT</span>(*) <span class="k">FROM</span> Paciente;</pre>
+<pre class="out">5</pre>
+          <p class="small-note">Otras: <code>SUM</code>, <code>AVG</code>, <code>MIN</code>, <code>MAX</code>.</p>
+        </div>
+        <div>
+<pre class="code sm"><span class="k">SELECT</span> m.Nombre, <span class="k">COUNT</span>(*) <span class="k">AS</span> Turnos
+<span class="k">FROM</span> Turno t
+<span class="k">INNER JOIN</span> Medico m <span class="k">ON</span> t.MedicoId = m.Id
+<span class="k">GROUP BY</span> m.Nombre;</pre>
+          <table class="filas">
+            <tr><th>Nombre</th><th>Turnos</th></tr>
+            <tr><td>Inés Molina</td><td class="num">4</td></tr>
+            <tr><td>Laura Sosa</td><td class="num">5</td></tr>
+            <tr><td>Martín Vera</td><td class="num">3</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 30 · INSERT / UPDATE / DELETE -->
+    <section class="slide" data-chapter="SQL" data-topic="INSERT · UPDATE · DELETE">
+      <h2 class="slide-title">Modificar <span class="accent">datos</span></h2>
+      <div class="columns three">
+        <div class="card accent-top">
+          <h3>Agregar</h3>
+<pre class="code sm"><span class="k">INSERT INTO</span> Paciente
+  (Nombre, DNI)
+<span class="k">VALUES</span>
+  (<span class="s">'Lucía Fernández'</span>,
+   <span class="s">'42000111'</span>);</pre>
+        </div>
+        <div class="card accent-top">
+          <h3>Cambiar</h3>
+<pre class="code sm"><span class="k">UPDATE</span> Paciente
+<span class="k">SET</span> Telefono =
+    <span class="s">'381-4001122'</span>
+<span class="k">WHERE</span> Id = <span class="n">6</span>;</pre>
+        </div>
+        <div class="card accent-top">
+          <h3>Borrar</h3>
+<pre class="code sm"><span class="k">DELETE FROM</span> Paciente
+<span class="k">WHERE</span> Id = <span class="n">6</span>;</pre>
+        </div>
+      </div>
+      <div class="callout alt">Un <code>UPDATE</code> o <code>DELETE</code> <strong>sin <code>WHERE</code></strong> se aplica a <strong>todas</strong> las filas de la tabla.</div>
+    </section>
+
+    <!-- 31 · Manos a la obra -->
+    <section class="slide" data-chapter="Cierre" data-topic="Manos a la obra">
+      <h2 class="slide-title">Manos a la <span class="accent">obra</span></h2>
+      <div class="columns">
+        <ol class="steps">
+          <li>Instalar <a href="https://sqlitebrowser.org/">DB Browser for SQLite</a></li>
+          <li><a href="material/clinica.db" download>Descargá <code>clinica.db</code></a> y abrila con <strong>Abrir base de datos</strong></li>
+          <li>O armala vos: <strong>Nueva base de datos</strong> → <code>clinica.db</code>, y en <strong>Ejecutar SQL</strong> pegá <a href="material/clinica.sql"><code>clinica.sql</code></a></li>
+          <li>Probar las consultas de hoy</li>
+        </ol>
+        <div class="card accent-top alt">
+          <h3>Material</h3>
+          <p>La base y el script con las tres tablas y datos de ejemplo (5 pacientes, 3 médicos, 12 turnos) están en la carpeta <code>material</code> de este tema.</p>
+          <p>Es la <strong>misma base</strong> que vamos a usar desde C# en el tema 08.</p>
+          <p><span class="todo-placeholder">link de GitHub Classroom 2026</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 32 · Bibliografía -->
+    <section class="slide" data-chapter="Cierre" data-topic="Bibliografía">
+      <h2 class="slide-title"><span class="accent">Bibliografía</span></h2>
+      <ul class="bullets" style="font-size:17px">
+        <li>SQLite — <a href="https://www.sqlite.org/lang.html">SQL As Understood By SQLite</a> · <a href="https://www.sqlite.org/foreignkeys.html">Foreign Key Support</a></li>
+        <li>DB Browser for SQLite — <a href="https://sqlitebrowser.org/">sqlitebrowser.org</a></li>
+        <li>W3Schools — <a href="https://www.w3schools.com/sql/">Tutorial de SQL</a> (para practicar consultas en el navegador)</li>
+        <li>Codd, E. F. (1970). <em>A Relational Model of Data for Large Shared Data Banks</em>. Communications of the ACM, 13(6), 377–387.</li>
+        <li>Elmasri y Navathe. <em>Fundamentos de Sistemas de Bases de Datos</em>. Pearson.</li>
+      </ul>
+    </section>
+
+    <!-- 33 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Próximo: ADO.NET — estas mismas consultas, desde C#.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+  <script src="../assets/pasos.js?v=6"></script>
+</body>
+</html>

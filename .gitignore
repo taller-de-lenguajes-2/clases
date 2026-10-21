@@ -3,3 +3,5 @@ obj/
 .vs/
 *.user
 logs/
+*.db
+!tema-07-bases-de-datos/material/clinica.db

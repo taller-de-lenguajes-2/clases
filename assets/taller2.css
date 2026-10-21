@@ -207,6 +207,64 @@ pre.out .dim { color: #8b949e; }
 .deck > .slide[data-pasos] [data-paso]:not(.visto) { opacity: 0; }
 @media print { .deck > .slide[data-pasos] [data-paso] { opacity: 1 !important; } }
 
+/* Marco que salta de un elemento a otro en cada paso (ver data-marco-n en pasos.js) */
+.marco-caja { position: relative; width: fit-content; margin-inline: auto; }
+.marco {
+  --marco: #d14343;
+  position: absolute; pointer-events: none; opacity: 0;
+  border: 3px solid var(--marco); border-radius: 10px;
+  transition: left 0.35s ease, top 0.35s ease, width 0.35s ease, height 0.35s ease, opacity 0.35s ease;
+}
+html[data-theme="dark"] .marco { --marco: #ff7b7b; }
+.marco.visto { opacity: 1; }
+.marco.ovalo { border-radius: 999px; }
+.marco.ovalo .marco-etiqueta { left: 50%; transform: translate(-50%, -50%); }
+.marco-etiqueta {
+  /* montada sobre el borde de arriba, para no tapar la fila vecina */
+  position: absolute; top: -1.5px; left: 10px; transform: translateY(-50%); white-space: nowrap;
+  padding: 2px 8px; border-radius: 6px; font-size: 12px; line-height: 1; font-weight: 600;
+  background: var(--marco); color: #fff;
+}
+@media print { .marco { display: none; } }
+
+/* Flecha que une dos marcos (ver .marco-flecha en pasos.js) */
+.marco-flecha {
+  --marco: #d14343;
+  position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible;
+  pointer-events: none; opacity: 0;
+}
+html[data-theme="dark"] .marco-flecha { --marco: #ff7b7b; }
+.marco-flecha.visto { opacity: 1; }
+.marco-flecha .linea { fill: none; stroke: var(--marco); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 1; }
+.marco-flecha .punta { fill: var(--marco); }
+.marco-flecha.dibujando .linea { animation: trazar 0.55s ease 0.3s both; }
+.marco-flecha.dibujando .punta { animation: asomar 0.15s ease 0.8s both; }
+@keyframes trazar { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes asomar { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .marco-flecha .linea, .marco-flecha .punta { animation: none !important; } }
+@media print { .marco-flecha { display: none; } }
+
+/* --- Imagen ampliada al hacer clic (ver assets/pasos.js) --- */
+.deck img { cursor: zoom-in; }
+.deck img[data-sin-zoom], .deck img.sin-zoom, .deck .icon-tile img { cursor: auto; }
+.deck a img { cursor: pointer; }
+.lightbox-fondo {
+  position: fixed; inset: 0; z-index: 9998; cursor: zoom-out;
+  background: rgb(10 12 14 / 0.85); opacity: 0; transition: opacity 0.35s ease;
+}
+.lightbox-fondo.abierto { opacity: 1; }
+.lightbox-img {
+  position: fixed; z-index: 9999; margin: 0; max-width: none; max-height: none;
+  object-fit: contain; cursor: zoom-out; border-radius: 10px;
+  box-shadow: 0 24px 70px rgb(0 0 0 / 0.55);
+  transition: left 0.35s ease, top 0.35s ease, width 0.35s ease, height 0.35s ease;
+}
+@media (prefers-reduced-motion: reduce) { .lightbox-fondo, .lightbox-img { transition: none; } }
+@media print {
+  .lightbox-fondo, .lightbox-img { display: none !important; }
+  .deck img { visibility: visible !important; }
+}
+
 /* Flecha "viva": el trazo punteado corre en el sentido de la flecha */
 .flujo { animation: flujo 0.9s linear infinite; }
 @keyframes flujo { to { stroke-dashoffset: -24; } }

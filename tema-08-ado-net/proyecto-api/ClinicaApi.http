@@ -1,0 +1,100 @@
+@base = http://localhost:5188/api
+
+# ─── Pacientes ───────────────────────────────────────────
+
+### Listado → 200
+GET {{base}}/pacientes
+
+### Por id → 200
+GET {{base}}/pacientes/1
+
+### No existe → 404
+GET {{base}}/pacientes/99
+
+### JOIN: turnos de un paciente con el nombre del médico → 200
+GET {{base}}/pacientes/1/turnos
+
+### Crear → 201 + header Location
+POST {{base}}/pacientes
+Content-Type: application/json
+
+{ "nombre": "Lucía Fernández", "dni": "42000111", "telefono": "381-4001122" }
+
+### Sin nombre → 400 (lo valida [ApiController] por el [Required])
+POST {{base}}/pacientes
+Content-Type: application/json
+
+{ "dni": "42000222" }
+
+### DNI repetido → 409 (la columna DNI es UNIQUE)
+POST {{base}}/pacientes
+Content-Type: application/json
+
+{ "nombre": "Otra Ana", "dni": "30111222" }
+
+### Modificar → 204
+PUT {{base}}/pacientes/2
+Content-Type: application/json
+
+{ "nombre": "Bruno Díaz", "dni": "28999000", "telefono": "381-4440000" }
+
+### Borrar un paciente con turnos → 409 (clave foránea)
+DELETE {{base}}/pacientes/1
+
+### Borrar → 204 (el que creamos arriba: ajustar el id)
+DELETE {{base}}/pacientes/6
+
+# ─── Médicos ─────────────────────────────────────────────
+
+### Listado → 200
+GET {{base}}/medicos
+
+### Por id → 200
+GET {{base}}/medicos/3
+
+### Crear → 201
+POST {{base}}/medicos
+Content-Type: application/json
+
+{ "nombre": "Pablo Ríos", "especialidad": "Traumatología" }
+
+### Modificar → 204
+PUT {{base}}/medicos/4
+Content-Type: application/json
+
+{ "nombre": "Pablo Ríos", "especialidad": "Ortopedia y traumatología" }
+
+### Borrar → 204
+DELETE {{base}}/medicos/4
+
+# ─── Turnos ──────────────────────────────────────────────
+
+### JOIN: todos los turnos con paciente y médico → 200
+GET {{base}}/turnos
+
+### JOIN: los turnos de un día → 200
+GET {{base}}/turnos?fecha=2026-10-20
+
+### Por id → 200
+GET {{base}}/turnos/3
+
+### Crear → 201
+POST {{base}}/turnos
+Content-Type: application/json
+
+{ "pacienteId": 2, "medicoId": 1, "fecha": "2026-11-20T10:00", "observaciones": "Chequeo" }
+
+### Paciente inexistente → 400
+POST {{base}}/turnos
+Content-Type: application/json
+
+{ "pacienteId": 99, "medicoId": 1, "fecha": "2026-11-20T10:00" }
+
+### Modificar → 204
+PUT {{base}}/turnos/13
+Content-Type: application/json
+
+{ "pacienteId": 2, "medicoId": 1, "fecha": "2026-11-20T11:30", "observaciones": "Se pasó a las 11:30" }
+
+### Borrar → 204
+DELETE {{base}}/turnos/13

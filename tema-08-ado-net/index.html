@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 08 — ADO.NET · Taller de Lenguajes 2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css?v=6" />
+  <link rel="stylesheet" href="../assets/estilo-sereno.css?v=6" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <div class="title-grid">
+        <div>
+          <p class="slide-eyebrow">Tema 08 · Persistencia</p>
+          <h1 class="title">Bases de datos con <span class="accent">ADO.NET</span></h1>
+        </div>
+        <div class="title-art">
+          <svg viewBox="0 0 420 300" width="400" role="img" aria-label="Un programa en C# conectado a una base de datos">
+            <rect x="10" y="90" width="150" height="120" rx="20" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="3"/>
+            <text x="85" y="162" text-anchor="middle" font-size="40" font-weight="600" fill="var(--accent-2)" class="serif">C#</text>
+            <path d="M172,150 H250" stroke="var(--accent)" stroke-width="3" stroke-dasharray="8 6" class="flujo"/>
+            <g fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="3">
+              <path d="M270,190 v40 a70,20 0 0 0 140,0 v-40"/>
+              <ellipse cx="340" cy="190" rx="70" ry="20"/>
+              <path d="M270,130 v40 a70,20 0 0 0 140,0 v-40"/>
+              <ellipse cx="340" cy="130" rx="70" ry="20"/>
+              <path d="M270,70 v40 a70,20 0 0 0 140,0 v-40"/>
+              <ellipse cx="340" cy="70" rx="70" ry="20"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 · Agenda -->
+    <section class="slide" data-chapter="Intro" data-topic="Agenda">
+      <h2 class="slide-title">Qué vamos a <span class="accent">ver</span></h2>
+      <div class="columns three agenda">
+        <div class="card">
+          <span class="num">1</span>
+          <h3>ADO.NET</h3>
+          <ul>
+            <li>Qué es y dónde encaja</li>
+            <li>El proveedor de SQLite</li>
+            <li>Cadena de conexión</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">2</span>
+          <h3>Los tres objetos</h3>
+          <ul>
+            <li><code>Connection</code></li>
+            <li><code>Command</code></li>
+            <li><code>DataReader</code></li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">3</span>
+          <h3>La clínica, desde C#</h3>
+          <ul>
+            <li>Parámetros (¡seguridad!)</li>
+            <li>Leer, insertar, modificar, borrar</li>
+            <li>De filas a objetos</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · Tres pasos -->
+    <section class="slide" data-chapter="ADO.NET" data-topic="Tres pasos">
+      <h2 class="slide-title">Usar un recurso externo: <span class="accent">tres pasos</span></h2>
+      <div class="flow" style="margin-top:20px">
+        <div class="card accent-top">
+          <span class="agenda"><span class="num">1</span></span>
+          <h3>Conectar</h3>
+          <p class="small-note" style="margin:0">API · <code>HttpClient</code></p>
+          <p class="small-note" style="margin:6px 0 0">Base · <code>SqliteConnection</code></p>
+        </div>
+        <div class="arrow">→</div>
+        <div class="card accent-top">
+          <span class="agenda"><span class="num">2</span></span>
+          <h3>Pedir</h3>
+          <p class="small-note" style="margin:0">API · <code>GetAsync(url)</code></p>
+          <p class="small-note" style="margin:6px 0 0">Base · <code>SqliteCommand</code> + SQL</p>
+        </div>
+        <div class="arrow">→</div>
+        <div class="card accent-top alt">
+          <span class="agenda"><span class="num">3</span></span>
+          <h3>Procesar</h3>
+          <p class="small-note" style="margin:0">API · leer el JSON</p>
+          <p class="small-note" style="margin:6px 0 0">Base · <code>SqliteDataReader</code></p>
+        </div>
+      </div>
+      <p class="small-note" style="text-align:center; margin-top:28px">Lo mismo que hicimos con APIs en el <strong>tema 05</strong>, ahora contra una base de datos.</p>
+    </section>
+
+    <!-- 4 · Qué es ADO.NET -->
+    <section class="slide" data-chapter="ADO.NET" data-topic="¿Qué es ADO.NET?">
+      <h2 class="slide-title">¿Qué es <span class="accent">ADO.NET</span>?</h2>
+      <p class="small-note" style="margin-top:0">El conjunto de clases de .NET para <strong>acceder a datos</strong>. Cada motor trae su <strong>proveedor</strong>; las ideas son las mismas.</p>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 300" width="1060" role="img" aria-label="Nuestra aplicación usa ADO.NET, que habla con la base a través de un proveedor: SQLite, SQL Server o PostgreSQL">
+          <defs>
+            <marker id="f8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+          </defs>
+          <rect x="10" y="100" width="220" height="100" rx="18" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="120" y="142" text-anchor="middle" font-size="22" font-weight="600" fill="var(--text)" class="serif">Nuestra app</text>
+          <text x="120" y="172" text-anchor="middle" font-size="15" fill="var(--muted)">Web API · consola · MVC</text>
+
+          <rect x="300" y="80" width="260" height="140" rx="18" fill="color-mix(in srgb, var(--accent) 12%, var(--panel))" stroke="var(--accent)" stroke-width="2"/>
+          <text x="430" y="122" text-anchor="middle" font-size="24" font-weight="600" fill="var(--accent)" class="serif">ADO.NET</text>
+          <text x="430" y="154" text-anchor="middle" font-size="15" fill="var(--text)" class="mono">Connection</text>
+          <text x="430" y="177" text-anchor="middle" font-size="15" fill="var(--text)" class="mono">Command</text>
+          <text x="430" y="200" text-anchor="middle" font-size="15" fill="var(--text)" class="mono">DataReader</text>
+
+          <rect x="640" y="20" width="250" height="70" rx="14" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="2"/>
+          <text x="765" y="52" text-anchor="middle" font-size="15" font-weight="700" fill="var(--text)" class="mono">Microsoft.Data.Sqlite</text>
+          <text x="765" y="74" text-anchor="middle" font-size="13" fill="var(--muted)">el que usamos</text>
+          <rect x="640" y="115" width="250" height="70" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="765" y="155" text-anchor="middle" font-size="15" fill="var(--muted)" class="mono">Microsoft.Data.SqlClient</text>
+          <rect x="640" y="210" width="250" height="70" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="765" y="250" text-anchor="middle" font-size="15" fill="var(--muted)" class="mono">Npgsql</text>
+
+          <text x="1000" y="60" text-anchor="middle" font-size="17" font-weight="600" fill="var(--accent-2)">SQLite</text>
+          <text x="1000" y="155" text-anchor="middle" font-size="17" fill="var(--muted)">SQL Server</text>
+          <text x="1000" y="250" text-anchor="middle" font-size="17" fill="var(--muted)">PostgreSQL</text>
+
+          <line x1="232" y1="150" x2="294" y2="150" stroke="var(--muted)" stroke-width="2" marker-end="url(#f8)"/>
+          <path d="M562,150 C600,150 600,55 634,55" fill="none" stroke="var(--accent-2)" stroke-width="2.5" marker-end="url(#f8)"/>
+          <line x1="562" y1="150" x2="634" y2="150" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/>
+          <path d="M562,150 C600,150 600,245 634,245" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/>
+          <line x1="892" y1="55" x2="945" y2="55" stroke="var(--accent-2)" stroke-width="2.5" marker-end="url(#f8)"/>
+          <line x1="892" y1="150" x2="935" y2="150" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/>
+          <line x1="892" y1="245" x2="935" y2="245" stroke="var(--muted)" stroke-width="1.5" stroke-dasharray="5 5"/>
+        </svg>
+      </div>
+    </section>
+
+    <!-- 5 · Instalar -->
+    <section class="slide" data-chapter="ADO.NET" data-topic="Instalar el proveedor">
+      <h2 class="slide-title">Agregar el <span class="accent">proveedor</span> de SQLite</h2>
+<pre class="code"><span class="k">dotnet</span> add package Microsoft.Data.Sqlite</pre>
+<pre class="code"><span class="k">using</span> Microsoft.Data.Sqlite;</pre>
+      <div class="callout alt" style="margin-top:26px">En internet van a encontrar nombres parecidos, de <strong>otras</strong> librerías:
+        <code>SqliteConnection</code> (la nuestra) · <code>SQLiteConnection</code> (System.Data.SQLite) · <code>SqlConnection</code> (SQL Server). Mismas ideas, no se mezclan.</div>
+    </section>
+
+    <!-- 6 · Los tres objetos -->
+    <section class="slide" data-chapter="ADO.NET" data-topic="Los tres objetos">
+      <h2 class="slide-title">Los tres <span class="accent">objetos</span> que usamos</h2>
+      <div class="columns three">
+        <div class="card accent-top">
+          <h3><code>SqliteConnection</code></h3>
+          <p>Abre y cierra la <strong>conexión</strong> con la base.</p>
+        </div>
+        <div class="card accent-top">
+          <h3><code>SqliteCommand</code></h3>
+          <p>Lleva una <strong>orden SQL</strong> y la ejecuta.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3><code>SqliteDataReader</code></h3>
+          <p>Recorre el <strong>resultado</strong> de un <code>SELECT</code>, fila por fila.</p>
+        </div>
+      </div>
+      <p class="small-note" style="margin-top:28px">ADO.NET tiene más (<code>DataSet</code>, <code>DataAdapter</code>…), pero en la materia alcanza con estos tres.</p>
+    </section>
+
+    <!-- 7 · Cadena de conexión -->
+    <section class="slide" data-chapter="Conexión" data-topic="Cadena de conexión">
+      <h2 class="slide-title">Cadena de <span class="accent">conexión</span></h2>
+      <p class="idea" style="font-size:28px; margin-top:0">Un texto con pares <em>clave=valor</em>, separados por <em>;</em>, que dice <em>dónde</em> está la base y <em>cómo</em> entrar.</p>
+      <div class="columns" style="margin-top:30px">
+        <div class="card accent-top">
+          <h3>SQLite</h3>
+<pre class="code sm"><span class="s">"Data Source=clinica.db"</span></pre>
+          <p class="small-note" style="margin:0">El archivo. Si no existe, lo crea.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>SQL Server</h3>
+<pre class="code sm"><span class="s">"Server=localhost;Database=Clinica;</span>
+<span class="s"> Trusted_Connection=True"</span></pre>
+          <p class="small-note" style="margin:0">Servidor, base y usuario.</p>
+        </div>
+      </div>
+      <p class="small-note">Las claves las define cada proveedor: no son iguales entre motores. <code>Version=3</code> es de System.Data.SQLite: en Microsoft.Data.Sqlite tira <code>ArgumentException</code>. La ruta <code>clinica.db</code> es relativa a la carpeta desde donde corre el programa.</p>
+    </section>
+
+    <!-- 8 · Connection -->
+    <section class="slide" data-chapter="Conexión" data-topic="SqliteConnection">
+      <h2 class="slide-title">Abrir la <span class="accent">conexión</span></h2>
+<pre class="code"><span class="k">var</span> cadenaConexion = <span class="s">"Data Source=clinica.db"</span>;
+
+<span class="k">using var</span> conexion = <span class="k">new</span> <span class="t">SqliteConnection</span>(cadenaConexion);
+conexion.Open();
+
+<span class="c">// … comandos …</span>
+
+<span class="c">// al terminar el método (el bloque donde se declaró), using llama a Dispose() y la conexión se cierra</span></pre>
+      <div class="columns" style="margin-top:14px">
+        <div class="card tinte"><h3>Con <code>using</code></h3><p>Se cierra <strong>siempre</strong>, aunque salte una excepción (tema 16). No hace falta <code>Close()</code>.</p></div>
+        <div class="card tinte alt"><h3>Abrir tarde, cerrar temprano</h3><p>Una conexión <strong>por operación</strong>: se abre, se usa y se suelta.</p></div>
+      </div>
+      <p class="small-note">Forma equivalente, con llaves: <code>using (var conexion = new SqliteConnection(cadena)) { … }</code>. En código asíncrono: <code>await using</code> y <code>OpenAsync()</code>.</p>
+    </section>
+
+    <!-- 9 · Command -->
+    <section class="slide" data-chapter="Comandos" data-topic="SqliteCommand">
+      <h2 class="slide-title">El <span class="accent">comando</span></h2>
+<pre class="code"><span class="k">var</span> sql = <span class="s">"SELECT Id, Nombre, DNI, Telefono FROM Paciente"</span>;
+<span class="k">using var</span> comando = <span class="k">new</span> <span class="t">SqliteCommand</span>(sql, conexion);</pre>
+      <table class="tbl" style="margin-top:18px">
+        <tr><th>Método</th><th>Para</th><th>Devuelve</th></tr>
+        <tr><td><code>ExecuteReader()</code></td><td><code>SELECT</code> que trae filas</td><td>un <code>SqliteDataReader</code></td></tr>
+        <tr><td><code>ExecuteNonQuery()</code></td><td><code>INSERT</code> · <code>UPDATE</code> · <code>DELETE</code></td><td><code>int</code>: filas afectadas</td></tr>
+        <tr><td><code>ExecuteScalar()</code></td><td>un único valor (<code>COUNT</code>, un Id…)</td><td><code>object?</code></td></tr>
+      </table>
+    </section>
+
+    <!-- 10 · DataReader paso a paso -->
+    <section class="slide" data-pasos data-chapter="Comandos" data-topic="SqliteDataReader">
+      <h2 class="slide-title">El <span class="accent">lector</span>: una fila por vez</h2>
+      <div class="columns" style="grid-template-columns: 0.9fr 1.1fr; align-items:center">
+        <div>
+<pre class="code sm"><span class="k">using var</span> lector = comando.ExecuteReader();
+
+<span class="k">while</span> (lector.Read())
+{
+    <span class="t">Console</span>.WriteLine(lector[<span class="s">"Nombre"</span>]);
+}</pre>
+          <ul class="bullets" style="font-size:19px; margin-top:16px">
+            <li><strong>Solo hacia adelante</strong>, no vuelve atrás</li>
+            <li><strong>Solo lectura</strong></li>
+            <li>Necesita la conexión <strong>abierta</strong></li>
+          </ul>
+        </div>
+        <div class="diagram">
+          <svg viewBox="0 0 600 340" width="600" role="img" aria-label="Cada llamada a Read avanza a la fila siguiente y devuelve true; cuando no quedan filas devuelve false y termina el while">
+            <g font-size="17" fill="var(--text)">
+              <rect x="20" y="20" width="420" height="40" rx="10" fill="var(--panel-2)"/>
+              <text x="40" y="46" class="mono" font-size="14" font-weight="600" fill="var(--accent)">Id</text>
+              <text x="100" y="46" class="mono" font-size="14" font-weight="600" fill="var(--accent)">Nombre</text>
+              <rect x="20" y="66" width="420" height="44" rx="10" fill="var(--panel)" stroke="var(--border)"/>
+              <text x="40" y="94" class="mono">1</text><text x="100" y="94">Ana Gómez</text>
+              <rect x="20" y="116" width="420" height="44" rx="10" fill="var(--panel)" stroke="var(--border)"/>
+              <text x="40" y="144" class="mono">2</text><text x="100" y="144">Bruno Díaz</text>
+              <rect x="20" y="166" width="420" height="44" rx="10" fill="var(--panel)" stroke="var(--border)"/>
+              <text x="40" y="194" class="mono">3</text><text x="100" y="194">Carla Ruiz</text>
+            </g>
+            <g data-paso="1">
+              <rect x="20" y="66" width="420" height="44" rx="10" fill="color-mix(in srgb, var(--accent) 16%, transparent)" stroke="var(--accent)" stroke-width="2"/>
+              <text x="456" y="94" font-size="15" fill="var(--accent)" class="mono">Read() → true</text>
+            </g>
+            <g data-paso="2">
+              <rect x="20" y="116" width="420" height="44" rx="10" fill="color-mix(in srgb, var(--accent) 16%, transparent)" stroke="var(--accent)" stroke-width="2"/>
+              <text x="456" y="144" font-size="15" fill="var(--accent)" class="mono">Read() → true</text>
+            </g>
+            <g data-paso="3">
+              <rect x="20" y="166" width="420" height="44" rx="10" fill="color-mix(in srgb, var(--accent) 16%, transparent)" stroke="var(--accent)" stroke-width="2"/>
+              <text x="456" y="194" font-size="15" fill="var(--accent)" class="mono">Read() → true</text>
+            </g>
+            <g data-paso="4">
+              <rect x="20" y="226" width="420" height="44" rx="10" fill="none" stroke="var(--accent-2)" stroke-width="2" stroke-dasharray="7 5"/>
+              <text x="40" y="254" font-size="16" fill="var(--muted)" font-style="italic">no hay más filas</text>
+              <text x="456" y="254" font-size="15" fill="var(--accent-2)" class="mono">Read() → false</text>
+              <text x="230" y="312" text-anchor="middle" font-size="18" font-weight="600" fill="var(--accent-2)">termina el while</text>
+            </g>
+          </svg>
+        </div>
+      </div>
+      <p class="small-note">Clic sobre el diagrama o → para avanzar.</p>
+    </section>
+
+    <!-- 11 · Ejemplo completo -->
+    <section class="slide" data-chapter="Comandos" data-topic="Ejemplo completo">
+      <h2 class="slide-title">Todo junto: <span class="accent">listar</span> pacientes</h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="k">public</span> <span class="t">List</span>&lt;<span class="t">Paciente</span>&gt; ListarPacientes()
+{
+    <span class="k">var</span> pacientes = <span class="k">new</span> <span class="t">List</span>&lt;<span class="t">Paciente</span>&gt;();
+
+    <span class="k">using var</span> conexion = <span class="k">new</span> <span class="t">SqliteConnection</span>(cadenaConexion);  <span class="c">// 1</span>
+    conexion.Open();
+
+    <span class="k">var</span> sql = <span class="s">"SELECT Id, Nombre, DNI, Telefono FROM Paciente ORDER BY Nombre"</span>;
+    <span class="k">using var</span> comando = <span class="k">new</span> <span class="t">SqliteCommand</span>(sql, conexion);       <span class="c">// 2</span>
+    <span class="k">using var</span> lector = comando.ExecuteReader();
+
+    <span class="k">while</span> (lector.Read())                                         <span class="c">// 3</span>
+    {
+        pacientes.Add(<span class="k">new</span> <span class="t">Paciente</span>
+        {
+            Id       = lector.GetInt32(<span class="n">0</span>),
+            Nombre   = lector.GetString(<span class="n">1</span>),
+            DNI      = lector.IsDBNull(<span class="n">2</span>) ? <span class="k">null</span> : lector.GetString(<span class="n">2</span>),
+            Telefono = lector.IsDBNull(<span class="n">3</span>) ? <span class="k">null</span> : lector.GetString(<span class="n">3</span>)
+        });
+    }
+    <span class="k">return</span> pacientes;
+}</pre>
+        <div>
+<pre class="out">1  Ana Gómez      tel: 381-4567890
+2  Bruno Díaz     tel: <span class="dim">(sin teléfono)</span>
+3  Carla Ruiz     tel: 381-5550001
+5  Diego Herrera  tel: <span class="dim">(sin teléfono)</span>
+4  Mariana Paz    tel: 381-6001234</pre>
+          <p class="small-note">Cada fila del lector → un objeto <code>Paciente</code>.</p>
+          <p class="small-note">El número es la posición de la columna en el <code>SELECT</code> (0 = <code>Id</code>). También se puede por nombre: <code>lector["Nombre"]</code>.</p>
+          <p class="small-note">Un campo <code>NULL</code> llega como <code>DBNull</code>: <code>GetString</code> fallaría, por eso antes se pregunta <code>IsDBNull</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 · Inyección SQL -->
+    <section class="slide" data-chapter="Parámetros" data-topic="Inyección SQL">
+      <h2 class="slide-title">Nunca concatenar: <span class="accent">inyección SQL</span></h2>
+      <p class="small-note" style="margin-top:0">El usuario busca por DNI y escribe: <code>' OR '1'='1</code></p>
+      <div class="columns" style="margin-top:12px">
+        <div class="card accent-top alt">
+          <h3>✗ Concatenando</h3>
+<pre class="code sm"><span class="k">var</span> sql = <span class="s">"SELECT * FROM Paciente WHERE DNI = '"</span>
+          + dni + <span class="s">"'"</span>;</pre>
+          <p class="small-note" style="margin:6px 0">La base recibe:</p>
+<pre class="code sm">… <span class="k">WHERE</span> DNI = <span class="s">''</span> <span class="k">OR</span> <span class="s">'1'</span>=<span class="s">'1'</span></pre>
+<pre class="out"><span class="bad">5 pacientes ← ¡todos!</span></pre>
+        </div>
+        <div class="card accent-top">
+          <h3>✓ Con parámetro</h3>
+<pre class="code sm"><span class="k">var</span> sql = <span class="s">"SELECT * FROM Paciente WHERE DNI = @dni"</span>;
+comando.Parameters.AddWithValue(<span class="s">"@dni"</span>, dni);</pre>
+          <p class="small-note" style="margin:6px 0">El valor viaja <strong>aparte</strong>: nunca se interpreta como SQL.</p>
+<pre class="out"><span class="ok">0 pacientes</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 · Uno por Id / LIKE -->
+    <section class="slide" data-chapter="Parámetros" data-topic="Buscar con parámetros">
+      <h2 class="slide-title">Buscar con <span class="accent">parámetros</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3>Uno solo, o <code>null</code></h3>
+<pre class="code sm"><span class="k">public</span> <span class="t">Paciente</span>? ObtenerPaciente(<span class="k">int</span> id)
+{
+    …
+    <span class="k">var</span> sql = <span class="s">"SELECT … FROM Paciente WHERE Id = @id"</span>;
+    <span class="k">using var</span> comando = <span class="k">new</span> <span class="t">SqliteCommand</span>(sql, conexion);
+    comando.Parameters.AddWithValue(<span class="s">"@id"</span>, id);
+
+    <span class="k">using var</span> lector = comando.ExecuteReader();
+    <span class="k">return</span> lector.Read() ? LeerPaciente(lector) : <span class="k">null</span>;
+}</pre>
+          <p class="small-note">En la API: <code>null</code> → <code>404 Not Found</code>.</p>
+        </div>
+        <div>
+          <h3>Con <code>LIKE</code></h3>
+<pre class="code sm"><span class="k">var</span> sql = <span class="s">"… WHERE Nombre LIKE @texto"</span>;
+comando.Parameters.AddWithValue(<span class="s">"@texto"</span>, <span class="s">$"%{texto}%"</span>);</pre>
+<pre class="out"><span class="dim">BuscarPacientes("ana")</span>
+Ana Gómez
+Mariana Paz</pre>
+          <p class="small-note">Los <code>%</code> van en el <strong>valor</strong>, no en el SQL.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 · INSERT -->
+    <section class="slide" data-chapter="Modificar" data-topic="INSERT">
+      <h2 class="slide-title">Insertar y obtener el <span class="accent">Id</span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="k">public int</span> InsertarPaciente(<span class="t">Paciente</span> paciente)
+{
+    <span class="k">using var</span> conexion = <span class="k">new</span> <span class="t">SqliteConnection</span>(cadenaConexion);
+    conexion.Open();
+
+    <span class="k">var</span> sql = <span class="s">"""
+        INSERT INTO Paciente (Nombre, DNI, Telefono)
+        VALUES (@nombre, @dni, @telefono)
+        RETURNING Id
+        """</span>;
+    <span class="k">using var</span> comando = <span class="k">new</span> <span class="t">SqliteCommand</span>(sql, conexion);
+    comando.Parameters.AddWithValue(<span class="s">"@nombre"</span>, paciente.Nombre);
+    comando.Parameters.AddWithValue(<span class="s">"@dni"</span>, (<span class="k">object</span>?)paciente.DNI ?? <span class="t">DBNull</span>.Value);
+    comando.Parameters.AddWithValue(<span class="s">"@telefono"</span>, (<span class="k">object</span>?)paciente.Telefono ?? <span class="t">DBNull</span>.Value);
+
+    <span class="k">return</span> <span class="t">Convert</span>.ToInt32(comando.ExecuteScalar());
+}</pre>
+        <div>
+          <ul class="bullets" style="font-size:19px">
+            <li><code>RETURNING Id</code> devuelve el Id que generó la base (otra forma: <code>SELECT last_insert_rowid()</code> después del <code>INSERT</code>)</li>
+            <li>Por eso, <code>ExecuteScalar()</code></li>
+            <li>Un <code>null</code> de C# se manda como <code>DBNull.Value</code></li>
+          </ul>
+<pre class="out">Nuevo paciente con Id <span class="ok">6</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 · UPDATE / DELETE -->
+    <section class="slide" data-chapter="Modificar" data-topic="UPDATE y DELETE">
+      <h2 class="slide-title">Modificar y <span class="accent">borrar</span></h2>
+      <div class="columns" style="align-items:start">
+<pre class="code sm"><span class="k">public bool</span> ActualizarTelefono(<span class="k">int</span> id, <span class="k">string</span> telefono)
+{
+    …
+    <span class="k">var</span> sql = <span class="s">"UPDATE Paciente SET Telefono = @telefono WHERE Id = @id"</span>;
+    …
+    <span class="k">return</span> comando.ExecuteNonQuery() &gt; <span class="n">0</span>;
+}
+
+<span class="k">public bool</span> EliminarPaciente(<span class="k">int</span> id)
+{
+    …
+    <span class="k">var</span> sql = <span class="s">"DELETE FROM Paciente WHERE Id = @id"</span>;
+    …
+    <span class="k">return</span> comando.ExecuteNonQuery() &gt; <span class="n">0</span>;
+}</pre>
+        <div>
+<pre class="out">Actualizar Id 6:  <span class="ok">True</span>
+Actualizar Id 99: <span class="bad">False</span>
+Eliminar Id 6:    <span class="ok">True</span></pre>
+          <div class="callout" style="margin-top:18px"><code>ExecuteNonQuery()</code> devuelve cuántas filas cambió. <strong>0</strong> = no existía ese Id → en la API, <code>404</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16 · Clases modelo -->
+    <section class="slide" data-chapter="Objetos" data-topic="Clases modelo">
+      <h2 class="slide-title">Una clase por <span class="accent">tabla</span></h2>
+      <div class="columns three" style="align-items:start">
+<pre class="code sm"><span class="k">public class</span> <span class="t">Paciente</span>
+{
+    <span class="k">public int</span> Id { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public string</span> Nombre { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public string</span>? DNI { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public string</span>? Telefono { <span class="k">get</span>; <span class="k">set</span>; }
+}</pre>
+<pre class="code sm"><span class="k">public class</span> <span class="t">Medico</span>
+{
+    <span class="k">public int</span> Id { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public string</span> Nombre { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public string</span>? Especialidad { <span class="k">get</span>; <span class="k">set</span>; }
+}</pre>
+<pre class="code sm"><span class="k">public class</span> <span class="t">Turno</span>
+{
+    <span class="k">public int</span> Id { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public</span> <span class="t">DateTime</span> Fecha { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public string</span>? Observaciones { <span class="k">get</span>; <span class="k">set</span>; }
+
+    <span class="k">public</span> <span class="t">Paciente</span> Paciente { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public</span> <span class="t">Medico</span> Medico { <span class="k">get</span>; <span class="k">set</span>; }
+}</pre>
+      </div>
+      <div class="callout">En la base, Turno guarda <code>PacienteId</code>. En C#, Turno tiene <strong>un objeto</strong> <code>Paciente</code>: composición (tema 02).</div>
+    </section>
+
+    <!-- 17 · JOIN a objetos -->
+    <section class="slide" data-chapter="Objetos" data-topic="JOIN → objetos">
+      <h2 class="slide-title">De un <span class="accent">JOIN</span> a objetos</h2>
+      <div class="columns" style="align-items:start">
+<pre class="code sm"><span class="k">SELECT</span> t.Id, t.Fecha, t.Observaciones,
+       p.Id <span class="k">AS</span> PacienteId, p.Nombre <span class="k">AS</span> PacienteNombre,
+       m.Id <span class="k">AS</span> MedicoId,   m.Nombre <span class="k">AS</span> MedicoNombre,
+       m.Especialidad
+<span class="k">FROM</span> Turno t
+<span class="k">INNER JOIN</span> Paciente p <span class="k">ON</span> t.PacienteId = p.Id
+<span class="k">INNER JOIN</span> Medico   m <span class="k">ON</span> t.MedicoId   = m.Id</pre>
+<pre class="code sm">turnos.Add(<span class="k">new</span> <span class="t">Turno</span>
+{
+    Id    = <span class="t">Convert</span>.ToInt32(lector[<span class="s">"Id"</span>]),
+    Fecha = lector.GetDateTime(lector.GetOrdinal(<span class="s">"Fecha"</span>)),
+    Paciente = <span class="k">new</span> <span class="t">Paciente</span>
+    {
+        Id     = <span class="t">Convert</span>.ToInt32(lector[<span class="s">"PacienteId"</span>]),
+        Nombre = lector[<span class="s">"PacienteNombre"</span>].ToString()!
+    },
+    Medico = <span class="k">new</span> <span class="t">Medico</span> { … }
+});</pre>
+      </div>
+<pre class="out">20/10 09:00  Ana Gómez    → Laura Sosa (Clínica médica)
+20/10 10:30  Bruno Díaz   → Inés Molina (Cardiología)
+22/10 11:00  Ana Gómez    → Inés Molina (Cardiología)</pre>
+      <p class="small-note">Los <strong>alias</strong> (<code>AS PacienteNombre</code>) evitan que dos columnas se llamen igual.</p>
+    </section>
+
+    <!-- 18 · Errores -->
+    <section class="slide" data-chapter="Objetos" data-topic="Cuando la base dice que no">
+      <h2 class="slide-title">Cuando la base dice que <span class="accent">no</span></h2>
+      <div class="columns wide-left" style="align-items:start">
+        <div>
+<pre class="code sm"><span class="k">try</span>
+{
+    datos.EliminarPaciente(<span class="n">1</span>);   <span class="c">// Ana tiene turnos</span>
+}
+<span class="k">catch</span> (<span class="t">SqliteException</span> ex)
+{
+    <span class="t">Console</span>.WriteLine(ex.Message);
+}</pre>
+<pre class="out"><span class="bad">SQLite Error 19: 'FOREIGN KEY constraint failed'.</span></pre>
+        </div>
+        <ul class="bullets" style="font-size:20px">
+          <li>La integridad referencial del <strong>tema 07</strong>, ahora como excepción</li>
+          <li>También: base inexistente, SQL mal escrito, <code>UNIQUE</code> repetido…</li>
+          <li>Se manejan como en el <strong>tema 16</strong></li>
+          <li>SQLite controla las FK <strong>por conexión</strong> (<code>PRAGMA foreign_keys = ON</code>). Microsoft.Data.Sqlite ya las activa; para no depender de eso: <code>"Data Source=clinica.db;Foreign Keys=True"</code></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 19 · Receta -->
+    <section class="slide" data-chapter="Resumen" data-topic="La receta">
+      <h2 class="slide-title">La <span class="accent">receta</span></h2>
+      <ol class="steps" style="max-width:900px">
+        <li><code>using var conexion = new SqliteConnection(cadena);</code> y <code>Open()</code></li>
+        <li>Escribir el SQL, con <code>@parámetros</code> para todo lo que venga de afuera</li>
+        <li><code>using var comando = new SqliteCommand(sql, conexion);</code> + <code>Parameters</code></li>
+        <li>Ejecutar: <code>ExecuteReader</code> · <code>ExecuteNonQuery</code> · <code>ExecuteScalar</code></li>
+        <li>Si hay filas: <code>while (lector.Read())</code> → objetos</li>
+      </ol>
+      <p class="small-note">Al terminar el método, los <code>using</code> cierran todo.</p>
+    </section>
+
+    <!-- 20 · appsettings -->
+    <section class="slide" data-chapter="Resumen" data-topic="Cadena en appsettings.json">
+      <h2 class="slide-title">La cadena, en <span class="accent">appsettings.json</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3><code>appsettings.json</code></h3>
+<pre class="code sm">{
+  <span class="s">"ConnectionStrings"</span>: {
+    <span class="s">"Clinica"</span>: <span class="s">"Data Source=clinica.db"</span>
+  }
+}</pre>
+        </div>
+        <div>
+          <h3><code>Program.cs</code></h3>
+<pre class="code sm"><span class="k">var</span> cadena = builder.Configuration
+    .GetConnectionString(<span class="s">"Clinica"</span>);</pre>
+        </div>
+      </div>
+      <div class="callout">En una Web API la cadena <strong>no va escrita en el código</strong>: se configura, y se puede cambiar sin recompilar.</div>
+    </section>
+
+    <!-- 21 · Arquitectura -->
+    <section class="slide" data-chapter="Resumen" data-topic="¿Dónde va este código?">
+      <h2 class="slide-title">¿Dónde va este <span class="accent">código</span>?</h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 200" width="1060" role="img" aria-label="El controlador llama a un repositorio, el repositorio usa ADO.NET y ADO.NET habla con la base">
+          <defs>
+            <marker id="a8" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+          </defs>
+          <rect x="10" y="50" width="230" height="100" rx="18" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="125" y="96" text-anchor="middle" font-size="22" font-weight="600" fill="var(--text)" class="serif">Controlador</text>
+          <text x="125" y="124" text-anchor="middle" font-size="14" fill="var(--muted)">recibe el request</text>
+          <rect x="300" y="40" width="250" height="120" rx="18" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="2"/>
+          <text x="425" y="94" text-anchor="middle" font-size="22" font-weight="600" fill="var(--accent-2)" class="serif">Repositorio</text>
+          <text x="425" y="122" text-anchor="middle" font-size="14" fill="var(--muted)">el código de hoy</text>
+          <rect x="610" y="50" width="220" height="100" rx="18" fill="color-mix(in srgb, var(--accent) 12%, var(--panel))" stroke="var(--accent)" stroke-width="2"/>
+          <text x="720" y="108" text-anchor="middle" font-size="22" font-weight="600" fill="var(--accent)" class="serif">ADO.NET</text>
+          <g fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="2.5">
+            <path d="M920,80 v60 a70,20 0 0 0 140,0 v-60"/>
+            <ellipse cx="990" cy="80" rx="70" ry="20"/>
+          </g>
+          <text x="990" y="132" text-anchor="middle" font-size="16" fill="var(--text)" class="mono">clinica.db</text>
+          <line x1="242" y1="100" x2="294" y2="100" stroke="var(--muted)" stroke-width="2" marker-end="url(#a8)"/>
+          <line x1="552" y1="100" x2="604" y2="100" stroke="var(--muted)" stroke-width="2" marker-end="url(#a8)"/>
+          <line x1="832" y1="100" x2="914" y2="100" stroke="var(--muted)" stroke-width="2" marker-end="url(#a8)"/>
+        </svg>
+      </div>
+      <div class="callout">El controlador <strong>no escribe SQL</strong>: le pide los datos a un repositorio. Es el tema de la próxima clase.</div>
+    </section>
+
+    <!-- 22 · Ejemplos y práctica -->
+    <section class="slide" data-chapter="Cierre" data-topic="Ejemplos y práctica">
+      <h2 class="slide-title">Ejemplos y <span class="accent">práctica</span></h2>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>Ejemplos de la clase</h3>
+          <p>Todo lo de hoy en un proyecto de consola .NET 10 sobre la base de la clínica.</p>
+<pre class="code sm"><span class="k">cd</span> tema-08-ado-net/proyecto-ejemplo
+<span class="k">dotnet</span> run</pre>
+          <p class="small-note" style="margin:0">Cada corrida recrea <code>clinica.db</code> con el script del tema 07.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Propuesta práctica</h3>
+          <p>Pasar la lista en memoria de la Web API a una base SQLite con ADO.NET.</p>
+          <p><span class="todo-placeholder">link de GitHub Classroom 2026</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 23 · Bibliografía -->
+    <section class="slide" data-chapter="Cierre" data-topic="Bibliografía">
+      <h2 class="slide-title"><span class="accent">Bibliografía</span></h2>
+      <ul class="bullets" style="font-size:17px">
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/dotnet/standard/data/sqlite/">Microsoft.Data.Sqlite: información general</a> · <a href="https://learn.microsoft.com/es-es/dotnet/standard/data/sqlite/parameters">Parámetros</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/dotnet/framework/data/adonet/">ADO.NET</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/fundamentals/configuration/">Configuración en ASP.NET Core</a></li>
+        <li>OWASP — <a href="https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html">SQL Injection Prevention Cheat Sheet</a></li>
+        <li>SQLite — <a href="https://www.sqlite.org/lang_returning.html">RETURNING</a></li>
+      </ul>
+    </section>
+
+    <!-- 24 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Próximo: repositorios — sacar el SQL del controlador.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+  <script src="../assets/pasos.js?v=6"></script>
+</body>
+</html>

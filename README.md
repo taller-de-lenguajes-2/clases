@@ -17,8 +17,8 @@ El material se organiza **por tema** (estable entre años); el orden de dictado 
 | 04 | POO: Interfaces y clases abstractas | [tema-04-interfaces-y-clases-abstractas](./tema-04-interfaces-y-clases-abstractas) |
 | 05 | API REST | [tema-05-api-rest](./tema-05-api-rest) |
 | 06 | ASP.NET con API REST | [tema-06-asp-net-web-api](./tema-06-asp-net-web-api) |
-| 07 | Bases de datos | _pendiente_ |
-| 08 | Bases de datos: ADO.NET | _pendiente_ |
+| 07 | Bases de datos | [tema-07-bases-de-datos](./tema-07-bases-de-datos) |
+| 08 | Bases de datos: ADO.NET | [tema-08-ado-net](./tema-08-ado-net) |
 | 09 | Repositorios | _pendiente_ |
 | 10 | MVC | _pendiente_ |
 | 11 | Layout y Views en ASP.NET | _pendiente_ |
@@ -50,12 +50,15 @@ Las presentaciones usan **[slidedeck](https://github.com/Spktro/slidedeck)** (de
 
 Sobre eso, [`assets/taller2.css`](./assets/taller2.css) agrega una capa de estilo propia de la cátedra. Varias ideas de diseño de esa capa (portadas hero, tarjetas con acento, jerarquía tipográfica marcada) están **adaptadas de [zarazhangrui/frontend-slides](https://github.com/zarazhangrui/frontend-slides)** — crédito a su autora.
 
+Desde los temas 07 y 08 se prueba una estética alternativa más suave, [`assets/estilo-sereno.css`](./assets/estilo-sereno.css) (papel cálido, títulos en serif, tarjetas sin bordes duros), que se carga después de `taller2.css` sin cambiar la estructura de las slides.
+
 ## Estructura
 
 ```
 tema-XX-nombre/
 ├── index.html         → presentación (se abre en el navegador)
 ├── img/               → imágenes de la presentación (si tiene)
+├── material/          → scripts o archivos para la práctica (si tiene)
 └── proyecto-ejemplo/  → proyecto .NET ejecutable (si tiene): dotnet run
 ```
 

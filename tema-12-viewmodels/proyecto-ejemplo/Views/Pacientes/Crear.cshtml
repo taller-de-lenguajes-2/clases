@@ -1,0 +1,27 @@
+@model PacienteCrearViewModel
+@{
+    ViewData["Title"] = "Nuevo paciente";
+}
+
+<h1>Nuevo paciente</h1>
+
+@* asp-action arma el action="/Pacientes/Crear" y el tag helper agrega el token antifalsificación *@
+<form asp-action="Crear" method="post" class="formulario">
+    <label asp-for="Nombre"></label>
+    <input asp-for="Nombre" />
+
+    <label asp-for="DNI"></label>
+    <input asp-for="DNI" />
+
+    <label asp-for="Telefono"></label>
+    <input asp-for="Telefono" />
+
+    <button type="submit">Guardar</button>
+</form>
+
+<p><a asp-action="Index">← Volver a la lista</a></p>
+
+@* Esta sección se dibuja donde el layout pone @RenderSection("Scripts") *@
+@section Scripts {
+    <script>document.getElementById("Nombre").focus();</script>
+}

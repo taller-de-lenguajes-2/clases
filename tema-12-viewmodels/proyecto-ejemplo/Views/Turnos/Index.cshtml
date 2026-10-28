@@ -1,0 +1,27 @@
+@model List<TurnoListadoViewModel>
+@{
+    ViewData["Title"] = "Turnos";
+}
+
+<h1>Turnos</h1>
+
+@* La vista solo muestra: los textos ya vienen armados en el ViewModel *@
+<table>
+    <tr>
+        <th>Día</th>
+        <th>Hora</th>
+        <th>Paciente</th>
+        <th>Médico</th>
+    </tr>
+    @foreach (var turno in Model)
+    {
+        <tr class="@(turno.YaPaso ? "pasado" : "")">
+            <td>@turno.Dia</td>
+            <td>@turno.Hora</td>
+            <td>@turno.Paciente</td>
+            <td>@turno.Medico</td>
+        </tr>
+    }
+</table>
+
+<p><a asp-action="Crear" class="boton">+ Sacar un turno</a></p>

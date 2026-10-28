@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 12 — ViewModels · Taller de Lenguajes 2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css?v=6" />
+  <link rel="stylesheet" href="../assets/estilo-sereno.css?v=6" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <div class="title-grid">
+        <div>
+          <p class="slide-eyebrow">Tema 12 · ASP.NET Core MVC</p>
+          <h1 class="title">View<span class="accent">Models</span></h1>
+        </div>
+        <div class="title-art">
+          <svg viewBox="0 0 420 300" width="400" role="img" aria-label="Dos modelos se combinan en un ViewModel que va a la vista">
+            <rect x="10" y="30" width="120" height="70" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="3"/>
+            <text x="70" y="72" text-anchor="middle" font-size="18" fill="var(--text)" class="serif">Paciente</text>
+            <rect x="10" y="200" width="120" height="70" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="3"/>
+            <text x="70" y="242" text-anchor="middle" font-size="18" fill="var(--text)" class="serif">Turnos</text>
+            <path d="M132,65 C175,65 170,130 200,140 M132,235 C175,235 170,170 200,160" fill="none" stroke="var(--muted)" stroke-width="3"/>
+            <rect x="200" y="100" width="130" height="100" rx="18" fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="3"/>
+            <text x="265" y="146" text-anchor="middle" font-size="18" font-weight="600" fill="var(--accent)" class="serif">View</text>
+            <text x="265" y="170" text-anchor="middle" font-size="18" font-weight="600" fill="var(--accent)" class="serif">Model</text>
+            <path d="M332,150 H360" stroke="var(--muted)" stroke-width="3"/>
+            <rect x="362" y="110" width="50" height="80" rx="8" fill="color-mix(in srgb, var(--accent-2) 16%, var(--panel))" stroke="var(--accent-2)" stroke-width="3"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 · Agenda -->
+    <section class="slide" data-chapter="Intro" data-topic="Agenda">
+      <h2 class="slide-title">Qué vamos a <span class="accent">ver</span></h2>
+      <div class="columns three agenda">
+        <div class="card">
+          <span class="num">1</span>
+          <h3>El dominio</h3>
+          <ul>
+            <li>Arquitectura limpia</li>
+            <li>Reglas de negocio</li>
+            <li>El ejercicio de la biblioteca</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">2</span>
+          <h3>Entidades y modelos</h3>
+          <ul>
+            <li>Entidad, modelo, DTO</li>
+            <li>¿Qué es un ViewModel?</li>
+            <li>Model vs ViewModel</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">3</span>
+          <h3>ViewModels en la clínica</h3>
+          <ul>
+            <li>Tres escenarios</li>
+            <li>Formularios con listas</li>
+            <li>Capa anticorrupción</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · Arquitectura limpia -->
+    <section class="slide" data-chapter="Dominio" data-topic="Arquitectura limpia">
+      <h2 class="slide-title">Arquitectura <span class="accent">limpia</span></h2>
+      <div class="columns" style="grid-template-columns: 1fr 1.1fr; align-items:center">
+        <div class="diagram">
+          <svg viewBox="0 0 420 400" width="400" role="img" aria-label="Tres círculos concéntricos: entidades en el centro, casos de uso alrededor e infraestructura afuera; las dependencias apuntan hacia adentro">
+            <defs>
+              <marker id="l12" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent)"/></marker>
+            </defs>
+            <circle cx="210" cy="200" r="190" fill="color-mix(in srgb, var(--accent-2) 10%, var(--panel))" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <circle cx="210" cy="200" r="125" fill="color-mix(in srgb, var(--accent-2) 18%, var(--panel))" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <circle cx="210" cy="200" r="62" fill="color-mix(in srgb, var(--accent) 22%, var(--panel))" stroke="var(--accent)" stroke-width="3"/>
+            <text x="210" y="206" text-anchor="middle" font-size="18" font-weight="600" fill="var(--accent)" class="serif">Entidades</text>
+            <text x="210" y="112" text-anchor="middle" font-size="17" font-weight="600" fill="var(--text)" class="serif">Casos de uso</text>
+            <text x="210" y="42" text-anchor="middle" font-size="17" font-weight="600" fill="var(--text)" class="serif">Infraestructura</text>
+            <path d="M40,280 Q90,250 140,235" fill="none" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#l12)"/>
+            <path d="M380,280 Q330,250 280,235" fill="none" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#l12)"/>
+          </svg>
+        </div>
+        <div>
+          <p class="small-note" style="margin-top:0">Propuesta por Robert C. Martin: mantener el código <strong>desacoplado</strong> y que resista los cambios de tecnología.</p>
+          <table class="tbl compact">
+            <tr><th>Círculo</th><th>Qué hay</th><th>En la clínica</th></tr>
+            <tr><td>Entidades</td><td>El dominio y sus reglas</td><td><code>Paciente</code>, <code>Turno</code></td></tr>
+            <tr><td>Casos de uso</td><td>Lo que hace la aplicación</td><td>«sacar un turno»</td></tr>
+            <tr><td>Infraestructura</td><td>Base, web, mail…</td><td>controladores, repositorios</td></tr>
+          </table>
+          <div class="callout" style="margin-top:12px">Las dependencias apuntan <strong>hacia adentro</strong>: el centro no conoce a SQLite ni a Razor.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 · El dominio -->
+    <section class="slide" data-chapter="Dominio" data-topic="El dominio">
+      <h2 class="slide-title">El <span class="accent">dominio</span></h2>
+      <p class="idea" style="font-size:26px; margin-top:0">Es <em>de qué trata</em> un sistema y cómo funcionan las cosas en ese mundo, sin importar la tecnología.</p>
+      <div class="columns" style="grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top:18px">
+        <div class="card accent-top"><h3>Entidades</h3><p style="margin:0">Los objetos principales: <em>Libro</em>, <em>Socio</em>, <em>Préstamo</em>.</p></div>
+        <div class="card accent-top"><h3>Objetos de valor</h3><p style="margin:0">Datos con significado pero sin identidad: un <em>Monto</em>, una <em>FechaDeVencimiento</em>.</p></div>
+        <div class="card accent-top"><h3>Reglas de negocio</h3><p style="margin:0">Cómo se comportan: «un socio no tiene más de 5 libros a la vez».</p></div>
+        <div class="card accent-top alt"><h3>Casos de uso</h3><p style="margin:0">Coordinan entidades: «registrar un préstamo».</p></div>
+      </div>
+    </section>
+
+    <!-- 5 · Lógica de negocio -->
+    <section class="slide" data-chapter="Dominio" data-topic="Lógica de negocio">
+      <h2 class="slide-title">Lógica (o reglas) de <span class="accent">negocio</span></h2>
+      <p class="idea" style="font-size:25px; margin-top:0">Las reglas, decisiones y procesos que dicen <em>cómo funciona</em> el dominio: qué se permite, qué no, y qué pasa en cada caso.</p>
+      <div class="callout" style="margin-top:20px">En un restaurante: un pedido <strong>no se puede cerrar</strong> sin al menos un plato confirmado, y el total <strong>incluye</strong> los impuestos que correspondan.</div>
+      <h3 style="margin-top:22px">Lo que <span class="accent">no</span> es lógica de negocio</h3>
+      <div class="chips">
+        <span class="chip">el teclado y la pantalla</span>
+        <span class="chip">la sintaxis SQL</span>
+        <span class="chip">las librerías de terceros</span>
+        <span class="chip">el motor que arma el HTML</span>
+        <span class="chip">si la respuesta va en JSON o XML</span>
+      </div>
+      <p class="small-note">Eso son detalles técnicos: pueden cambiar sin que cambien las reglas.</p>
+    </section>
+
+    <!-- 6 · Ejercicio biblioteca -->
+    <section class="slide" data-pasos data-chapter="Dominio" data-topic="Ejercicio: una biblioteca">
+      <h2 class="slide-title">Ejercicio: una <span class="accent">biblioteca</span> pública</h2>
+      <p class="small-note" style="margin-top:0">El sistema registra libros, socios y préstamos. ¿Qué reglas tiene? Primero la pregunta, después la regla.</p>
+      <table class="tbl compact" style="margin-top:6px">
+        <tr><th>Pregunta</th><th>Regla</th></tr>
+        <tr><td>¿Cuántos libros puede tener un socio a la vez?</td><td data-paso="1">Hasta <strong>5</strong> libros al mismo tiempo.</td></tr>
+        <tr><td>¿Y si el libro ya lo tiene otro socio?</td><td data-paso="2">Se avisa que está prestado y <strong>no</strong> se presta hasta que vuelva.</td></tr>
+        <tr><td>¿Cuánto tiempo puede tenerlo?</td><td data-paso="3"><strong>14 días</strong> desde que lo retira.</td></tr>
+        <tr><td>¿Y si lo devuelve tarde?</td><td data-paso="4">Una <strong>multa por día</strong> de atraso.</td></tr>
+        <tr><td>¿Y si tiene multas sin pagar?</td><td data-paso="5"><strong>No</strong> puede sacar otro libro.</td></tr>
+        <tr><td>¿Hay libros que no se pueden llevar?</td><td data-paso="6">Los de <strong>referencia</strong> solo se consultan en la sala.</td></tr>
+      </table>
+      <div class="callout" data-paso="7" style="margin-top:14px">Eso es la lógica de negocio. Cómo se guarda, cómo se muestra o qué base se usa son <strong>detalles técnicos</strong> que pueden cambiar sin tocar estas reglas.</div>
+    </section>
+
+    <!-- 7 · Reglas de la clínica -->
+    <section class="slide" data-chapter="Dominio" data-topic="Y en la clínica">
+      <h2 class="slide-title">Y en la <span class="accent">clínica</span>…</h2>
+      <div class="columns" style="align-items:start">
+        <ul class="bullets" style="font-size:20px">
+          <li>No hay dos pacientes con el mismo DNI</li>
+          <li>Un médico no atiende dos turnos a la misma hora</li>
+          <li>No se dan turnos en fechas que ya pasaron</li>
+          <li>Un paciente con turnos no se puede borrar</li>
+        </ul>
+        <div>
+          <p class="small-note" style="margin-top:0">¿Dónde va cada una?</p>
+          <table class="tbl compact">
+            <tr><th>Regla</th><th>La controla</th></tr>
+            <tr><td>DNI único</td><td>la base (<code>UNIQUE</code>) y la <code>Recepcion</code> del tema 09</td></tr>
+            <tr><td>Paciente con turnos</td><td>la base (<code>FOREIGN KEY</code>)</td></tr>
+            <tr><td>Fechas pasadas, horarios</td><td>el código del dominio</td></tr>
+          </table>
+          <p class="small-note">Algunas reglas las garantiza la base; otras son código. Ninguna va en la <strong>vista</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 · Entidad, regla, modelo -->
+    <section class="slide" data-chapter="Modelos" data-topic="Entidad, regla y modelo">
+      <h2 class="slide-title">Entidad, regla y <span class="accent">modelo</span></h2>
+      <div class="columns three" style="margin-top:8px">
+        <div class="card accent-top">
+          <h3>Entidad</h3>
+          <p>Un concepto central del negocio, que <strong>persiste</strong> en el tiempo y tiene identidad.</p>
+          <p class="small-note" style="margin:0">Un <em>Libro</em> con título, autor e ISBN.</p>
+        </div>
+        <div class="card accent-top">
+          <h3>Regla de negocio</h3>
+          <p>Lo que está permitido y lo que no. Gobierna a las entidades.</p>
+          <p class="small-note" style="margin:0">Un préstamo vence a los 14 días.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Modelo</h3>
+          <p>Una estructura para <strong>transportar</strong> o adaptar datos hacia o desde afuera. Sin lógica.</p>
+          <p class="small-note" style="margin:0">Lo que viaja por la API o llega a una vista.</p>
+        </div>
+      </div>
+<pre class="code sm" style="margin-top:16px"><span class="k">public class</span> <span class="t">Prestamo</span>                       <span class="c">// una entidad con su regla adentro</span>
+{
+    <span class="k">public</span> <span class="t">DateTime</span> Retiro { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public</span> <span class="t">DateTime</span> Vencimiento =&gt; Retiro.AddDays(<span class="n">14</span>);
+    <span class="k">public bool</span> EstaVencido(<span class="t">DateTime</span> hoy) =&gt; hoy &gt; Vencimiento;
+}</pre>
+    </section>
+
+    <!-- 9 · Modelos para transportar -->
+    <section class="slide" data-chapter="Modelos" data-topic="Modelos para cada tarea">
+      <h2 class="slide-title">Un modelo para cada <span class="accent">tarea</span></h2>
+      <p class="small-note" style="margin-top:0">Pueden tener los mismos datos que la entidad, pero en una versión <strong>plana</strong> y sin lógica, pensada para una tarea.</p>
+      <table class="tbl" style="margin-top:10px">
+        <tr><th>Nombre</th><th>Para</th><th>Ejemplo</th></tr>
+        <tr><td><strong>DTO</strong> <span class="small-note">(Data Transfer Object)</span></td><td>Enviar datos por una API</td><td><code>LibroDTO</code>: lo que devuelve <code>GET /api/libros/7</code></td></tr>
+        <tr><td><strong>ViewModel</strong></td><td>Mostrar o cargar datos en una vista</td><td><code>LibroViewModel</code>: fecha formateada, etiquetas</td></tr>
+        <tr><td><strong>Registro</strong> <span class="small-note">(record)</span></td><td>Representar cómo se guarda en la base</td><td><code>LibroRecord</code>: una fila de la tabla</td></tr>
+      </table>
+      <div class="callout" style="margin-top:20px">Hoy: los <strong>ViewModels</strong>, el modelo hecho a medida de una vista.</div>
+    </section>
+
+    <!-- 10 · Qué es un ViewModel -->
+    <section class="slide" data-chapter="ViewModels" data-topic="¿Qué es un ViewModel?">
+      <h2 class="slide-title">¿Qué es un <span class="accent">ViewModel</span>?</h2>
+      <div class="columns" style="grid-template-columns: 1fr 1fr; align-items:center">
+        <div>
+          <p class="idea" style="font-size:24px; margin-top:0">El objeto que se le pasa a una vista, con <em>solo</em> los datos que esa vista necesita, listos para mostrar.</p>
+          <ul class="bullets" style="font-size:19px">
+            <li>A veces un modelo trae <strong>de más</strong> para la vista</li>
+            <li>A veces <strong>no alcanza</strong>: la vista necesita datos de dos modelos, o cosas que ningún modelo tiene</li>
+          </ul>
+        </div>
+        <div class="diagram">
+          <svg viewBox="0 0 480 300" width="460" role="img" aria-label="Paciente y Turnos se combinan en un ViewModel que llega a la vista">
+            <defs>
+              <marker id="v12" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+            </defs>
+            <rect x="10" y="20" width="160" height="64" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="90" y="58" text-anchor="middle" font-size="18" fill="var(--text)" class="mono">Paciente</text>
+            <rect x="200" y="20" width="160" height="64" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="280" y="58" text-anchor="middle" font-size="18" fill="var(--text)" class="mono">List&lt;Turno&gt;</text>
+            <path d="M90,86 V130" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#v12)"/>
+            <path d="M280,86 V130" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#v12)"/>
+            <rect x="10" y="136" width="350" height="90" rx="18" fill="color-mix(in srgb, var(--accent) 14%, var(--panel))" stroke="var(--accent)" stroke-width="3"/>
+            <text x="185" y="176" text-anchor="middle" font-size="19" font-weight="600" fill="var(--accent)" class="mono">PacienteDetalleViewModel</text>
+            <text x="185" y="204" text-anchor="middle" font-size="14" fill="var(--muted)">datos del paciente + próximos turnos</text>
+            <path d="M362,181 H398" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#v12)"/>
+            <rect x="404" y="140" width="66" height="82" rx="10" fill="color-mix(in srgb, var(--accent-2) 16%, var(--panel))" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <text x="437" y="186" text-anchor="middle" font-size="15" font-weight="600" fill="var(--accent-2)" class="serif">Vista</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · Model vs ViewModel -->
+    <section class="slide" data-chapter="ViewModels" data-topic="Model vs ViewModel">
+      <h2 class="slide-title">Model <span class="accent">vs</span> ViewModel</h2>
+      <table class="tbl" style="margin-top:6px">
+        <tr><th></th><th>Model (entidad)</th><th>ViewModel</th></tr>
+        <tr><td>Representa</td><td>Los datos reales del dominio o de la base</td><td>Una <strong>pantalla</strong> concreta</td></tr>
+        <tr><td>Está cerca de</td><td>El núcleo del sistema</td><td>La interfaz de usuario</td></tr>
+        <tr><td>Cuántos hay</td><td>Uno por concepto: <code>Turno</code></td><td>Los que haga falta: <code>TurnoListadoViewModel</code>, <code>TurnoCrearViewModel</code>…</td></tr>
+        <tr><td>Tiene</td><td>Identidad, relaciones, reglas</td><td>Textos formateados, listas para desplegables, etiquetas</td></tr>
+        <tr><td>Si cambia la pantalla</td><td>No cambia</td><td>Cambia</td></tr>
+      </table>
+      <p class="small-note" style="margin-top:18px">En las vistas de los temas 10 y 11 usábamos directamente las entidades (<code>@model Paciente</code>). Para pantallas simples alcanza; cuando la pantalla pide algo distinto del modelo, va un ViewModel.</p>
+    </section>
+
+    <!-- 12 · Escenario 1 -->
+    <section class="slide" data-chapter="Escenarios" data-topic="1 · Simplificar un modelo">
+      <h2 class="slide-title">Escenario 1: <span class="accent">simplificar</span> un modelo</h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3>El modelo: <code>Turno</code></h3>
+<pre class="code sm"><span class="k">public class</span> <span class="t">Turno</span>
+{
+    <span class="k">public int</span> Id { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public</span> <span class="t">DateTime</span> Fecha { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public string</span>? Observaciones { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public</span> <span class="t">Paciente</span> Paciente { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public</span> <span class="t">Medico</span> Medico { <span class="k">get</span>; <span class="k">set</span>; }
+}</pre>
+          <p class="small-note">Para una fila del listado sobra el DNI, el teléfono, el Id del médico… y falta el texto armado.</p>
+        </div>
+        <div>
+          <h3>El ViewModel: una fila del listado</h3>
+<pre class="code sm"><span class="k">public class</span> <span class="t">TurnoListadoViewModel</span>
+{
+    <span class="k">public string</span> Dia { <span class="k">get</span>; }       <span class="c">// "lun 20/10"</span>
+    <span class="k">public string</span> Hora { <span class="k">get</span>; }      <span class="c">// "09:00"</span>
+    <span class="k">public string</span> Paciente { <span class="k">get</span>; }
+    <span class="k">public string</span> Medico { <span class="k">get</span>; }    <span class="c">// "Inés Molina (Cardiología)"</span>
+
+    <span class="k">public</span> TurnoListadoViewModel(<span class="t">Turno</span> turno)
+    {
+        Dia = turno.Fecha.ToString(<span class="s">"ddd dd/MM"</span>);
+        Hora = turno.Fecha.ToString(<span class="s">"HH:mm"</span>);
+        Paciente = turno.Paciente.Nombre;
+        Medico = <span class="s">$"{turno.Medico.Nombre} ({turno.Medico.Especialidad})"</span>;
+    }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 · Escenario 1 en uso -->
+    <section class="slide" data-chapter="Escenarios" data-topic="1 · Controlador y vista">
+      <h2 class="slide-title">Escenario 1: en el controlador y la <span class="accent">vista</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3><code>TurnosController</code></h3>
+<pre class="code sm"><span class="k">public</span> <span class="t">IActionResult</span> Index()
+{
+    <span class="t">List</span>&lt;<span class="t">TurnoListadoViewModel</span>&gt; filas = turnos.Listar()
+        .Select(t =&gt; <span class="k">new</span> <span class="t">TurnoListadoViewModel</span>(t))
+        .ToList();
+
+    <span class="k">return</span> View(filas);
+}</pre>
+          <h3 style="margin-top:12px"><code>Turnos/Index.cshtml</code></h3>
+<pre class="code sm"><span class="k">@model</span> <span class="t">List</span>&lt;<span class="t">TurnoListadoViewModel</span>&gt;
+
+<span class="k">@foreach</span> (<span class="k">var</span> turno <span class="k">in</span> Model)
+{
+    &lt;tr&gt;&lt;td&gt;<span class="k">@</span>turno.Dia&lt;/td&gt;&lt;td&gt;<span class="k">@</span>turno.Hora&lt;/td&gt;
+        &lt;td&gt;<span class="k">@</span>turno.Paciente&lt;/td&gt;&lt;td&gt;<span class="k">@</span>turno.Medico&lt;/td&gt;&lt;/tr&gt;
+}</pre>
+        </div>
+        <div>
+<pre class="out">mar 20/10  09:00  Ana Gómez    Laura Sosa (Clínica médica)
+mar 20/10  10:30  Bruno Díaz   Inés Molina (Cardiología)
+jue 22/10  11:00  Ana Gómez    Inés Molina (Cardiología)
+vie 23/10  08:15  Carla Ruiz   Martín Vera (Pediatría)
+…</pre>
+          <div class="callout" style="margin-top:12px">La vista no formatea fechas ni arma textos: <strong>solo muestra</strong>. Si el formato cambia, se cambia en un lugar.</div>
+          <p class="small-note"><code>Select</code> convierte cada <code>Turno</code> en un <code>TurnoListadoViewModel</code> (LINQ).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 · Escenario 2 -->
+    <section class="slide" data-chapter="Escenarios" data-topic="2 · Dos modelos, una vista">
+      <h2 class="slide-title">Escenario 2: dos modelos, <span class="accent">una vista</span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="k">public class</span> <span class="t">PacienteDetalleViewModel</span>
+{
+    <span class="k">public string</span> Nombre { <span class="k">get</span>; }
+    <span class="k">public string</span> Telefono { <span class="k">get</span>; }
+    <span class="k">public</span> <span class="t">List</span>&lt;<span class="t">TurnoListadoViewModel</span>&gt; ProximosTurnos { <span class="k">get</span>; }
+    <span class="k">public int</span> TurnosAnteriores { <span class="k">get</span>; }
+
+    <span class="k">public</span> PacienteDetalleViewModel(<span class="t">Paciente</span> paciente, <span class="t">List</span>&lt;<span class="t">Turno</span>&gt; turnos)
+    {
+        Nombre = paciente.Nombre;
+        Telefono = paciente.Telefono ?? <span class="s">"sin teléfono"</span>;
+        ProximosTurnos = turnos.Where(t =&gt; t.Fecha &gt;= <span class="t">DateTime</span>.Now)
+                               .Select(t =&gt; <span class="k">new</span> <span class="t">TurnoListadoViewModel</span>(t))
+                               .ToList();
+        TurnosAnteriores = turnos.Count(t =&gt; t.Fecha &lt; <span class="t">DateTime</span>.Now);
+    }
+}
+
+<span class="c">// En PacientesController.Detalle</span>
+<span class="k">var</span> modelo = <span class="k">new</span> <span class="t">PacienteDetalleViewModel</span>(paciente, turnos.ListarPorPaciente(id));
+<span class="k">return</span> View(modelo);</pre>
+        <div>
+<pre class="out">Carla Ruiz
+Teléfono: 381-5550001
+
+Próximos turnos
+mié 04/11  10:00  Inés Molina (Cardiología)
+vie 13/11  15:00  Laura Sosa (Clínica médica)
+
+Turnos anteriores: 1</pre>
+          <p class="small-note"><code>View()</code> recibe <strong>un solo</strong> objeto. Si la página necesita dos cosas, el ViewModel las junta.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 · Escenario 3 -->
+    <section class="slide" data-chapter="Escenarios" data-topic="3 · Más datos que el modelo">
+      <h2 class="slide-title">Escenario 3: la vista necesita <span class="accent">más</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+<pre class="code sm"><span class="k">public class</span> <span class="t">TurnoCrearViewModel</span>
+{
+    <span class="c">// lo que carga el usuario</span>
+    [<span class="t">Display</span>(Name = <span class="s">"Paciente"</span>)]
+    <span class="k">public int</span> PacienteId { <span class="k">get</span>; <span class="k">set</span>; }
+
+    [<span class="t">Display</span>(Name = <span class="s">"Médico"</span>)]
+    <span class="k">public int</span> MedicoId { <span class="k">get</span>; <span class="k">set</span>; }
+
+    [<span class="t">Display</span>(Name = <span class="s">"Fecha y hora"</span>)]
+    <span class="k">public</span> <span class="t">DateTime</span> Fecha { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public string</span>? Observaciones { <span class="k">get</span>; <span class="k">set</span>; }
+
+    <span class="c">// lo que la vista necesita para los desplegables</span>
+    <span class="k">public</span> <span class="t">List</span>&lt;<span class="t">SelectListItem</span>&gt; Pacientes { <span class="k">get</span>; <span class="k">set</span>; } = [];
+    <span class="k">public</span> <span class="t">List</span>&lt;<span class="t">SelectListItem</span>&gt; Medicos { <span class="k">get</span>; <span class="k">set</span>; } = [];
+}</pre>
+        </div>
+        <div>
+          <h3><code>Turnos/Crear.cshtml</code></h3>
+<pre class="code sm">&lt;label <span class="t">asp-for</span>=<span class="s">"PacienteId"</span>&gt;&lt;/label&gt;
+&lt;select <span class="t">asp-for</span>=<span class="s">"PacienteId"</span>
+        <span class="t">asp-items</span>=<span class="s">"Model.Pacientes"</span>&gt;&lt;/select&gt;</pre>
+<pre class="code sm">&lt;label for=<span class="s">"PacienteId"</span>&gt;Paciente&lt;/label&gt;
+&lt;select id=<span class="s">"PacienteId"</span> name=<span class="s">"PacienteId"</span>&gt;
+    &lt;option value=<span class="s">"1"</span>&gt;Ana Gómez&lt;/option&gt;
+    &lt;option value=<span class="s">"2"</span>&gt;Bruno Díaz&lt;/option&gt; …
+&lt;/select&gt;</pre>
+          <p class="small-note"><code>[Display]</code> pone el texto de la etiqueta. Un <code>Turno</code> no tiene «la lista de todos los médicos»: eso es de la pantalla.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16 · Las listas no vuelven -->
+    <section class="slide" data-chapter="Escenarios" data-topic="Las listas no vuelven en el POST">
+      <h2 class="slide-title">Las listas <span class="accent">no vuelven</span> en el POST</h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm">[<span class="t">HttpGet</span>]
+<span class="k">public</span> <span class="t">IActionResult</span> Crear()
+{
+    <span class="k">var</span> modelo = <span class="k">new</span> <span class="t">TurnoCrearViewModel</span>();
+    CargarListas(modelo);
+    <span class="k">return</span> View(modelo);
+}
+
+[<span class="t">HttpPost</span>]
+[<span class="t">ValidateAntiForgeryToken</span>]
+<span class="k">public</span> <span class="t">IActionResult</span> Crear(<span class="t">TurnoCrearViewModel</span> modelo)
+{
+    <span class="t">Paciente</span>? paciente = pacientes.Obtener(modelo.PacienteId);
+    <span class="t">Medico</span>? medico = medicos.Obtener(modelo.MedicoId);
+
+    <span class="k">if</span> (paciente <span class="k">is null</span> || medico <span class="k">is null</span>)
+    {
+        CargarListas(modelo);      <span class="c">// ← si no, los desplegables quedan vacíos</span>
+        <span class="k">return</span> View(modelo);
+    }
+    …
+}</pre>
+        <div>
+          <ul class="bullets" style="font-size:19px">
+            <li>El formulario manda solo el <strong>valor elegido</strong> (<code>PacienteId=3</code>), no la lista entera</li>
+            <li>Si hay que volver a mostrar el formulario, las listas se cargan <strong>de nuevo</strong></li>
+          </ul>
+<pre class="code sm">
+<span class="k">private void</span> CargarListas(<span class="t">TurnoCrearViewModel</span> m)
+{
+    m.Pacientes = pacientes.Listar()
+        .Select(p =&gt; <span class="k">new</span> <span class="t">SelectListItem</span>(
+            p.Nombre, p.Id.ToString()))
+        .ToList();
+    m.Medicos = …
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17 · Del ViewModel a la entidad -->
+    <section class="slide" data-chapter="Escenarios" data-topic="Del ViewModel a la entidad">
+      <h2 class="slide-title">Del ViewModel a la <span class="accent">entidad</span></h2>
+      <div class="flow" style="margin-top:14px">
+        <div class="card accent-top"><h3>Formulario</h3><p class="small-note" style="margin:0">campos del <code>POST</code></p></div>
+        <div class="arrow">→</div>
+        <div class="card accent-top"><h3>ViewModel</h3><p class="small-note" style="margin:0"><code>TurnoCrearViewModel</code></p></div>
+        <div class="arrow">→</div>
+        <div class="card accent-top alt"><h3>Entidad</h3><p class="small-note" style="margin:0"><code>Turno</code> → repositorio</p></div>
+      </div>
+<pre class="code sm" style="margin-top:18px"><span class="k">var</span> turno = <span class="k">new</span> <span class="t">Turno</span>
+{
+    Fecha = modelo.Fecha,
+    Observaciones = modelo.Observaciones,
+    Paciente = paciente,        <span class="c">// el que trajo el repositorio con modelo.PacienteId</span>
+    Medico = medico
+};
+turnos.Insertar(turno);
+<span class="k">return</span> RedirectToAction(<span class="s">"Detalle"</span>, <span class="s">"Pacientes"</span>, <span class="k">new</span> { id = paciente.Id });</pre>
+      <p class="small-note">El repositorio sigue trabajando con <strong>entidades</strong>: no conoce los ViewModels. La traducción la hace el controlador.</p>
+    </section>
+
+    <!-- 18 · Overposting -->
+    <section class="slide" data-chapter="Escenarios" data-topic="Solo los campos que corresponden">
+      <h2 class="slide-title">Solo los campos que <span class="accent">corresponden</span></h2>
+      <div class="columns" style="align-items:start">
+        <div class="card accent-top alt">
+          <h3>Con la entidad (tema 11)</h3>
+<pre class="code sm"><span class="k">public</span> <span class="t">IActionResult</span> Crear(<span class="t">Paciente</span> paciente)</pre>
+          <p style="margin:6px 0 0">El binding llena <strong>cualquier</strong> propiedad de <code>Paciente</code> que venga en el request, aunque no esté en el formulario: alguien puede agregar un campo a mano con las herramientas del navegador.</p>
+          <p class="small-note">Imaginen una entidad <code>Usuario</code> con <code>EsAdministrador</code>.</p>
+        </div>
+        <div class="card accent-top">
+          <h3>Con un ViewModel</h3>
+<pre class="code sm"><span class="k">public class</span> <span class="t">PacienteCrearViewModel</span>
+{
+    <span class="k">public string</span> Nombre { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public string</span>? DNI { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public string</span>? Telefono { <span class="k">get</span>; <span class="k">set</span>; }
+}</pre>
+          <p style="margin:6px 0 0">Solo tiene lo que el usuario <strong>puede</strong> cargar. Lo demás no tiene dónde caer.</p>
+        </div>
+      </div>
+      <p class="small-note" style="text-align:center">A esto se le llama <em>overposting</em> (o <em>mass assignment</em>).</p>
+    </section>
+
+    <!-- 19 · Puntos importantes -->
+    <section class="slide" data-chapter="Escenarios" data-topic="Puntos importantes">
+      <h2 class="slide-title">Puntos <span class="accent">importantes</span></h2>
+      <ol class="steps" style="max-width:980px">
+        <li><strong>Solo lo que usa la vista.</strong> Si una propiedad no se muestra ni se carga, no va.</li>
+        <li><strong>Un ViewModel por pantalla</strong> (o por formulario), con un nombre que lo diga: <code>TurnoCrearViewModel</code>.</li>
+        <li><strong>Sin lógica de negocio.</strong> Puede formatear (<code>"ddd dd/MM"</code>), pero las reglas viven en el dominio.</li>
+        <li><strong>Etiquetas con <code>[Display]</code></strong>, que usan los tag helpers <code>asp-for</code>.</li>
+        <li><strong>Validación con anotaciones</strong> (<code>[Required]</code>, <code>[StringLength]</code>…) en el ViewModel del formulario: el tema 13.</li>
+      </ol>
+      <p class="small-note">Por convención, van en una carpeta <code>ViewModels/</code>, al lado de <code>Models/</code>.</p>
+    </section>
+
+    <!-- 20 · Capa anticorrupción -->
+    <section class="slide" data-chapter="Anticorrupción" data-topic="Capa anticorrupción">
+      <h2 class="slide-title">Capa <span class="accent">anticorrupción</span></h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 250" width="1040" role="img" aria-label="La base de datos se conecta con la lógica de negocio a través del repositorio, y la lógica con la página web a través de los ViewModels; repositorio y ViewModels son capas anticorrupción">
+          <defs>
+            <marker id="a12" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+          </defs>
+          <g fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="2.5">
+            <path d="M30,95 v70 a70,20 0 0 0 140,0 v-70"/>
+            <ellipse cx="100" cy="95" rx="70" ry="20"/>
+          </g>
+          <text x="100" y="155" text-anchor="middle" font-size="16" fill="var(--text)" class="serif">Base de datos</text>
+          <path d="M260,40 Q230,125 260,210" fill="none" stroke="var(--accent-2)" stroke-width="16" stroke-linecap="round" opacity="0.5"/>
+          <text x="245" y="238" text-anchor="middle" font-size="14" fill="var(--accent-2)" font-weight="600">Repositorio</text>
+          <circle cx="550" cy="125" r="100" fill="color-mix(in srgb, var(--accent-2) 16%, var(--panel))" stroke="var(--accent-2)" stroke-width="3"/>
+          <text x="550" y="120" text-anchor="middle" font-size="22" font-weight="600" fill="var(--accent-2)" class="serif">Lógica de</text>
+          <text x="550" y="146" text-anchor="middle" font-size="22" font-weight="600" fill="var(--accent-2)" class="serif">negocio</text>
+          <path d="M840,40 Q870,125 840,210" fill="none" stroke="var(--accent-2)" stroke-width="16" stroke-linecap="round" opacity="0.5"/>
+          <text x="855" y="238" text-anchor="middle" font-size="14" fill="var(--accent-2)" font-weight="600">ViewModels</text>
+          <rect x="940" y="80" width="140" height="95" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+          <rect x="940" y="80" width="140" height="24" rx="12" fill="var(--panel-2)"/>
+          <text x="1010" y="150" text-anchor="middle" font-size="16" fill="var(--text)" class="serif">Página web</text>
+          <g stroke="var(--muted)" stroke-width="2.5" marker-start="url(#a12)" marker-end="url(#a12)">
+            <line x1="176" y1="125" x2="232" y2="125"/>
+            <line x1="270" y1="125" x2="444" y2="125"/>
+            <line x1="656" y1="125" x2="830" y2="125"/>
+            <line x1="868" y1="125" x2="934" y2="125"/>
+          </g>
+        </svg>
+      </div>
+      <p class="idea" style="font-size:22px">Un adaptador entre dos partes que no hablan el mismo idioma, para que una no <em>contamine</em> a la otra.</p>
+      <p class="small-note">Viene del Diseño Guiado por el Dominio (DDD). Microsoft la define como una fachada o capa de adaptación entre subsistemas que no comparten la misma semántica.</p>
+    </section>
+
+    <!-- 21 · Para qué -->
+    <section class="slide" data-chapter="Anticorrupción" data-topic="Para qué sirve">
+      <h2 class="slide-title">¿Para qué <span class="accent">sirve</span>?</h2>
+      <div class="columns" style="grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top:8px">
+        <div class="card tinte"><h3>Lógica de negocio</h3><p style="margin:0">No se preocupa por cómo funciona la base ni por cómo se ve la página.</p></div>
+        <div class="card tinte"><h3>Front end</h3><p style="margin:0">Las personas reciben datos útiles para ellas, no la estructura interna de las tablas.</p></div>
+        <div class="card tinte alt"><h3>Web API</h3><p style="margin:0">Devuelve DTOs pensados para quien la consume, no las entidades tal cual.</p></div>
+        <div class="card tinte alt"><h3>Seguridad</h3><p style="margin:0">Pasan <strong>solo</strong> los datos que la otra parte necesita: ni el hash de la contraseña, ni campos de más.</p></div>
+      </div>
+      <div class="callout" style="margin-top:20px">En la clínica ya hay dos: el <strong>repositorio</strong> (tema 09) entre la base y el dominio, y los <strong>ViewModels</strong> entre el dominio y las vistas.</div>
+    </section>
+
+    <!-- 22 · Ejemplos y práctica -->
+    <section class="slide" data-chapter="Cierre" data-topic="Ejemplos y práctica">
+      <h2 class="slide-title">Ejemplos y <span class="accent">práctica</span></h2>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>Ejemplo de la clase</h3>
+          <p>La clínica del tema 11 con turnos: listado (<code>TurnoListadoViewModel</code>), detalle del paciente con sus turnos (<code>PacienteDetalleViewModel</code>) y el formulario para sacar un turno con desplegables (<code>TurnoCrearViewModel</code>).</p>
+<pre class="code sm"><span class="k">cd</span> tema-12-viewmodels/proyecto-ejemplo
+<span class="k">dotnet</span> run</pre>
+          <p class="small-note" style="margin:0">Se abre en <code>http://localhost:5192</code>.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Propuesta práctica</h3>
+          <p>Agregar <code>/Medicos/Detalle/{id}</code> con un <code>MedicoAgendaViewModel</code>: el médico, sus turnos de la semana agrupados por día y cuántos pacientes distintos atiende.</p>
+          <p><span class="todo-placeholder">link de GitHub Classroom 2026</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 23 · Bibliografía -->
+    <section class="slide" data-chapter="Cierre" data-topic="Bibliografía">
+      <h2 class="slide-title"><span class="accent">Bibliografía</span></h2>
+      <ul class="bullets" style="font-size:17px">
+        <li>Robert C. Martin — <a href="https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html">The Clean Architecture</a> (2012) · <em>Clean Architecture</em> (2017)</li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/dotnet/architecture/modern-web-apps-azure/common-web-application-architectures">Arquitecturas comunes de aplicaciones web</a> (arquitectura limpia)</li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/azure/architecture/patterns/anti-corruption-layer">Patrón de capa contra daños</a> (anticorrupción)</li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/mvc/models/model-binding">Enlace de modelos</a> · <a href="https://learn.microsoft.com/es-es/aspnet/core/mvc/views/working-with-forms#the-select-tag-helper">Tag helper de select</a></li>
+        <li>Jon P Smith — <a href="https://www.thereformedprogrammer.net/wrapping-your-business-logic-with-anti-corruption-layers-net-core/">Wrapping your business logic with anti-corruption layers</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/dotnet/api/system.componentmodel.dataannotations">System.ComponentModel.DataAnnotations</a></li>
+      </ul>
+    </section>
+
+    <!-- 24 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Próximo: validación — que los datos del formulario tengan sentido.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+  <script src="../assets/pasos.js?v=6"></script>
+</body>
+</html>

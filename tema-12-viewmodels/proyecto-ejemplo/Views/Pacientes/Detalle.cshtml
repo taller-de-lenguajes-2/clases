@@ -1,0 +1,38 @@
+@model PacienteDetalleViewModel
+@{
+    ViewData["Title"] = Model.Nombre;
+}
+
+<h1>@Model.Nombre</h1>
+
+<dl>
+    <dt>DNI</dt>
+    <dd>@Model.DNI</dd>
+    <dt>Teléfono</dt>
+    <dd>@Model.Telefono</dd>
+</dl>
+
+<h2>Próximos turnos</h2>
+@if (Model.ProximosTurnos.Count == 0)
+{
+    <p>No tiene turnos pendientes.</p>
+}
+else
+{
+    <table>
+        @foreach (var turno in Model.ProximosTurnos)
+        {
+            <tr>
+                <td>@turno.Dia</td>
+                <td>@turno.Hora</td>
+                <td>@turno.Medico</td>
+            </tr>
+        }
+    </table>
+}
+<p class="nota">Turnos anteriores: @Model.TurnosAnteriores</p>
+
+<p>
+    <a asp-controller="Turnos" asp-action="Crear" class="boton">+ Sacar un turno</a>
+    <a asp-action="Index">← Volver a la lista</a>
+</p>

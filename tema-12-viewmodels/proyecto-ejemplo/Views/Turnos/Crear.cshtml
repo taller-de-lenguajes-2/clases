@@ -1,0 +1,25 @@
+@model TurnoCrearViewModel
+@{
+    ViewData["Title"] = "Sacar un turno";
+}
+
+<h1>Sacar un turno</h1>
+
+<form asp-action="Crear" method="post" class="formulario">
+    <label asp-for="PacienteId"></label>
+    @* asp-items arma las <option> con la lista que trae el ViewModel *@
+    <select asp-for="PacienteId" asp-items="Model.Pacientes"></select>
+
+    <label asp-for="MedicoId"></label>
+    <select asp-for="MedicoId" asp-items="Model.Medicos"></select>
+
+    <label asp-for="Fecha"></label>
+    <input asp-for="Fecha" />
+
+    <label asp-for="Observaciones"></label>
+    <input asp-for="Observaciones" />
+
+    <button type="submit">Guardar</button>
+</form>
+
+<p><a asp-action="Index">← Volver a los turnos</a></p>

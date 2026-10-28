@@ -25,7 +25,7 @@ El material se organiza **por tema** (estable entre años); el orden de dictado 
 | 12 | ViewModels | [tema-12-viewmodels](./tema-12-viewmodels) |
 | 13 | Validación | [tema-13-validacion](./tema-13-validacion) |
 | 14 | Inyección de dependencias e interfaces | _pendiente_ |
-| 15 | Cookies y variables de sesión | _pendiente_ |
+| 15 | Cookies y variables de sesión | [tema-15-cookies-y-sesion](./tema-15-cookies-y-sesion) |
 | 16 | Excepciones | [tema-16-excepciones](./tema-16-excepciones) |
 | 17 | Logs | [tema-17-logs](./tema-17-logs) |
 

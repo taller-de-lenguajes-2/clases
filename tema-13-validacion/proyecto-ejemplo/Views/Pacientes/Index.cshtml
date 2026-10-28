@@ -1,0 +1,37 @@
+@model List<Paciente>
+@{
+    ViewData["Title"] = "Pacientes";
+}
+
+<h1>Pacientes</h1>
+
+@* Un formulario GET: los campos viajan en la URL → /Pacientes?texto=ana *@
+<form asp-action="Index" method="get" class="buscador">
+    <input type="search" name="texto" value="@ViewData["Texto"]" placeholder="Buscar por nombre" />
+    <button type="submit">Buscar</button>
+</form>
+
+@if (Model.Count == 0)
+{
+    <p>No hay pacientes que coincidan con «@ViewData["Texto"]».</p>
+}
+else
+{
+    <table>
+        <tr>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th></th>
+        </tr>
+        @foreach (var paciente in Model)
+        {
+            <tr>
+                <td>@paciente.Nombre</td>
+                <td>@(paciente.Telefono ?? "—")</td>
+                <td><a asp-action="Detalle" asp-route-id="@paciente.Id">Ver</a></td>
+            </tr>
+        }
+    </table>
+}
+
+<p><a asp-action="Crear" class="boton">+ Nuevo paciente</a></p>

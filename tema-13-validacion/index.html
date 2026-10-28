@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 13 — Validación · Taller de Lenguajes 2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css?v=6" />
+  <link rel="stylesheet" href="../assets/estilo-sereno.css?v=6" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <div class="title-grid">
+        <div>
+          <p class="slide-eyebrow">Tema 13 · ASP.NET Core MVC</p>
+          <h1 class="title"><span class="accent">Validación</span></h1>
+        </div>
+        <div class="title-art">
+          <svg viewBox="0 0 420 300" width="400" role="img" aria-label="Un formulario con un campo marcado en error y otro correcto">
+            <rect x="40" y="20" width="340" height="260" rx="18" fill="var(--panel)" stroke="var(--border)" stroke-width="3"/>
+            <rect x="70" y="60" width="280" height="44" rx="8" fill="color-mix(in srgb, var(--accent) 10%, var(--panel))" stroke="var(--accent)" stroke-width="3"/>
+            <text x="86" y="89" font-size="18" fill="var(--muted)" class="mono">12.345</text>
+            <text x="70" y="128" font-size="15" fill="var(--accent)">El DNI son 7 u 8 números</text>
+            <rect x="70" y="150" width="280" height="44" rx="8" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+            <text x="86" y="179" font-size="18" fill="var(--text)">Ana Gómez</text>
+            <circle cx="325" cy="172" r="13" fill="color-mix(in srgb, var(--accent-2) 22%, var(--panel))" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <path d="M318,172 l5,5 l9,-10" fill="none" stroke="var(--accent-2)" stroke-width="3"/>
+            <rect x="70" y="220" width="120" height="40" rx="8" fill="var(--accent-2)"/>
+            <text x="130" y="246" text-anchor="middle" font-size="16" font-weight="600" fill="#fff">Guardar</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 · Agenda -->
+    <section class="slide" data-chapter="Intro" data-topic="Agenda">
+      <h2 class="slide-title">Qué vamos a <span class="accent">ver</span></h2>
+      <div class="columns three agenda">
+        <div class="card">
+          <span class="num">1</span>
+          <h3>¿Dónde validar?</h3>
+          <ul>
+            <li>Front end y back end</li>
+            <li>El principio DRY</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">2</span>
+          <h3>Atributos de validación</h3>
+          <ul>
+            <li><code>DataAnnotations</code></li>
+            <li>Mensajes de error</li>
+            <li>Un atributo propio</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">3</span>
+          <h3>En la aplicación</h3>
+          <ul>
+            <li><code>ModelState</code> en el servidor</li>
+            <li>Mostrar los errores</li>
+            <li>jQuery Validation en el navegador</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · Por qué validar -->
+    <section class="slide" data-pasos data-chapter="Dónde" data-topic="¿Por qué validar?">
+      <h2 class="slide-title">¿Por qué <span class="accent">validar</span>?</h2>
+      <p class="idea" style="font-size:26px; margin-top:0">En el tema 11 el formulario guardaba <em>lo que llegara</em>. ¿Qué puede llegar?</p>
+      <ul class="bullets" style="font-size:21px; margin-top:16px">
+        <li data-paso="1">Un paciente <strong>sin nombre</strong>, o con el nombre «a»</li>
+        <li data-paso="2">Un DNI <code>12.345.678</code>, con puntos, o <code>hola</code></li>
+        <li data-paso="3">Un turno para <strong>ayer</strong>, o a la hora en que el médico ya atiende a otro</li>
+        <li data-paso="4">Un request armado a mano, sin pasar por nuestro formulario</li>
+      </ul>
+      <div class="callout" data-paso="5" style="margin-top:20px">Regla de oro: <strong>nunca confiar</strong> en lo que llega del cliente. Puede ser un error de quien carga… o alguien probando qué pasa.</div>
+    </section>
+
+    <!-- 4 · Dónde validar -->
+    <section class="slide" data-chapter="Dónde" data-topic="¿Dónde validar?">
+      <h2 class="slide-title">¿Dónde <span class="accent">validar</span>? En los dos lados</h2>
+      <div class="columns" style="margin-top:8px">
+        <div class="card accent-top">
+          <h3>Front end · JavaScript</h3>
+          <ul class="bullets" style="font-size:18px">
+            <li>Avisa <strong>al instante</strong>, sin ir al servidor</li>
+            <li>Es por <strong>comodidad</strong> de quien carga</li>
+            <li>Se puede saltear: desactivar JavaScript, editar el HTML, mandar el request con otra herramienta</li>
+          </ul>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Back end · C#</h3>
+          <ul class="bullets" style="font-size:18px">
+            <li>Es la que <strong>protege</strong> los datos</li>
+            <li>No se puede saltear: todo pasa por el servidor</li>
+            <li>Puede consultar la base: «¿ese DNI ya existe?»</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:18px">La del navegador es opcional y la del servidor es <strong>obligatoria</strong>. Y la base (<code>NOT NULL</code>, <code>UNIQUE</code>, <code>FOREIGN KEY</code>) es la última red.</div>
+    </section>
+
+    <!-- 5 · El problema -->
+    <section class="slide" data-chapter="Dónde" data-topic="¿Escribir todo dos veces?">
+      <h2 class="slide-title">¿Escribir todo <span class="accent">dos veces</span>?</h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3>En JavaScript…</h3>
+<pre class="code sm"><span class="k">if</span> (!<span class="t">/^\d{7,8}$/</span>.test(dni.value)) {
+    error.textContent = <span class="s">"El DNI son 7 u 8 números"</span>;
+    <span class="k">return false</span>;
+}</pre>
+        </div>
+        <div>
+          <h3>…y en C#</h3>
+<pre class="code sm"><span class="k">if</span> (!<span class="t">Regex</span>.IsMatch(modelo.DNI, <span class="s">@"^\d{7,8}$"</span>))
+{
+    error = <span class="s">"El DNI son 7 u 8 números"</span>;
+    <span class="k">return</span> View(modelo);
+}</pre>
+        </div>
+      </div>
+      <p class="idea" style="font-size:24px; margin-top:22px">Por cada campo, por cada formulario, en dos lenguajes. ¿Y cuando el DNI pase a tener 9 dígitos?</p>
+      <p class="small-note" style="text-align:center">Cambiar en un lado y olvidarse del otro es cuestión de tiempo.</p>
+    </section>
+
+    <!-- 6 · DRY -->
+    <section class="slide" data-chapter="Dónde" data-topic="DRY">
+      <h2 class="slide-title">DRY: <span class="accent">Don't Repeat Yourself</span></h2>
+      <div class="callout" style="font-size:23px; margin-top:6px">
+        «Cada pieza de conocimiento debe tener una representación <strong>única</strong>, inequívoca y con autoridad dentro de un sistema.»
+        <p class="small-note" style="margin:10px 0 0">Andrew Hunt y David Thomas — <em>The Pragmatic Programmer</em> (1999), traducción libre</p>
+      </div>
+      <div class="columns" style="margin-top:22px; align-items:start">
+        <div>
+          <p class="small-note" style="margin-top:0">«Pieza de conocimiento» en sentido amplio:</p>
+          <ul class="bullets" style="font-size:19px">
+            <li>datos guardados en una base</li>
+            <li>el código fuente</li>
+            <li>la documentación</li>
+          </ul>
+        </div>
+        <p style="font-size:19px; margin-top:0">Duplicar hace más difíciles los cambios, oscurece el código y abre la puerta a que las copias <strong>no coincidan</strong>.</p>
+      </div>
+    </section>
+
+    <!-- 7 · DRY + atributos -->
+    <section class="slide" data-chapter="Atributos" data-topic="La regla, una sola vez">
+      <h2 class="slide-title">La regla, <span class="accent">una sola vez</span></h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 300" width="1040" role="img" aria-label="La regla se escribe una vez como atributo en el ViewModel; ASP.NET la aplica en el servidor con ModelState y la manda al navegador como atributos data-val">
+          <defs>
+            <marker id="d13" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+          </defs>
+          <rect x="20" y="80" width="360" height="140" rx="18" fill="color-mix(in srgb, var(--accent) 12%, var(--panel))" stroke="var(--accent)" stroke-width="2.5"/>
+          <text x="200" y="118" text-anchor="middle" font-size="18" font-weight="600" fill="var(--accent)" class="serif">En el ViewModel</text>
+          <text x="40" y="160" font-size="15" class="mono" fill="var(--text)">[RegularExpression(@"^\d{7,8}$")]</text>
+          <text x="40" y="190" font-size="15" class="mono" fill="var(--text)">public string? DNI { get; set; }</text>
+
+          <path d="M382,130 C460,130 460,70 538,70" fill="none" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#d13)"/>
+          <path d="M382,170 C460,170 460,230 538,230" fill="none" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#d13)"/>
+
+          <rect x="545" y="20" width="535" height="100" rx="16" fill="var(--panel)" stroke="var(--accent-2)" stroke-width="2"/>
+          <text x="565" y="54" font-size="17" font-weight="600" fill="var(--accent-2)">En el servidor</text>
+          <text x="565" y="86" font-size="15" class="mono" fill="var(--text)">ModelState.IsValid == false</text>
+          <text x="565" y="108" font-size="13" fill="var(--muted)">al hacer el binding del POST</text>
+
+          <rect x="545" y="180" width="535" height="100" rx="16" fill="var(--panel)" stroke="var(--accent-2)" stroke-width="2"/>
+          <text x="565" y="214" font-size="17" font-weight="600" fill="var(--accent-2)">En el navegador</text>
+          <text x="565" y="246" font-size="15" class="mono" fill="var(--text)">&lt;input data-val-regex-pattern="^\d{7,8}$"&gt;</text>
+          <text x="565" y="268" font-size="13" fill="var(--muted)">lo genera asp-for; lo usa jQuery Validation</text>
+        </svg>
+      </div>
+      <p class="small-note" style="text-align:center">ASP.NET MVC sigue DRY: la regla se declara una vez y la aplicación la refleja en los dos lados.</p>
+    </section>
+
+    <!-- 8 · DataAnnotations -->
+    <section class="slide" data-chapter="Atributos" data-topic="Atributos de validación">
+      <h2 class="slide-title">Atributos de <span class="accent">validación</span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="k">using</span> System.ComponentModel.DataAnnotations;
+
+<span class="k">public class</span> <span class="t">PacienteCrearViewModel</span>
+{
+    [<span class="t">Required</span>(ErrorMessage = <span class="s">"El nombre es obligatorio."</span>)]
+    [<span class="t">StringLength</span>(<span class="n">100</span>, MinimumLength = <span class="n">3</span>,
+        ErrorMessage = <span class="s">"El nombre tiene que tener entre {2} y {1} letras."</span>)]
+    <span class="k">public string</span> Nombre { <span class="k">get</span>; <span class="k">set</span>; } = <span class="s">""</span>;
+
+    [<span class="t">RegularExpression</span>(<span class="s">@"^\d{7,8}$"</span>,
+        ErrorMessage = <span class="s">"El DNI son 7 u 8 números, sin puntos."</span>)]
+    <span class="k">public string</span>? DNI { <span class="k">get</span>; <span class="k">set</span>; }
+
+    [<span class="t">Display</span>(Name = <span class="s">"Teléfono"</span>)]
+    [<span class="t">Phone</span>(ErrorMessage = <span class="s">"El teléfono no tiene un formato válido."</span>)]
+    <span class="k">public string</span>? Telefono { <span class="k">get</span>; <span class="k">set</span>; }
+}</pre>
+        <div>
+          <ul class="bullets" style="font-size:19px">
+            <li>Están en <code>System.ComponentModel.DataAnnotations</code></li>
+            <li>Se aplican a <strong>propiedades</strong>, una o varias por propiedad</li>
+            <li>Van en el ViewModel del <strong>formulario</strong> (tema 12)</li>
+            <li>En el mensaje, <code>{0}</code> es el nombre del campo y <code>{1}</code>, <code>{2}</code>… los parámetros del atributo</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 · Atributos integrados -->
+    <section class="slide" data-chapter="Atributos" data-topic="Los atributos que vienen">
+      <h2 class="slide-title">Los atributos que <span class="accent">vienen</span></h2>
+      <table class="tbl compact" style="margin-top:4px">
+        <tr><th>Atributo</th><th>Valida que…</th><th>Ejemplo</th></tr>
+        <tr><td><code>[Required]</code></td><td>tenga valor: ni <code>null</code> ni texto vacío</td><td>el nombre del paciente</td></tr>
+        <tr><td><code>[StringLength(max)]</code></td><td>el texto no pase de un largo (y opcional, un mínimo)</td><td>observaciones hasta 200</td></tr>
+        <tr><td><code>[Range(min, max)]</code></td><td>el número esté en un intervalo</td><td>edad entre 0 y 120</td></tr>
+        <tr><td><code>[RegularExpression(patrón)]</code></td><td>el texto respete un patrón</td><td>DNI de 7 u 8 dígitos</td></tr>
+        <tr><td><code>[EmailAddress]</code> · <code>[Phone]</code> · <code>[Url]</code></td><td>tenga forma de mail, teléfono o URL</td><td><code>ana@mail.com</code></td></tr>
+        <tr><td><code>[Compare("Otra")]</code></td><td>sea igual a otra propiedad</td><td>«repetir contraseña»</td></tr>
+        <tr><td><code>[ValidateNever]</code></td><td>la propiedad <strong>no</strong> se valide</td><td>las listas de un desplegable</td></tr>
+      </table>
+      <p class="small-note">Con <code>&lt;Nullable&gt;enable</code>, una propiedad <code>string</code> (sin <code>?</code>) es <strong>obligatoria</strong> aunque no tenga <code>[Required]</code>. Y si en un campo <code>int</code> llega <code>"abc"</code>, el binding ya agrega un error.</p>
+    </section>
+
+    <!-- 10 · Formulario de turno -->
+    <section class="slide" data-chapter="Atributos" data-topic="Los desplegables">
+      <h2 class="slide-title">Validar los <span class="accent">desplegables</span></h2>
+      <div class="columns" style="align-items:start">
+<pre class="code sm"><span class="k">public class</span> <span class="t">TurnoCrearViewModel</span>
+{
+    [<span class="t">Display</span>(Name = <span class="s">"Paciente"</span>)]
+    [<span class="t">Required</span>(ErrorMessage = <span class="s">"Elegí un paciente."</span>)]
+    <span class="k">public int</span>? PacienteId { <span class="k">get</span>; <span class="k">set</span>; }
+
+    [<span class="t">Display</span>(Name = <span class="s">"Fecha y hora"</span>)]
+    [<span class="t">Required</span>(ErrorMessage = <span class="s">"La fecha es obligatoria."</span>)]
+    [<span class="t">FechaFutura</span>]
+    <span class="k">public</span> <span class="t">DateTime</span>? Fecha { <span class="k">get</span>; <span class="k">set</span>; }
+
+    [<span class="t">StringLength</span>(<span class="n">200</span>)]
+    <span class="k">public string</span>? Observaciones { <span class="k">get</span>; <span class="k">set</span>; }
+
+    [<span class="t">ValidateNever</span>]
+    <span class="k">public</span> <span class="t">List</span>&lt;<span class="t">SelectListItem</span>&gt; Pacientes { <span class="k">get</span>; <span class="k">set</span>; } = [];
+}</pre>
+        <div>
+<pre class="code sm">&lt;select <span class="t">asp-for</span>=<span class="s">"PacienteId"</span> <span class="t">asp-items</span>=<span class="s">"Model.Pacientes"</span>&gt;
+    &lt;option value=<span class="s">""</span>&gt;— Elegir —&lt;/option&gt;
+&lt;/select&gt;</pre>
+          <ul class="bullets" style="font-size:19px">
+            <li><code>int?</code>: si no eligió nada llega <code>null</code> y lo frena <code>[Required]</code>. Con <code>int</code> llegaría <code>0</code>, que «tiene valor»</li>
+            <li><code>[ValidateNever]</code> en las listas: no las manda el usuario</li>
+            <li><code>[FechaFutura]</code> no viene con .NET: lo hicimos nosotros</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · Atributo propio -->
+    <section class="slide" data-chapter="Atributos" data-topic="Un atributo propio">
+      <h2 class="slide-title">Un atributo <span class="accent">propio</span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="k">public class</span> <span class="t">FechaFuturaAttribute</span> : <span class="t">ValidationAttribute</span>
+{
+    <span class="k">public</span> FechaFuturaAttribute()
+        : <span class="k">base</span>(<span class="s">"{0}: tiene que ser posterior a este momento."</span>) { }
+
+    <span class="k">public override bool</span> IsValid(<span class="k">object</span>? value)
+    {
+        <span class="c">// null lo resuelve [Required]</span>
+        <span class="k">return</span> value <span class="k">is not</span> <span class="t">DateTime</span> fecha || fecha &gt; <span class="t">DateTime</span>.Now;
+    }
+}</pre>
+        <div>
+          <ul class="bullets" style="font-size:19px">
+            <li>Hereda de <code>ValidationAttribute</code> y sobrescribe <code>IsValid</code> (herencia y polimorfismo, tema 03)</li>
+            <li>El nombre termina en <code>Attribute</code>; al usarlo se escribe <code>[FechaFutura]</code></li>
+            <li>Se escribe <strong>una vez</strong> y sirve para cualquier fecha: DRY</li>
+          </ul>
+<pre class="out"><span class="bad">Fecha y hora: tiene que ser posterior a este momento.</span></pre>
+          <p class="small-note">Este corre solo en el servidor. Para que también valide en el navegador hay que escribirle la parte de JavaScript (<code>IClientModelValidator</code>).</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 · ModelState -->
+    <section class="slide" data-chapter="Servidor" data-topic="ModelState">
+      <h2 class="slide-title">En el servidor: <span class="accent"><code>ModelState</code></span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm">[<span class="t">HttpPost</span>]
+[<span class="t">ValidateAntiForgeryToken</span>]
+<span class="k">public</span> <span class="t">IActionResult</span> Crear(<span class="t">PacienteCrearViewModel</span> modelo)
+{
+    <span class="k">if</span> (!ModelState.IsValid)
+    {
+        <span class="k">return</span> View(modelo);    <span class="c">// el mismo formulario, con lo que cargó y los errores</span>
+    }
+
+    <span class="k">var</span> paciente = <span class="k">new</span> <span class="t">Paciente</span> { Nombre = modelo.Nombre, … };
+    <span class="k">int</span> id = pacientes.Insertar(paciente);
+    <span class="k">return</span> RedirectToAction(<span class="k">nameof</span>(Detalle), <span class="k">new</span> { id });
+}</pre>
+        <div>
+          <ol class="steps">
+            <li>Llega el POST y se arma el ViewModel (binding)</li>
+            <li>Corren <strong>todos</strong> los atributos</li>
+            <li>Cada error queda en <code>ModelState</code>, con el nombre del campo</li>
+            <li>La acción pregunta <code>ModelState.IsValid</code></li>
+          </ol>
+          <div class="callout alt" style="margin-top:10px">Sin ese <code>if</code>, los atributos no frenan nada: la acción sigue y guarda igual.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 13 · Reglas con la base -->
+    <section class="slide" data-chapter="Servidor" data-topic="Reglas que necesitan la base">
+      <h2 class="slide-title">Reglas que necesitan la <span class="accent">base</span></h2>
+      <p class="small-note" style="margin-top:0">Un atributo mira un valor; no sabe si ese DNI ya está cargado ni si el médico está ocupado. Esas reglas se agregan a mano:</p>
+      <div class="columns" style="align-items:start">
+<pre class="code sm"><span class="c">// PacientesController.Crear</span>
+<span class="k">if</span> (!<span class="k">string</span>.IsNullOrEmpty(modelo.DNI)
+    &amp;&amp; pacientes.ExisteDni(modelo.DNI))
+{
+    ModelState.AddModelError(<span class="k">nameof</span>(modelo.DNI),
+        <span class="s">"Ya hay un paciente con ese DNI."</span>);
+}
+
+<span class="k">if</span> (!ModelState.IsValid) <span class="k">return</span> View(modelo);</pre>
+<pre class="code sm"><span class="c">// TurnosController.Crear</span>
+<span class="k">if</span> (turnos.MedicoOcupado(medicoId, fecha))
+{
+    ModelState.AddModelError(<span class="k">nameof</span>(modelo.Fecha),
+        <span class="s">$"{medico.Nombre} ya tiene un turno a esa hora."</span>);
+}</pre>
+      </div>
+<pre class="out"><span class="bad">Laura Sosa ya tiene un turno a esa hora.</span></pre>
+      <p class="small-note"><code>AddModelError</code> suma el error al campo: se muestra igual que los de los atributos. Con <code>""</code> como nombre de campo, el error es del formulario entero.</p>
+    </section>
+
+    <!-- 14 · Mostrar los errores -->
+    <section class="slide" data-chapter="Servidor" data-topic="Mostrar los errores">
+      <h2 class="slide-title">Mostrar los <span class="accent">errores</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+<pre class="code sm">&lt;form <span class="t">asp-action</span>=<span class="s">"Crear"</span> method=<span class="s">"post"</span>&gt;
+    &lt;div <span class="t">asp-validation-summary</span>=<span class="s">"ModelOnly"</span>&gt;&lt;/div&gt;
+
+    &lt;label <span class="t">asp-for</span>=<span class="s">"DNI"</span>&gt;&lt;/label&gt;
+    &lt;input <span class="t">asp-for</span>=<span class="s">"DNI"</span> /&gt;
+    &lt;span <span class="t">asp-validation-for</span>=<span class="s">"DNI"</span>&gt;&lt;/span&gt;
+    …
+&lt;/form&gt;</pre>
+          <table class="tbl compact" style="margin-top:10px">
+            <tr><th>Tag helper</th><th>Muestra</th></tr>
+            <tr><td><code>asp-validation-for</code></td><td>el error de <strong>un</strong> campo</td></tr>
+            <tr><td><code>asp-validation-summary="All"</code></td><td>todos los errores, en una lista</td></tr>
+            <tr><td><code>asp-validation-summary="ModelOnly"</code></td><td>solo los que no son de un campo</td></tr>
+          </table>
+        </div>
+        <div>
+          <div class="diagram">
+          <svg viewBox="0 0 440 280" width="420" style="width:100%; height:auto" role="img" aria-label="Campo DNI con el texto 12.345, borde rojo y el mensaje de error debajo">
+            <rect x="10" y="10" width="420" height="260" rx="16" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="34" y="52" font-size="17" font-weight="600" fill="var(--text)">DNI</text>
+            <rect x="34" y="64" width="370" height="42" rx="8" fill="color-mix(in srgb, var(--accent) 8%, var(--panel))" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="48" y="92" font-size="17" fill="var(--text)" class="mono">12.345</text>
+            <text x="34" y="128" font-size="15" fill="var(--accent)">El DNI son 7 u 8 números, sin puntos.</text>
+            <text x="34" y="176" font-size="17" font-weight="600" fill="var(--text)">Teléfono</text>
+            <rect x="34" y="188" width="370" height="42" rx="8" fill="var(--panel-2)" stroke="var(--border)" stroke-width="2"/>
+            <text x="48" y="216" font-size="17" fill="var(--text)" class="mono">381-4567890</text>
+          </svg>
+          </div>
+          <p class="small-note">El campo con error recibe la clase <code>input-validation-error</code> y el mensaje, <code>field-validation-error</code>: el estilo lo pone nuestro CSS.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 · En el navegador -->
+    <section class="slide" data-chapter="Navegador" data-topic="En el navegador">
+      <h2 class="slide-title">En el <span class="accent">navegador</span></h2>
+      <div class="columns wide-left" style="align-items:start">
+        <div>
+          <h3>Lo que genera <code>asp-for</code></h3>
+<pre class="code sm">&lt;input type=<span class="s">"text"</span> id=<span class="s">"DNI"</span> name=<span class="s">"DNI"</span>
+  data-val=<span class="s">"true"</span>
+  data-val-regex=<span class="s">"El DNI son 7 u 8 números, sin puntos."</span>
+  data-val-regex-pattern=<span class="s">"^\d{7,8}$"</span> /&gt;
+
+&lt;input type=<span class="s">"text"</span> id=<span class="s">"Nombre"</span> name=<span class="s">"Nombre"</span> maxlength=<span class="s">"100"</span>
+  data-val=<span class="s">"true"</span>
+  data-val-required=<span class="s">"El nombre es obligatorio."</span>
+  data-val-length-min=<span class="s">"3"</span> data-val-length-max=<span class="s">"100"</span> … /&gt;</pre>
+        </div>
+        <div>
+          <h3>Las librerías que lo leen</h3>
+<pre class="code sm"><span class="k">@section</span> Scripts {
+    &lt;partial name=<span class="s">"_ValidationScriptsPartial"</span> /&gt;
+}</pre>
+          <ul class="bullets" style="font-size:18px">
+            <li>Carga <strong>jQuery</strong>, <strong>jQuery Validation</strong> y <strong>jQuery Validation Unobtrusive</strong></li>
+            <li>La última traduce los <code>data-val-*</code> a reglas de jQuery Validation</li>
+            <li>Si hay errores, el formulario <strong>no se envía</strong></li>
+          </ul>
+          <p class="small-note">La plantilla de Visual Studio trae el partial y las librerías en <code>wwwroot/lib</code>. En el ejemplo se cargan de un CDN.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16 · No alcanza -->
+    <section class="slide" data-chapter="Navegador" data-topic="El servidor tiene la última palabra">
+      <h2 class="slide-title">El servidor tiene la <span class="accent">última palabra</span></h2>
+      <p class="small-note" style="margin-top:0">Algunas reglas no llegan al navegador:</p>
+      <table class="tbl" style="margin-top:6px">
+        <tr><th>Regla</th><th>En el navegador</th><th>En el servidor</th></tr>
+        <tr><td><code>[Required]</code>, <code>[StringLength]</code>, <code>[RegularExpression]</code></td><td>✔</td><td>✔</td></tr>
+        <tr><td><code>[Phone]</code></td><td>✘ jQuery Validation no tiene esa regla</td><td>✔</td></tr>
+        <tr><td><code>[FechaFutura]</code> (nuestro)</td><td>✘ no le escribimos la parte de JS</td><td>✔</td></tr>
+        <tr><td>DNI repetido, médico ocupado</td><td>✘ necesitan la base</td><td>✔</td></tr>
+      </table>
+      <div class="callout" style="margin-top:18px">Y si alguien manda el POST sin pasar por el formulario, <strong>ninguna</strong> corre en el navegador. Por eso <code>ModelState.IsValid</code> va siempre.</div>
+      <p class="small-note">Para probarlo: desactivar JavaScript en el navegador, o mandar el POST desde un archivo <code>.http</code>.</p>
+    </section>
+
+    <!-- 17 · Dónde aplicar -->
+    <section class="slide" data-chapter="Cierre" data-topic="¿Dónde va cada validación?">
+      <h2 class="slide-title">¿Dónde va cada <span class="accent">validación</span>?</h2>
+      <table class="tbl" style="margin-top:6px">
+        <tr><th>Qué</th><th>Dónde</th><th>Ejemplo</th></tr>
+        <tr><td>Forma de cada campo</td><td>Atributos en el <strong>ViewModel</strong> del formulario</td><td>DNI de 7 u 8 dígitos</td></tr>
+        <tr><td>Reglas que consultan datos</td><td><code>ModelState.AddModelError</code> en el controlador (o en un servicio)</td><td>DNI repetido, médico ocupado</td></tr>
+        <tr><td>Reglas del negocio</td><td>El <strong>dominio</strong> (tema 12)</td><td>un socio no tiene más de 5 libros</td></tr>
+        <tr><td>Integridad de los datos</td><td>La <strong>base</strong></td><td><code>NOT NULL</code>, <code>UNIQUE</code>, <code>FOREIGN KEY</code></td></tr>
+        <tr><td>Comodidad de quien carga</td><td>El <strong>navegador</strong>, generado de los atributos</td><td>aviso antes de enviar</td></tr>
+      </table>
+      <p class="small-note" style="margin-top:16px">Una Web API también usa <code>ModelState</code>: con <code>[ApiController]</code>, si no es válido responde <code>400 Bad Request</code> solo, con la lista de errores en JSON.</p>
+    </section>
+
+    <!-- 18 · Ejemplos y práctica -->
+    <section class="slide" data-chapter="Cierre" data-topic="Ejemplos y práctica">
+      <h2 class="slide-title">Ejemplos y <span class="accent">práctica</span></h2>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>Ejemplo de la clase</h3>
+          <p>La clínica del tema 12 con los formularios de paciente y de turno validados: atributos, <code>[FechaFutura]</code>, DNI repetido, médico ocupado y validación en el navegador.</p>
+<pre class="code sm"><span class="k">cd</span> tema-13-validacion/proyecto-ejemplo
+<span class="k">dotnet</span> run</pre>
+          <p class="small-note" style="margin:0">Se abre en <code>http://localhost:5193</code>.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Propuesta práctica</h3>
+          <p>Validar el alta de médicos: nombre obligatorio, especialidad de una lista fija y un <code>[Matricula]</code> propio (letra y 5 números). Probar que el servidor la rechaza con JavaScript desactivado.</p>
+          <p><span class="todo-placeholder">link de GitHub Classroom 2026</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 19 · Bibliografía -->
+    <section class="slide" data-chapter="Cierre" data-topic="Bibliografía">
+      <h2 class="slide-title"><span class="accent">Bibliografía</span></h2>
+      <ul class="bullets" style="font-size:17px">
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/mvc/models/validation">Validación de modelos en ASP.NET Core MVC</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/dotnet/api/system.componentmodel.dataannotations">System.ComponentModel.DataAnnotations</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/mvc/views/working-with-forms#the-validation-tag-helpers">Tag helpers de validación</a></li>
+        <li>Andrew Hunt y David Thomas — <em>The Pragmatic Programmer</em> (1999): el principio DRY</li>
+        <li><a href="https://jqueryvalidation.org/">jQuery Validation Plugin</a> · <a href="https://github.com/aspnet/jquery-validation-unobtrusive">jQuery Validation Unobtrusive</a></li>
+        <li>OWASP — <a href="https://cheatsheetseries.owasp.org/cheatsheets/Input_Validation_Cheat_Sheet.html">Input Validation Cheat Sheet</a></li>
+      </ul>
+    </section>
+
+    <!-- 20 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Próximo: cookies y variables de sesión — recordar quién es el usuario entre un request y otro.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+  <script src="../assets/pasos.js?v=6"></script>
+</body>
+</html>

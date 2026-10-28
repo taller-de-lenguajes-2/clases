@@ -1,0 +1,12 @@
+@{
+    ViewData["Title"] = "Inicio";
+    var hoy = DateTime.Now;
+}
+
+<h1>Clínica</h1>
+<p>Hoy es @hoy.ToString("dddd d 'de' MMMM"). Dentro de una semana: @(hoy.AddDays(7).ToString("d/M")).</p>
+<ul>
+    <li><a asp-controller="Pacientes" asp-action="Index">Ver los pacientes</a></li>
+    <li><a asp-controller="Pacientes" asp-action="Crear">Cargar un paciente</a></li>
+    <li><a asp-controller="Medicos" asp-action="Index">Ver los médicos</a></li>
+</ul>

@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 11 — Layout y vistas · Taller de Lenguajes 2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css?v=6" />
+  <link rel="stylesheet" href="../assets/estilo-sereno.css?v=6" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <div class="title-grid">
+        <div>
+          <p class="slide-eyebrow">Tema 11 · ASP.NET Core MVC</p>
+          <h1 class="title">Layout y <span class="accent">vistas</span></h1>
+        </div>
+        <div class="title-art">
+          <svg viewBox="0 0 420 300" width="400" role="img" aria-label="Una página con encabezado, menú, contenido y pie">
+            <rect x="20" y="20" width="380" height="260" rx="18" fill="var(--panel)" stroke="var(--border)" stroke-width="3"/>
+            <rect x="40" y="40" width="340" height="44" rx="10" fill="color-mix(in srgb, var(--accent-2) 20%, var(--panel))" stroke="var(--accent-2)" stroke-width="2"/>
+            <rect x="40" y="96" width="90" height="130" rx="10" fill="color-mix(in srgb, var(--accent-2) 12%, var(--panel))" stroke="var(--accent-2)" stroke-width="2"/>
+            <rect x="142" y="96" width="238" height="130" rx="10" fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="3" stroke-dasharray="8 6"/>
+            <text x="261" y="168" text-anchor="middle" font-size="20" fill="var(--accent)" class="mono">@RenderBody()</text>
+            <rect x="40" y="238" width="340" height="26" rx="8" fill="color-mix(in srgb, var(--accent-2) 20%, var(--panel))" stroke="var(--accent-2)" stroke-width="2"/>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 · Agenda -->
+    <section class="slide" data-chapter="Intro" data-topic="Agenda">
+      <h2 class="slide-title">Qué vamos a <span class="accent">ver</span></h2>
+      <div class="columns three agenda">
+        <div class="card">
+          <span class="num">1</span>
+          <h3>Del request a la vista</h3>
+          <ul>
+            <li>GET con ruta y query string</li>
+            <li>POST con un formulario</li>
+            <li>Qué puede devolver una acción</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">2</span>
+          <h3>Razor</h3>
+          <ul>
+            <li><code>@model</code> y <code>Model</code></li>
+            <li>Expresiones, <code>@if</code>, <code>@foreach</code></li>
+            <li>Tag helpers: links y formularios</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">3</span>
+          <h3>Layout</h3>
+          <ul>
+            <li><code>_Layout</code> y <code>@RenderBody</code></li>
+            <li>Secciones y <code>ViewData</code></li>
+            <li><code>Shared</code>, <code>_ViewStart</code>, <code>wwwroot</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · Repaso -->
+    <section class="slide" data-chapter="Repaso" data-topic="Lo que vimos en el tema 10">
+      <h2 class="slide-title">Lo que vimos en el <span class="accent">tema 10</span></h2>
+      <div class="columns" style="grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top:14px">
+        <div class="card accent-top"><h3>1 · Navegador</h3><p class="small-note" style="margin:0">pide <code>GET /Pacientes</code></p></div>
+        <div class="card accent-top"><h3>2 · Ruteo</h3><p class="small-note" style="margin:0">elige controlador y acción</p></div>
+        <div class="card accent-top"><h3>3 · Controlador</h3><p class="small-note" style="margin:0">usa el modelo</p></div>
+        <div class="card accent-top alt"><h3>4 · Vista</h3><p class="small-note" style="margin:0">arma el HTML</p></div>
+      </div>
+      <div class="columns" style="margin-top:18px">
+        <div class="card tinte"><h3><code>ControllerBase</code></h3><p style="margin:0">Web API: responde <strong>JSON</strong>.</p></div>
+        <div class="card tinte alt"><h3><code>Controller</code></h3><p style="margin:0">Hereda de <code>ControllerBase</code> y suma las <strong>vistas</strong>. Si un controlador tiene que devolver las dos cosas, hereda de este.</p></div>
+      </div>
+    </section>
+
+    <!-- 4 · GET sin parámetros -->
+    <section class="slide" data-chapter="Requests" data-topic="GET sin parámetros">
+      <h2 class="slide-title">GET <span class="accent">sin parámetros</span></h2>
+      <div class="url-split lg">
+        <div class="seg route"><code>/Pacientes/Crear</code><span>controlador <strong>Pacientes</strong> · acción <strong>Crear</strong></span></div>
+      </div>
+      <div class="columns" style="align-items:start">
+<pre class="code"><span class="k">public class</span> <span class="t">PacientesController</span> : <span class="t">Controller</span>
+{
+    [<span class="t">HttpGet</span>]
+    <span class="k">public</span> <span class="t">IActionResult</span> Crear()
+    {
+        <span class="k">return</span> View();
+    }
+}</pre>
+        <ul class="bullets" style="font-size:20px">
+          <li>Es lo que pide el navegador al escribir la URL o hacer clic en un link</li>
+          <li><code>[HttpGet]</code> es opcional: una acción sin atributo responde a GET</li>
+          <li>Ponerlo aclara, y hace falta cuando hay otra <code>Crear</code> para POST</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 5 · GET con id en la ruta -->
+    <section class="slide" data-chapter="Requests" data-topic="GET con un id en la ruta">
+      <h2 class="slide-title">GET con un <span class="accent">id</span> en la ruta</h2>
+      <div class="url-split lg">
+        <div class="seg route"><code>/Pacientes/Detalle/3</code><span>el tercer tramo es <strong>{id?}</strong></span></div>
+      </div>
+      <div class="columns" style="align-items:start">
+<pre class="code"><span class="c">// {controller=Home}/{action=Index}/{id?}</span>
+<span class="k">public</span> <span class="t">IActionResult</span> Detalle(<span class="k">int</span> id)
+{
+    <span class="t">Paciente</span>? paciente = repositorio.Obtener(id);
+    <span class="k">if</span> (paciente <span class="k">is null</span>) <span class="k">return</span> NotFound();
+
+    <span class="k">return</span> View(paciente);
+}</pre>
+        <div>
+          <ul class="bullets" style="font-size:20px">
+            <li>El parámetro se tiene que llamar <strong><code>id</code></strong>, igual que en la ruta</li>
+            <li>ASP.NET convierte <code>"3"</code> en <code>int</code> solo</li>
+          </ul>
+          <table class="tbl compact" style="margin-top:14px">
+            <tr><th>URL</th><th>Llega</th></tr>
+            <tr><td><code>/Pacientes/Detalle/3</code></td><td><code>id = 3</code></td></tr>
+            <tr><td><code>/Pacientes/Detalle</code></td><td><code>id = 0</code> → 404</td></tr>
+            <tr><td><code>/Pacientes/Detalle/abc</code></td><td><code>id = 0</code> → 404</td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6 · GET con query string -->
+    <section class="slide" data-chapter="Requests" data-topic="GET con query string">
+      <h2 class="slide-title">GET con <span class="accent">query string</span></h2>
+      <div class="url-split lg">
+        <div class="seg route dim"><code>/Pacientes</code><span>ruta</span></div>
+        <div class="seg query"><code>?texto=ana</code><span>query string</span></div>
+      </div>
+      <div class="columns" style="align-items:start">
+<pre class="code sm"><span class="k">public</span> <span class="t">IActionResult</span> Index(<span class="k">string</span>? texto)
+{
+    <span class="t">List</span>&lt;<span class="t">Paciente</span>&gt; pacientes =
+        <span class="k">string</span>.IsNullOrWhiteSpace(texto)
+            ? repositorio.Listar()
+            : repositorio.Buscar(texto);
+
+    <span class="k">return</span> View(pacientes);
+}</pre>
+        <div>
+          <ul class="bullets" style="font-size:19px">
+            <li>Se vincula <strong>por nombre</strong>: <code>texto</code> en la URL → <code>texto</code> en el método</li>
+            <li>Si no viene, llega <code>null</code></li>
+            <li>Varios: <code>?id=3&amp;nombre=Carlos</code> → <code>Accion(int id, string nombre)</code></li>
+          </ul>
+          <div class="callout" style="margin-top:12px">Un formulario con <code>method="get"</code> manda sus campos así, en la URL. Es lo que usa el buscador de pacientes.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7 · POST con formulario -->
+    <section class="slide" data-pasos data-chapter="Requests" data-topic="POST con un formulario">
+      <h2 class="slide-title">POST con un <span class="accent">formulario</span></h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 330" width="1060" role="img" aria-label="Un formulario con nombre y teléfono se envía por POST; los campos viajan en el cuerpo y ASP.NET arma un objeto Paciente">
+          <defs>
+            <marker id="p11" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+          </defs>
+          <!-- Formulario -->
+          <rect x="10" y="30" width="300" height="270" rx="16" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+          <text x="30" y="66" font-size="19" font-weight="600" fill="var(--text)" class="serif">Nuevo paciente</text>
+          <text x="30" y="100" font-size="14" fill="var(--muted)">Nombre</text>
+          <rect x="30" y="108" width="260" height="36" rx="6" fill="var(--panel-2)" stroke="var(--border)"/>
+          <text x="42" y="132" font-size="16" fill="var(--text)">María López</text>
+          <text x="30" y="170" font-size="14" fill="var(--muted)">Teléfono</text>
+          <rect x="30" y="178" width="260" height="36" rx="6" fill="var(--panel-2)" stroke="var(--border)"/>
+          <text x="42" y="202" font-size="16" fill="var(--text)">381-5551234</text>
+          <rect x="30" y="238" width="110" height="40" rx="8" fill="var(--accent-2)"/>
+          <text x="85" y="264" text-anchor="middle" font-size="16" font-weight="600" fill="#fff">Guardar</text>
+
+          <!-- Request -->
+          <g data-paso="1">
+            <path d="M315,165 H385" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#p11)"/>
+            <rect x="390" y="60" width="360" height="210" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+            <text x="410" y="96" font-size="15" class="mono" fill="var(--accent)" font-weight="600">POST /Pacientes/Crear</text>
+            <text x="410" y="122" font-size="13" class="mono" fill="var(--muted)">Content-Type: application/</text>
+            <text x="410" y="140" font-size="13" class="mono" fill="var(--muted)">  x-www-form-urlencoded</text>
+            <line x1="410" y1="158" x2="730" y2="158" stroke="var(--border)"/>
+            <text x="410" y="186" font-size="14" fill="var(--muted)">cuerpo (body):</text>
+            <rect x="410" y="198" width="320" height="50" rx="8" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))"/>
+            <text x="420" y="221" font-size="13.5" class="mono" fill="var(--text)">Nombre=Mar%C3%ADa+L%C3%B3pez</text>
+            <text x="420" y="240" font-size="13.5" class="mono" fill="var(--text)">&amp;Telefono=381-5551234</text>
+          </g>
+          <!-- Objeto -->
+          <g data-paso="2">
+            <path d="M755,165 H825" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#p11)"/>
+            <text x="790" y="152" text-anchor="middle" font-size="13" fill="var(--muted)" font-style="italic">binding</text>
+            <rect x="830" y="80" width="260" height="170" rx="14" fill="color-mix(in srgb, var(--accent) 12%, var(--panel))" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="850" y="114" font-size="16" class="mono" fill="var(--accent)" font-weight="600">Paciente paciente</text>
+            <text x="850" y="150" font-size="15" class="mono" fill="var(--text)">Nombre = "María López"</text>
+            <text x="850" y="178" font-size="15" class="mono" fill="var(--text)">DNI = null</text>
+            <text x="850" y="206" font-size="15" class="mono" fill="var(--text)">Telefono = "381-5551234"</text>
+          </g>
+        </svg>
+      </div>
+      <p class="small-note" data-paso="3" style="text-align:center">Cada campo del formulario se asigna a la <strong>propiedad que se llama igual</strong>. A esto se le dice <em>model binding</em>.</p>
+    </section>
+
+    <!-- 8 · GET y POST en la misma acción -->
+    <section class="slide" data-chapter="Requests" data-topic="Mostrar y recibir un formulario">
+      <h2 class="slide-title">Mostrar y <span class="accent">recibir</span> un formulario</h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="c">// GET /Pacientes/Crear → el formulario vacío</span>
+[<span class="t">HttpGet</span>]
+<span class="k">public</span> <span class="t">IActionResult</span> Crear()
+{
+    <span class="k">return</span> View();
+}
+
+<span class="c">// POST /Pacientes/Crear → los datos que cargó el usuario</span>
+[<span class="t">HttpPost</span>]
+[<span class="t">ValidateAntiForgeryToken</span>]
+<span class="k">public</span> <span class="t">IActionResult</span> Crear(<span class="t">Paciente</span> paciente)
+{
+    <span class="k">int</span> id = repositorio.Insertar(paciente);
+    <span class="k">return</span> RedirectToAction(<span class="k">nameof</span>(Detalle), <span class="k">new</span> { id });
+}</pre>
+        <div>
+          <ul class="bullets" style="font-size:19px">
+            <li>Misma URL, <strong>dos acciones</strong>: el verbo decide cuál corre</li>
+            <li>El POST recibe un <code>Paciente</code> ya armado</li>
+          </ul>
+          <div class="callout" style="margin-top:14px"><strong>Después de un POST, redirigir.</strong> Si devolviera una vista y el usuario recarga la página, el navegador manda el POST de nuevo y se inserta otro paciente.</div>
+          <p class="small-note">Que los datos sean válidos (nombre obligatorio, DNI de 8 dígitos…) es el <strong>tema 13</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 · Dónde busca la vista -->
+    <section class="slide" data-chapter="Vistas" data-topic="Dónde está cada vista">
+      <h2 class="slide-title">¿Dónde busca la <span class="accent">vista</span>?</h2>
+      <div class="columns" style="align-items:center">
+<pre class="code">Views/
+├── <span class="t">Pacientes/</span>         <span class="c">← PacientesController</span>
+│   ├── Index.cshtml     <span class="c">← acción Index</span>
+│   ├── Detalle.cshtml   <span class="c">← acción Detalle</span>
+│   └── Crear.cshtml     <span class="c">← acción Crear</span>
+├── <span class="t">Medicos/</span>           <span class="c">← MedicosController</span>
+│   └── Index.cshtml
+└── <span class="t">Shared/</span>            <span class="c">← vistas de todos</span>
+    └── _Layout.cshtml</pre>
+        <div>
+          <p class="idea" style="font-size:24px; margin-top:0"><code>View()</code> en <code>PacientesController.Detalle</code> busca:</p>
+          <ol class="steps">
+            <li><code>Views/Pacientes/Detalle.cshtml</code></li>
+            <li><code>Views/Shared/Detalle.cshtml</code></li>
+          </ol>
+          <p class="small-note">Si no está en ninguna de las dos, error: <em>The view 'Detalle' was not found</em>, con las rutas donde la buscó.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 · Qué puede devolver una acción -->
+    <section class="slide" data-chapter="Vistas" data-topic="Qué devuelve una acción">
+      <h2 class="slide-title">Qué puede devolver una <span class="accent">acción</span></h2>
+      <table class="tbl compact" style="margin-top:4px">
+        <tr><th>Método del controlador</th><th>Devuelve</th><th>Para</th></tr>
+        <tr><td><code>View(modelo)</code></td><td><code>ViewResult</code></td><td>Una página HTML armada con una vista</td></tr>
+        <tr><td><code>PartialView(modelo)</code></td><td><code>PartialViewResult</code></td><td>Un pedazo de página</td></tr>
+        <tr><td><code>RedirectToAction("Detalle", new { id })</code></td><td><code>RedirectToActionResult</code></td><td>Mandar al navegador a otra acción</td></tr>
+        <tr><td><code>Redirect("https://…")</code></td><td><code>RedirectResult</code></td><td>Mandarlo a cualquier URL</td></tr>
+        <tr><td><code>Json(objeto)</code></td><td><code>JsonResult</code></td><td>Datos en JSON, como la Web API</td></tr>
+        <tr><td><code>Content("hola")</code></td><td><code>ContentResult</code></td><td>Texto sin formato</td></tr>
+        <tr><td><code>File(bytes, "application/pdf")</code></td><td><code>FileResult</code></td><td>Un archivo para descargar</td></tr>
+        <tr><td><code>NotFound()</code></td><td><code>NotFoundResult</code></td><td>Un 404</td></tr>
+      </table>
+      <div class="callout" style="margin-top:14px">Todos implementan <code>IActionResult</code>. Por eso la acción declara <code>IActionResult</code>: puede devolver uno u otro según el caso (polimorfismo, tema 03).</div>
+    </section>
+
+    <!-- 11 · Formas de View() -->
+    <section class="slide" data-chapter="Vistas" data-topic="Las formas de View()">
+      <h2 class="slide-title">Las formas de <span class="accent"><code>View()</code></span></h2>
+      <table class="tbl" style="margin-top:6px">
+        <tr><th>Llamada</th><th>Vista</th><th>Modelo</th></tr>
+        <tr><td><code>return View();</code></td><td>la de la acción</td><td>ninguno</td></tr>
+        <tr><td><code>return View(paciente);</code></td><td>la de la acción</td><td><code>paciente</code></td></tr>
+        <tr><td><code>return View("Ficha");</code></td><td><code>Ficha.cshtml</code></td><td>ninguno</td></tr>
+        <tr><td><code>return View("Ficha", paciente);</code></td><td><code>Ficha.cshtml</code></td><td><code>paciente</code></td></tr>
+      </table>
+<pre class="code sm" style="margin-top:18px"><span class="k">var</span> paciente = <span class="k">new</span> <span class="t">Paciente</span> { Nombre = <span class="s">"Ana Gómez"</span>, Telefono = <span class="s">"381-4567890"</span> };
+<span class="k">return</span> View(<span class="s">"Ficha"</span>, paciente);    <span class="c">// Views/Pacientes/Ficha.cshtml recibe a Ana</span></pre>
+      <p class="small-note">Se pasa el <strong>objeto</strong> (<code>paciente</code>), no la clase (<code>Paciente</code>). Si el modelo es un <code>string</code>, <code>View("Ficha")</code> lo toma como nombre de vista: para mandar un texto, <code>View("Ficha", (object)texto)</code>.</p>
+    </section>
+
+    <!-- 12 · Qué es Razor -->
+    <section class="slide" data-chapter="Razor" data-topic="¿Qué es Razor?">
+      <h2 class="slide-title">¿Qué es <span class="accent">Razor</span>?</h2>
+      <p class="idea" style="font-size:26px; margin-top:0">Una sintaxis para mezclar <em>C#</em> con <em>HTML</em>. Los archivos son <code>.cshtml</code>.</p>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 260" width="1040" role="img" aria-label="El archivo cshtml, con HTML y C#, pasa por el motor Razor en el servidor y sale HTML puro hacia el navegador">
+          <defs>
+            <marker id="r11" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+          </defs>
+          <rect x="560" y="10" width="530" height="240" rx="18" fill="none" stroke="var(--border)" stroke-dasharray="6 6"/>
+          <rect x="10" y="10" width="530" height="240" rx="18" fill="color-mix(in srgb, var(--accent) 5%, transparent)" stroke="var(--border)" stroke-dasharray="6 6"/>
+          <text x="275" y="40" text-anchor="middle" font-size="15" font-weight="600" fill="var(--muted)">EN EL SERVIDOR (back end)</text>
+          <text x="825" y="40" text-anchor="middle" font-size="15" font-weight="600" fill="var(--muted)">EN EL NAVEGADOR (front end)</text>
+
+          <rect x="30" y="70" width="230" height="150" rx="12" fill="var(--panel)" stroke="var(--accent)" stroke-width="2"/>
+          <text x="145" y="100" text-anchor="middle" font-size="16" font-weight="600" class="mono" fill="var(--accent)">Index.cshtml</text>
+          <text x="50" y="135" font-size="14" class="mono" fill="var(--text)">&lt;p&gt;Hola,</text>
+          <text x="50" y="158" font-size="14" class="mono" fill="var(--accent)">  @paciente.Nombre</text>
+          <text x="50" y="181" font-size="14" class="mono" fill="var(--text)">&lt;/p&gt;</text>
+
+          <path d="M262,145 H330" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#r11)"/>
+          <rect x="335" y="100" width="190" height="90" rx="45" fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="2.5"/>
+          <text x="430" y="140" text-anchor="middle" font-size="19" font-weight="600" fill="var(--accent)" class="serif">Motor Razor</text>
+          <text x="430" y="164" text-anchor="middle" font-size="13" fill="var(--muted)">ejecuta el C#</text>
+
+          <path d="M527,145 H650" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#r11)"/>
+          <text x="590" y="134" text-anchor="middle" font-size="14" fill="var(--muted)" font-style="italic">HTML</text>
+          <rect x="655" y="70" width="230" height="150" rx="12" fill="var(--panel)" stroke="var(--accent-2)" stroke-width="2"/>
+          <text x="770" y="100" text-anchor="middle" font-size="16" font-weight="600" class="mono" fill="var(--accent-2)">lo que llega</text>
+          <text x="675" y="135" font-size="14" class="mono" fill="var(--text)">&lt;p&gt;Hola,</text>
+          <text x="675" y="158" font-size="14" class="mono" fill="var(--text)">  Ana Gómez</text>
+          <text x="675" y="181" font-size="14" class="mono" fill="var(--text)">&lt;/p&gt;</text>
+          <text x="985" y="150" text-anchor="middle" font-size="15" fill="var(--muted)">sin rastro</text>
+          <text x="985" y="170" text-anchor="middle" font-size="15" fill="var(--muted)">de C#</text>
+        </svg>
+      </div>
+      <p class="small-note" style="text-align:center">El C# corre <strong>en el servidor</strong>. El navegador recibe HTML común, igual que si lo hubiéramos escrito a mano.</p>
+    </section>
+
+    <!-- 13 · @model -->
+    <section class="slide" data-chapter="Razor" data-topic="@model y Model">
+      <h2 class="slide-title">Mandarle un modelo a la vista: <span class="accent"><code>@model</code></span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3>En el controlador</h3>
+<pre class="code sm"><span class="k">public</span> <span class="t">IActionResult</span> Detalle(<span class="k">int</span> id)
+{
+    <span class="t">Paciente</span>? paciente = repositorio.Obtener(id);
+    <span class="k">if</span> (paciente <span class="k">is null</span>) <span class="k">return</span> NotFound();
+
+    <span class="k">return</span> View(paciente);     <span class="c">// ①</span>
+}</pre>
+        </div>
+        <div>
+          <h3>En <code>Detalle.cshtml</code></h3>
+<pre class="code sm"><span class="k">@model</span> <span class="t">Paciente</span>                 <span class="c">@* ② *@</span>
+
+&lt;h1&gt;<span class="k">@</span>Model.Nombre&lt;/h1&gt;          <span class="c">@* ③ *@</span>
+&lt;p&gt;Teléfono: <span class="k">@</span>Model.Telefono&lt;/p&gt;</pre>
+        </div>
+      </div>
+      <ol class="steps" style="margin-top:6px">
+        <li>El controlador pasa el objeto en <code>View(...)</code></li>
+        <li><code>@model</code> (minúscula), arriba de todo, dice de qué <strong>tipo</strong> es</li>
+        <li><code>Model</code> (mayúscula) es <strong>el objeto</strong>, con IntelliSense y control de tipos</li>
+      </ol>
+    </section>
+
+    <!-- 14 · Expresiones -->
+    <section class="slide" data-chapter="Razor" data-topic="Expresiones con @">
+      <h2 class="slide-title">El <span class="accent"><code>@</code></span>: de HTML a C#</h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3>Implícita: <code>@algo</code></h3>
+<pre class="code sm">&lt;p&gt;Hoy es <span class="k">@</span>DateTime.Now.ToShortDateString()&lt;/p&gt;</pre>
+<pre class="out">Hoy es 28/10/2026</pre>
+          <p class="small-note">Razor lee el C# hasta donde puede: un nombre, puntos, llamadas.</p>
+        </div>
+        <div>
+          <h3>Explícita: <code>@( … )</code></h3>
+<pre class="code sm">&lt;p&gt;En una semana: <span class="k">@</span>(DateTime.Now.AddDays(<span class="n">7</span>).ToShortDateString())&lt;/p&gt;
+&lt;p&gt;Total: <span class="k">@</span>(precio * cantidad)&lt;/p&gt;
+&lt;p&gt;<span class="k">@</span>(paciente.Telefono ?? <span class="s">"sin teléfono"</span>)&lt;/p&gt;</pre>
+          <p class="small-note">Con paréntesis cuando hay <strong>espacios u operadores</strong>.</p>
+        </div>
+      </div>
+      <div class="callout alt" style="margin-top:12px">Sin paréntesis, <code>@precio * cantidad</code> muestra el precio y después el texto <code>* cantidad</code>.</div>
+    </section>
+
+    <!-- 15 · Bloques -->
+    <section class="slide" data-chapter="Razor" data-topic="Bloques de código">
+      <h2 class="slide-title">Bloques <span class="accent"><code>@{ }</code></span> y comentarios</h2>
+      <div class="columns" style="align-items:start">
+<pre class="code"><span class="k">@{</span>
+    ViewData[<span class="s">"Title"</span>] = <span class="s">"Inicio"</span>;
+    <span class="k">var</span> hoy = <span class="t">DateTime</span>.Now;
+    <span class="k">var</span> saludo = hoy.Hour &lt; <span class="n">12</span> ? <span class="s">"Buen día"</span> : <span class="s">"Buenas tardes"</span>;
+<span class="k">}</span>
+
+&lt;h1&gt;<span class="k">@</span>saludo&lt;/h1&gt;
+
+<span class="c">@* Un comentario de Razor: no llega al navegador *@</span>
+<span class="c">&lt;!-- Uno de HTML: sí llega (se ve con "ver código fuente") --&gt;</span></pre>
+        <ul class="bullets" style="font-size:20px">
+          <li><code>@{ }</code> ejecuta C# y <strong>no muestra nada</strong></li>
+          <li>Las variables que declara se usan más abajo en la vista</li>
+          <li>Que sea poco: la lógica va en el controlador, no en la vista</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 16 · if y foreach -->
+    <section class="slide" data-chapter="Razor" data-topic="@if y @foreach">
+      <h2 class="slide-title"><span class="accent"><code>@if</code></span> y <span class="accent"><code>@foreach</code></span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="k">@model</span> <span class="t">List</span>&lt;<span class="t">Paciente</span>&gt;
+
+<span class="k">@if</span> (Model.Count == <span class="n">0</span>)
+{
+    &lt;p&gt;No hay pacientes.&lt;/p&gt;
+}
+<span class="k">else</span>
+{
+    &lt;ul&gt;
+        <span class="k">@foreach</span> (<span class="k">var</span> paciente <span class="k">in</span> Model)
+        {
+            &lt;li&gt;<span class="k">@</span>paciente.Nombre&lt;/li&gt;
+        }
+    &lt;/ul&gt;
+}</pre>
+        <div>
+<pre class="out">&lt;ul&gt;
+    &lt;li&gt;Ana Gómez&lt;/li&gt;
+    &lt;li&gt;Bruno Díaz&lt;/li&gt;
+    &lt;li&gt;Carla Ruiz&lt;/li&gt;
+    &lt;li&gt;Diego Herrera&lt;/li&gt;
+    &lt;li&gt;Mariana Paz&lt;/li&gt;
+&lt;/ul&gt;</pre>
+          <p class="small-note">Dentro de las llaves, una etiqueta HTML (<code>&lt;li&gt;</code>) vuelve a modo HTML. También están <code>@for</code>, <code>@while</code> y <code>@switch</code>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17 · Razor codifica -->
+    <section class="slide" data-chapter="Razor" data-topic="Razor protege el HTML">
+      <h2 class="slide-title">Razor <span class="accent">codifica</span> lo que muestra</h2>
+      <p class="small-note" style="margin-top:0">Alguien carga un paciente con este nombre:</p>
+<pre class="code sm"><span class="s">&lt;script&gt;alert("hackeado")&lt;/script&gt;</span></pre>
+      <div class="columns" style="margin-top:10px">
+        <div class="card accent-top">
+          <h3>Con <code>@paciente.Nombre</code></h3>
+<pre class="out">&amp;lt;script&amp;gt;alert(&amp;quot;hackeado&amp;quot;)&amp;lt;/script&amp;gt;</pre>
+          <p style="margin:6px 0 0">El navegador lo <strong>muestra</strong> como texto. No se ejecuta.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Con <code>@Html.Raw(paciente.Nombre)</code></h3>
+<pre class="out"><span class="bad">&lt;script&gt;alert("hackeado")&lt;/script&gt;</span></pre>
+          <p style="margin:6px 0 0">Se <strong>ejecuta</strong> en el navegador de quien abra la página.</p>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:16px">Es la misma idea que los parámetros contra la inyección SQL (tema 08), pero del lado del HTML. No usar <code>Html.Raw</code> con datos que cargó un usuario.</div>
+    </section>
+
+    <!-- 18 · Tag helpers -->
+    <section class="slide" data-chapter="Tag helpers" data-topic="¿Qué son los tag helpers?">
+      <h2 class="slide-title">Tag <span class="accent">helpers</span></h2>
+      <p class="idea" style="font-size:26px; margin-top:0">Atributos <code>asp-…</code> en etiquetas HTML comunes, que Razor completa <em>en el servidor</em>.</p>
+      <div class="columns" style="margin-top:18px; align-items:start">
+<pre class="code sm"><span class="c">@* lo que escribimos *@</span>
+&lt;a <span class="t">asp-controller</span>=<span class="s">"Pacientes"</span> <span class="t">asp-action</span>=<span class="s">"Index"</span>&gt;Pacientes&lt;/a&gt;
+
+<span class="c">&lt;!-- lo que llega al navegador --&gt;</span>
+&lt;a href=<span class="s">"/Pacientes"</span>&gt;Pacientes&lt;/a&gt;</pre>
+        <ul class="bullets" style="font-size:19px">
+          <li>La URL la arma el <strong>ruteo</strong>: si cambia, los links se actualizan solos</li>
+          <li>Menos errores de tipeo en las rutas</li>
+          <li>Los formularios se vinculan con las propiedades del modelo</li>
+          <li>Se ve como HTML: lo puede leer quien diseña</li>
+        </ul>
+      </div>
+      <p class="small-note">Se habilitan en <code>Views/_ViewImports.cshtml</code>: <code>@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers</code></p>
+    </section>
+
+    <!-- 19 · Links -->
+    <section class="slide" data-chapter="Tag helpers" data-topic="Links">
+      <h2 class="slide-title">Links con <span class="accent"><code>asp-route</code></span></h2>
+      <table class="tbl compact" style="margin-top:4px">
+        <tr><th>Razor</th><th>HTML que se genera</th></tr>
+        <tr><td><code>&lt;a asp-controller="Medicos" asp-action="Index"&gt;</code></td><td><code>&lt;a href="/Medicos"&gt;</code></td></tr>
+        <tr><td><code>&lt;a asp-action="Crear"&gt;</code></td><td><code>&lt;a href="/Pacientes/Crear"&gt;</code> <span class="small-note">(controlador actual)</span></td></tr>
+        <tr><td><code>&lt;a asp-action="Detalle" asp-route-id="@paciente.Id"&gt;</code></td><td><code>&lt;a href="/Pacientes/Detalle/3"&gt;</code></td></tr>
+        <tr><td><code>&lt;a asp-action="Index" asp-route-texto="ana"&gt;</code></td><td><code>&lt;a href="/Pacientes?texto=ana"&gt;</code></td></tr>
+      </table>
+      <div class="columns" style="margin-top:20px">
+        <div class="card tinte"><h3><code>asp-route-id</code></h3><p style="margin:0"><code>id</code> está en la plantilla de la ruta (<code>{id?}</code>): va como <strong>tramo</strong> de la URL.</p></div>
+        <div class="card tinte alt"><h3><code>asp-route-texto</code></h3><p style="margin:0"><code>texto</code> no está en la plantilla: va en la <strong>query string</strong>.</p></div>
+      </div>
+      <p class="small-note">Del lado del controlador llegan igual: un parámetro <code>int id</code> o <code>string texto</code>.</p>
+    </section>
+
+    <!-- 20 · Formulario -->
+    <section class="slide" data-chapter="Tag helpers" data-topic="Formularios">
+      <h2 class="slide-title">El tag helper de <span class="accent">formulario</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3>Razor</h3>
+<pre class="code sm">&lt;form <span class="t">asp-action</span>=<span class="s">"Crear"</span> method=<span class="s">"post"</span>&gt;
+    …
+&lt;/form&gt;</pre>
+          <h3 style="margin-top:14px">HTML generado</h3>
+<pre class="code sm">&lt;form action=<span class="s">"/Pacientes/Crear"</span> method=<span class="s">"post"</span>&gt;
+    …
+    &lt;input name=<span class="s">"__RequestVerificationToken"</span>
+           type=<span class="s">"hidden"</span> value=<span class="s">"CfDJ8…"</span> /&gt;
+&lt;/form&gt;</pre>
+        </div>
+        <div>
+          <ul class="bullets" style="font-size:19px">
+            <li><code>asp-action</code> (y <code>asp-controller</code>) arman el <code>action</code></li>
+            <li>Con <code>method="post"</code> agrega un <strong>token antifalsificación</strong> oculto</li>
+          </ul>
+          <div class="callout" style="margin-top:14px">Con <code>[ValidateAntiForgeryToken]</code> en la acción POST, el servidor <strong>rechaza</strong> los envíos que no traen ese token: un formulario de otro sitio no puede hacerse pasar por el nuestro (ataque CSRF).</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 21 · asp-for -->
+    <section class="slide" data-chapter="Tag helpers" data-topic="Campos con asp-for">
+      <h2 class="slide-title">Campos con <span class="accent"><code>asp-for</code></span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+<pre class="code sm"><span class="k">@model</span> <span class="t">Paciente</span>
+
+&lt;label <span class="t">asp-for</span>=<span class="s">"Nombre"</span>&gt;&lt;/label&gt;
+&lt;input <span class="t">asp-for</span>=<span class="s">"Nombre"</span> /&gt;</pre>
+<pre class="code sm">&lt;label for=<span class="s">"Nombre"</span>&gt;Nombre&lt;/label&gt;
+&lt;input type=<span class="s">"text"</span> id=<span class="s">"Nombre"</span> name=<span class="s">"Nombre"</span> value=<span class="s">""</span> /&gt;</pre>
+          <p class="small-note">El <code>name</code> es el que usa el model binding para llenar <code>Paciente.Nombre</code> en el POST.</p>
+        </div>
+        <div>
+          <p class="small-note" style="margin-top:0">El <code>type</code> sale del tipo de la propiedad:</p>
+          <table class="tbl compact">
+            <tr><th>Tipo en C#</th><th>HTML</th></tr>
+            <tr><td><code>string</code></td><td><code>type="text"</code></td></tr>
+            <tr><td><code>int</code>, <code>byte</code>, <code>double</code>…</td><td><code>type="number"</code></td></tr>
+            <tr><td><code>bool</code></td><td><code>type="checkbox"</code></td></tr>
+            <tr><td><code>DateTime</code></td><td><code>type="datetime-local"</code></td></tr>
+          </table>
+          <p class="small-note">Con atributos como <code>[DataType(DataType.Password)]</code> o <code>[EmailAddress]</code> cambia el tipo: lo vemos en los temas 12 y 13.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 22 · El formulario completo -->
+    <section class="slide" data-chapter="Tag helpers" data-topic="El formulario completo">
+      <h2 class="slide-title">Todo junto: <span class="accent"><code>Crear.cshtml</code></span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="k">@model</span> <span class="t">Paciente</span>
+<span class="k">@{</span>
+    ViewData[<span class="s">"Title"</span>] = <span class="s">"Nuevo paciente"</span>;
+<span class="k">}</span>
+
+&lt;h1&gt;Nuevo paciente&lt;/h1&gt;
+
+&lt;form <span class="t">asp-action</span>=<span class="s">"Crear"</span> method=<span class="s">"post"</span>&gt;
+    &lt;label <span class="t">asp-for</span>=<span class="s">"Nombre"</span>&gt;&lt;/label&gt;
+    &lt;input <span class="t">asp-for</span>=<span class="s">"Nombre"</span> /&gt;
+
+    &lt;label <span class="t">asp-for</span>=<span class="s">"DNI"</span>&gt;&lt;/label&gt;
+    &lt;input <span class="t">asp-for</span>=<span class="s">"DNI"</span> /&gt;
+
+    &lt;label <span class="t">asp-for</span>=<span class="s">"Telefono"</span>&gt;Teléfono&lt;/label&gt;
+    &lt;input <span class="t">asp-for</span>=<span class="s">"Telefono"</span> /&gt;
+
+    &lt;button type=<span class="s">"submit"</span>&gt;Guardar&lt;/button&gt;
+&lt;/form&gt;</pre>
+        <ol class="steps">
+          <li><code>GET /Pacientes/Crear</code> → <code>Crear()</code> → este formulario, vacío</li>
+          <li>El usuario completa y aprieta <strong>Guardar</strong></li>
+          <li><code>POST /Pacientes/Crear</code> → <code>Crear(Paciente paciente)</code></li>
+          <li>Inserta y redirige a <code>/Pacientes/Detalle/6</code></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- 23 · Layout: qué es -->
+    <section class="slide" data-chapter="Layout" data-topic="¿Qué es el layout?">
+      <h2 class="slide-title">El <span class="accent">layout</span></h2>
+      <div class="columns" style="grid-template-columns: 1.1fr 1fr; align-items:center">
+        <div class="diagram">
+          <svg viewBox="0 0 520 340" width="500" role="img" aria-label="Página con encabezado, menú lateral, contenido y pie; el contenido es lo único que cambia entre páginas">
+            <rect x="10" y="10" width="500" height="320" rx="16" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <rect x="26" y="26" width="468" height="54" rx="10" fill="color-mix(in srgb, var(--accent-2) 18%, var(--panel))" stroke="var(--accent-2)" stroke-width="2"/>
+            <text x="260" y="60" text-anchor="middle" font-size="18" fill="var(--text)">Encabezado y menú</text>
+            <rect x="26" y="92" width="120" height="166" rx="10" fill="color-mix(in srgb, var(--accent-2) 12%, var(--panel))" stroke="var(--accent-2)" stroke-width="2"/>
+            <text x="86" y="180" text-anchor="middle" font-size="16" fill="var(--text)">Navegación</text>
+            <rect x="158" y="92" width="336" height="166" rx="10" fill="color-mix(in srgb, var(--accent) 14%, var(--panel))" stroke="var(--accent)" stroke-width="3" stroke-dasharray="8 6"/>
+            <text x="326" y="170" text-anchor="middle" font-size="20" font-weight="600" fill="var(--accent)" class="serif">Contenido</text>
+            <text x="326" y="196" text-anchor="middle" font-size="15" fill="var(--muted)">cambia en cada página</text>
+            <rect x="26" y="270" width="468" height="44" rx="10" fill="color-mix(in srgb, var(--accent-2) 18%, var(--panel))" stroke="var(--accent-2)" stroke-width="2"/>
+            <text x="260" y="298" text-anchor="middle" font-size="16" fill="var(--text)">Pie de página</text>
+          </svg>
+        </div>
+        <div>
+          <p class="idea" style="font-size:23px; margin-top:0">Una vista que define la <em>estructura común</em> de todas las páginas.</p>
+          <ul class="bullets" style="font-size:19px">
+            <li>El <code>&lt;head&gt;</code>, el CSS, el menú, el pie: <strong>una sola vez</strong></li>
+            <li>Cada vista aporta solo su parte</li>
+            <li>Cambiar el menú es cambiar un archivo</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 24 · _Layout y RenderBody -->
+    <section class="slide" data-chapter="Layout" data-topic="_Layout y @RenderBody">
+      <h2 class="slide-title"><code>_Layout.cshtml</code> y <span class="accent"><code>@RenderBody()</code></span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm">&lt;!DOCTYPE html&gt;
+&lt;html lang=<span class="s">"es"</span>&gt;
+&lt;head&gt;
+    &lt;title&gt;<span class="k">@</span>ViewData[<span class="s">"Title"</span>] · Clínica&lt;/title&gt;
+    &lt;link rel=<span class="s">"stylesheet"</span> href=<span class="s">"~/css/sitio.css"</span> /&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;header&gt;
+        &lt;a <span class="t">asp-controller</span>=<span class="s">"Pacientes"</span> <span class="t">asp-action</span>=<span class="s">"Index"</span>&gt;Pacientes&lt;/a&gt;
+        &lt;a <span class="t">asp-controller</span>=<span class="s">"Medicos"</span> <span class="t">asp-action</span>=<span class="s">"Index"</span>&gt;Médicos&lt;/a&gt;
+    &lt;/header&gt;
+
+    &lt;main&gt;
+        <span class="k">@RenderBody()</span>
+    &lt;/main&gt;
+
+    &lt;footer&gt;Taller de Lenguajes 2 · <span class="k">@</span>DateTime.Now.Year&lt;/footer&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+        <div>
+          <div class="callout"><code>@RenderBody()</code> marca <strong>dónde</strong> se dibuja la vista que eligió el controlador. Tiene que estar una vez.</div>
+          <ul class="bullets" style="font-size:19px; margin-top:14px">
+            <li>Las vistas ya no llevan <code>&lt;html&gt;</code> ni <code>&lt;head&gt;</code>: solo su contenido</li>
+            <li><code>~/</code> es la raíz del sitio: <code>wwwroot</code></li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 25 · ViewData Title -->
+    <section class="slide" data-chapter="Layout" data-topic="El título de cada página">
+      <h2 class="slide-title">El título de cada <span class="accent">página</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3>La vista lo pone…</h3>
+<pre class="code sm"><span class="c">@* Views/Pacientes/Index.cshtml *@</span>
+<span class="k">@{</span>
+    ViewData[<span class="s">"Title"</span>] = <span class="s">"Pacientes"</span>;
+<span class="k">}</span></pre>
+        </div>
+        <div>
+          <h3>…y el layout lo usa</h3>
+<pre class="code sm"><span class="c">@* Views/Shared/_Layout.cshtml *@</span>
+&lt;title&gt;<span class="k">@</span>ViewData[<span class="s">"Title"</span>] · Clínica&lt;/title&gt;</pre>
+<pre class="out">Pacientes · Clínica</pre>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:12px">Funciona porque la vista se ejecuta <strong>antes</strong> que el layout. <code>ViewData</code> es un diccionario que comparten el controlador, la vista y el layout.</div>
+      <p class="small-note"><code>ViewData["…"]</code> sirve para datos sueltos como este. Para los datos de la página, mejor un modelo con tipo: es el tema 12, <strong>ViewModels</strong>.</p>
+    </section>
+
+    <!-- 26 · Secciones -->
+    <section class="slide" data-chapter="Layout" data-topic="Secciones">
+      <h2 class="slide-title"><span class="accent"><code>@RenderSection</code></span>: más de un hueco</h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3>En el layout</h3>
+<pre class="code sm">    …
+    &lt;footer&gt;…&lt;/footer&gt;
+
+    <span class="k">@await</span> RenderSectionAsync(<span class="s">"Scripts"</span>, required: <span class="k">false</span>)
+&lt;/body&gt;</pre>
+          <p class="small-note"><code>required: false</code>: las vistas que no la definen no dan error.</p>
+        </div>
+        <div>
+          <h3>En <code>Crear.cshtml</code></h3>
+<pre class="code sm">&lt;form …&gt;…&lt;/form&gt;
+
+<span class="k">@section</span> Scripts {
+    &lt;script&gt;
+        document.getElementById(<span class="s">"Nombre"</span>).focus();
+    &lt;/script&gt;
+}</pre>
+          <p class="small-note">Este script se dibuja al final del <code>&lt;body&gt;</code>, no donde está escrito.</p>
+        </div>
+      </div>
+      <p class="small-note" style="text-align:center">También existe la forma sincrónica, <code>@RenderSection("Scripts", required: false)</code>, que es la que traen plantillas más viejas.</p>
+    </section>
+
+    <!-- 27 · Shared, _ViewStart, _ViewImports -->
+    <section class="slide" data-chapter="Layout" data-topic="Archivos especiales">
+      <h2 class="slide-title">Los archivos <span class="accent">especiales</span></h2>
+      <table class="tbl" style="margin-top:6px">
+        <tr><th>Archivo</th><th>Para qué</th></tr>
+        <tr><td><code>Views/Shared/</code></td><td>Vistas que usan varios controladores. Si una vista no está en la carpeta del controlador, se busca acá</td></tr>
+        <tr><td><code>Shared/_Layout.cshtml</code></td><td>La «plantilla maestra»: estructura de todas las páginas</td></tr>
+        <tr><td><code>Shared/Error.cshtml</code></td><td>La página que se muestra cuando algo falla (la trae la plantilla)</td></tr>
+        <tr><td><code>Views/_ViewStart.cshtml</code></td><td>Corre <strong>antes</strong> de cada vista. Elige el layout: <code>@{ Layout = "_Layout"; }</code></td></tr>
+        <tr><td><code>Views/_ViewImports.cshtml</code></td><td><code>@using</code> y <code>@addTagHelper</code> para <strong>todas</strong> las vistas</td></tr>
+      </table>
+      <p class="small-note">El <code>_</code> al principio es una convención: son vistas que no se piden directamente por URL. Una vista puede cambiar su layout, o no usar ninguno, con <code>@{ Layout = null; }</code>.</p>
+    </section>
+
+    <!-- 28 · wwwroot -->
+    <section class="slide" data-chapter="Layout" data-topic="wwwroot">
+      <h2 class="slide-title"><span class="accent"><code>wwwroot</code></span>: los archivos estáticos</h2>
+      <div class="columns" style="align-items:start">
+<pre class="code">wwwroot/
+├── <span class="t">css/</span>
+│   └── sitio.css      <span class="c">← nuestro CSS</span>
+├── <span class="t">js/</span>
+│   └── sitio.js       <span class="c">← nuestro JavaScript</span>
+├── <span class="t">img/</span>
+└── <span class="t">lib/</span>               <span class="c">← de terceros: Bootstrap, jQuery…</span></pre>
+        <div>
+          <ul class="bullets" style="font-size:19px">
+            <li>Lo que está acá se manda <strong>tal cual</strong>, sin pasar por un controlador</li>
+            <li><code>wwwroot/css/sitio.css</code> → <code>/css/sitio.css</code></li>
+            <li>Lo habilita <code>app.UseStaticFiles()</code> en <code>Program.cs</code>. Las plantillas nuevas usan <code>app.MapStaticAssets()</code>, que además comprime y cachea</li>
+          </ul>
+          <div class="callout alt" style="margin-top:12px">Lo que está <strong>fuera</strong> de <code>wwwroot</code> (el código, <code>appsettings.json</code>, la base) no se puede pedir por URL.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 29 · Ejemplos y práctica -->
+    <section class="slide" data-chapter="Cierre" data-topic="Ejemplos y práctica">
+      <h2 class="slide-title">Ejemplos y <span class="accent">práctica</span></h2>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>Ejemplo de la clase</h3>
+          <p>La clínica del tema 10 con un buscador por query string, el alta de pacientes con un formulario POST, y un layout con pie y sección de scripts.</p>
+<pre class="code sm"><span class="k">cd</span> tema-11-layout-y-vistas/proyecto-ejemplo
+<span class="k">dotnet</span> run</pre>
+          <p class="small-note" style="margin:0">Se abre en <code>http://localhost:5191</code>. Para volver a los datos originales, borrar <code>clinica.db</code>.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Propuesta práctica</h3>
+          <p>Agregar el alta de médicos: <code>Crear</code> por GET y por POST en <code>MedicosController</code>, su formulario con tag helpers y un link en el menú del layout.</p>
+          <p><span class="todo-placeholder">link de GitHub Classroom 2026</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 30 · Bibliografía -->
+    <section class="slide" data-chapter="Cierre" data-topic="Bibliografía">
+      <h2 class="slide-title"><span class="accent">Bibliografía</span></h2>
+      <ul class="bullets" style="font-size:17px">
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/mvc/views/overview">Vistas en ASP.NET Core MVC</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/mvc/views/razor">Referencia de la sintaxis de Razor</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/mvc/views/layout">Diseño (layout) en ASP.NET Core</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/mvc/views/tag-helpers/built-in/">Tag helpers integrados</a> · <a href="https://learn.microsoft.com/es-es/aspnet/core/mvc/views/working-with-forms">Tag helpers en formularios</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/security/anti-request-forgery">Evitar ataques CSRF</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/fundamentals/static-files">Archivos estáticos</a></li>
+      </ul>
+    </section>
+
+    <!-- 31 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Próximo: ViewModels — el modelo hecho a medida de cada vista.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+  <script src="../assets/pasos.js?v=6"></script>
+</body>
+</html>

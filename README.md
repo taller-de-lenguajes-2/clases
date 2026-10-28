@@ -19,7 +19,7 @@ El material se organiza **por tema** (estable entre años); el orden de dictado 
 | 06 | ASP.NET con API REST | [tema-06-asp-net-web-api](./tema-06-asp-net-web-api) |
 | 07 | Bases de datos | [tema-07-bases-de-datos](./tema-07-bases-de-datos) |
 | 08 | Bases de datos: ADO.NET | [tema-08-ado-net](./tema-08-ado-net) |
-| 09 | Repositorios | _pendiente_ |
+| 09 | Repositorios | [tema-09-repositorios](./tema-09-repositorios) |
 | 10 | MVC | [tema-10-mvc](./tema-10-mvc) |
 | 11 | Layout y Views en ASP.NET | [tema-11-layout-y-vistas](./tema-11-layout-y-vistas) |
 | 12 | ViewModels | _pendiente_ |

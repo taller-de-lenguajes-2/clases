@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 15 — Cookies y sesión · Taller de Lenguajes 2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css?v=6" />
+  <link rel="stylesheet" href="../assets/estilo-sereno.css?v=6" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <div class="title-grid">
+        <div>
+          <p class="slide-eyebrow">Tema 15 · ASP.NET Core MVC</p>
+          <h1 class="title">Cookies y <span class="accent">sesión</span></h1>
+        </div>
+        <div class="title-art">
+          <svg viewBox="0 0 420 300" width="400" role="img" aria-label="El navegador guarda una cookie con un identificador y el servidor guarda los datos de esa sesión">
+            <rect x="10" y="60" width="160" height="180" rx="16" fill="var(--panel)" stroke="var(--border)" stroke-width="3"/>
+            <rect x="10" y="60" width="160" height="30" rx="16" fill="var(--panel-2)"/>
+            <circle cx="90" cy="165" r="44" fill="color-mix(in srgb, var(--accent) 22%, var(--panel))" stroke="var(--accent)" stroke-width="3"/>
+            <circle cx="76" cy="152" r="6" fill="var(--accent)"/><circle cx="104" cy="160" r="5" fill="var(--accent)"/><circle cx="86" cy="184" r="6" fill="var(--accent)"/>
+            <path d="M175,150 H240" stroke="var(--muted)" stroke-width="3" stroke-dasharray="8 6" class="flujo"/>
+            <g fill="color-mix(in srgb, var(--accent-2) 16%, var(--panel))" stroke="var(--accent-2)" stroke-width="3">
+              <rect x="250" y="70" width="160" height="50" rx="10"/>
+              <rect x="250" y="130" width="160" height="50" rx="10"/>
+              <rect x="250" y="190" width="160" height="50" rx="10"/>
+            </g>
+            <text x="330" y="102" text-anchor="middle" font-size="15" class="mono" fill="var(--text)">Usuario</text>
+            <text x="330" y="162" text-anchor="middle" font-size="15" class="mono" fill="var(--text)">Rol</text>
+            <text x="330" y="222" text-anchor="middle" font-size="15" class="mono" fill="var(--text)">…</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 · Agenda -->
+    <section class="slide" data-chapter="Intro" data-topic="Agenda">
+      <h2 class="slide-title">Qué vamos a <span class="accent">ver</span></h2>
+      <div class="columns three agenda">
+        <div class="card">
+          <span class="num">1</span>
+          <h3>¿Quién sos?</h3>
+          <ul>
+            <li>Autenticación</li>
+            <li>Autorización</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">2</span>
+          <h3>Recordar entre requests</h3>
+          <ul>
+            <li>HTTP no tiene estado</li>
+            <li>Cookies</li>
+            <li>Sesión en ASP.NET Core</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">3</span>
+          <h3>Login en la clínica</h3>
+          <ul>
+            <li>Servicio de autenticación</li>
+            <li>Filtros para proteger acciones</li>
+            <li>Roles</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · Autenticación -->
+    <section class="slide" data-chapter="Autenticación" data-topic="Autenticación">
+      <h2 class="slide-title"><span class="accent">Autenticación</span>: ¿sos quien decís ser?</h2>
+      <p class="idea" style="font-size:25px; margin-top:0">Verificar la identidad de quien usa el sistema, normalmente con un usuario y una contraseña.</p>
+      <div class="flow" style="margin-top:20px">
+        <div class="card accent-top"><h3>1 · Credenciales</h3><p class="small-note" style="margin:0">el usuario manda usuario y contraseña</p></div>
+        <div class="arrow">→</div>
+        <div class="card accent-top"><h3>2 · Validación</h3><p class="small-note" style="margin:0">el sistema las compara con lo que tiene guardado</p></div>
+        <div class="arrow">→</div>
+        <div class="card accent-top alt"><h3>3 · Confirmación</h3><p class="small-note" style="margin:0">si coinciden, queda identificado</p></div>
+      </div>
+      <p class="small-note" style="text-align:center; margin-top:22px">Hay más formas: códigos de un solo uso (OTP), doble factor (2FA), huella, «Ingresar con Google»…</p>
+    </section>
+
+    <!-- 4 · Autorización -->
+    <section class="slide" data-chapter="Autenticación" data-topic="Autorización">
+      <h2 class="slide-title"><span class="accent">Autorización</span>: ¿qué podés hacer?</h2>
+      <p class="idea" style="font-size:25px; margin-top:0">Una vez que sabemos quién es, decidir a qué tiene <em>permiso</em>.</p>
+      <table class="tbl" style="margin-top:16px">
+        <tr><th>En la clínica</th><th>Recepción</th><th>Administración</th></tr>
+        <tr><td>Ver pacientes y turnos</td><td>✔</td><td>✔</td></tr>
+        <tr><td>Sacar turnos</td><td>✔</td><td>✔</td></tr>
+        <tr><td>Dar de alta pacientes</td><td>✘</td><td>✔</td></tr>
+      </table>
+      <p class="small-note">Lo más común es asignar permisos por <strong>rol</strong> (recepción, administración, médico…) y no a cada persona.</p>
+    </section>
+
+    <!-- 5 · Resumen -->
+    <section class="slide" data-chapter="Autenticación" data-topic="Resumiendo">
+      <h2 class="slide-title"><span class="accent">Resumiendo</span></h2>
+      <div class="columns" style="margin-top:10px">
+        <div class="card accent-top">
+          <h3>Autenticación</h3>
+          <p class="idea" style="font-size:24px; margin:0">¿Quién sos?</p>
+          <p>Confirma que el usuario es quien dice ser.</p>
+          <p class="small-note" style="margin:0">Si falla: <code>401 Unauthorized</code> (o se lo manda al login)</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Autorización</h3>
+          <p class="idea" style="font-size:24px; margin:0">¿Qué podés hacer?</p>
+          <p>Determina qué recursos puede usar.</p>
+          <p class="small-note" style="margin:0">Si falla: <code>403 Forbidden</code> (o «sin permiso»)</p>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:20px">Primero la autenticación, después la autorización. Pero hay un problema: ¿cómo se acuerda el servidor de que ya iniciaste sesión?</div>
+    </section>
+
+    <!-- 6 · HTTP sin estado -->
+    <section class="slide" data-pasos data-chapter="Cookies" data-topic="HTTP no tiene estado">
+      <h2 class="slide-title">HTTP no tiene <span class="accent">estado</span></h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 300" width="1040" role="img" aria-label="Primer request: login correcto. Segundo request a /Turnos: el servidor no sabe quién es">
+          <defs>
+            <marker id="h15" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+          </defs>
+          <rect x="20" y="20" width="200" height="260" rx="16" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+          <text x="120" y="56" text-anchor="middle" font-size="20" font-weight="600" fill="var(--text)" class="serif">Navegador</text>
+          <rect x="880" y="20" width="200" height="260" rx="16" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+          <text x="980" y="56" text-anchor="middle" font-size="20" font-weight="600" fill="var(--text)" class="serif">Servidor</text>
+          <g data-paso="1">
+            <path d="M222,100 H874" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#h15)"/>
+            <text x="548" y="90" text-anchor="middle" font-size="15" class="mono" fill="var(--text)">POST /Login   usuario=recepcion …</text>
+            <path d="M878,130 H226" stroke="var(--accent-2)" stroke-width="2.5" marker-end="url(#h15)"/>
+            <text x="548" y="150" text-anchor="middle" font-size="15" fill="var(--accent-2)">«Bienvenida, Marta»</text>
+          </g>
+          <g data-paso="2">
+            <path d="M222,200 H874" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#h15)"/>
+            <text x="548" y="190" text-anchor="middle" font-size="15" class="mono" fill="var(--text)">GET /Turnos</text>
+          </g>
+          <g data-paso="3">
+            <text x="980" y="190" text-anchor="middle" font-size="40" fill="var(--accent)">?</text>
+            <path d="M878,240 H226" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#h15)"/>
+            <text x="548" y="262" text-anchor="middle" font-size="15" fill="var(--accent)">«¿Y vos quién sos?»</text>
+          </g>
+        </svg>
+      </div>
+      <p class="small-note" data-paso="4" style="text-align:center">Cada request es <strong>independiente</strong>: el servidor no relaciona uno con el anterior. Para recordar algo entre requests hacen falta <strong>cookies</strong>.</p>
+    </section>
+
+    <!-- 7 · Cookies -->
+    <section class="slide" data-chapter="Cookies" data-topic="¿Qué es una cookie?">
+      <h2 class="slide-title">¿Qué es una <span class="accent">cookie</span>?</h2>
+      <p class="idea" style="font-size:24px; margin-top:0">Un dato chico, <em>nombre=valor</em>, que el servidor le pide al navegador que guarde, y que el navegador le <em>devuelve</em> en cada request a ese sitio.</p>
+      <div class="columns" style="margin-top:14px">
+        <div class="http-msg">
+          <div class="msg-title">Respuesta del servidor</div>
+          <div class="part" style="--c: var(--accent)"><div class="tag">Línea de estado</div><pre>HTTP/1.1 302 Found</pre></div>
+          <div class="part" style="--c: var(--yellow)"><div class="tag">Headers</div><pre><span class="hl header">Set-Cookie: UltimoMedico=2; expires=…;
+  path=/; samesite=lax; httponly</span></pre></div>
+        </div>
+        <div class="http-msg">
+          <div class="msg-title">Cada request siguiente</div>
+          <div class="part" style="--c: var(--accent)"><div class="tag">Línea inicial</div><pre>GET /Turnos/Crear HTTP/1.1</pre></div>
+          <div class="part" style="--c: var(--yellow)"><div class="tag">Headers</div><pre>Host: localhost:5195
+<span class="hl header">Cookie: UltimoMedico=2</span></pre></div>
+        </div>
+      </div>
+      <p class="small-note">La guarda el navegador, separada por sitio: un sitio no ve las cookies de otro. Se ven en las herramientas del navegador (Aplicación → Cookies).</p>
+    </section>
+
+    <!-- 8 · Atributos de una cookie -->
+    <section class="slide" data-chapter="Cookies" data-topic="Las opciones de una cookie">
+      <h2 class="slide-title">Las opciones de una <span class="accent">cookie</span></h2>
+      <table class="tbl" style="margin-top:6px">
+        <tr><th>Opción</th><th>Qué hace</th></tr>
+        <tr><td><code>Expires</code> / <code>MaxAge</code></td><td>Hasta cuándo dura. Sin ninguna, se borra al cerrar el navegador (cookie de sesión del navegador)</td></tr>
+        <tr><td><code>HttpOnly</code></td><td>JavaScript no la puede leer: si alguien inyecta un script, no se la lleva</td></tr>
+        <tr><td><code>Secure</code></td><td>Solo viaja por HTTPS</td></tr>
+        <tr><td><code>SameSite</code></td><td>Si se manda o no cuando el request viene desde otro sitio (<code>Strict</code>, <code>Lax</code>, <code>None</code>)</td></tr>
+        <tr><td><code>Path</code> / <code>Domain</code></td><td>A qué rutas y dominios se manda</td></tr>
+      </table>
+      <p class="small-note" style="margin-top:16px">Tamaño máximo: unos 4 KB por cookie. Son para datos chicos.</p>
+    </section>
+
+    <!-- 9 · Cookies en ASP.NET -->
+    <section class="slide" data-chapter="Cookies" data-topic="Cookies en ASP.NET Core">
+      <h2 class="slide-title">Cookies en <span class="accent">ASP.NET Core</span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="c">// Escribir: viaja en la respuesta (Set-Cookie)</span>
+Response.Cookies.Append(<span class="s">"UltimoMedico"</span>, medicoId.ToString(), <span class="k">new</span> <span class="t">CookieOptions</span>
+{
+    Expires = <span class="t">DateTimeOffset</span>.Now.AddDays(<span class="n">30</span>),
+    HttpOnly = <span class="k">true</span>,
+    SameSite = <span class="t">SameSiteMode</span>.Lax
+});
+
+<span class="c">// Leer: llegó en el request (Cookie). Si no está, null</span>
+<span class="k">string</span>? valor = Request.Cookies[<span class="s">"UltimoMedico"</span>];
+<span class="k">if</span> (<span class="k">int</span>.TryParse(valor, <span class="k">out int</span> id))
+    modelo.MedicoId = id;
+
+<span class="c">// Borrar</span>
+Response.Cookies.Delete(<span class="s">"UltimoMedico"</span>);</pre>
+        <div>
+          <p class="small-note" style="margin-top:0">En el ejemplo: el formulario de turnos <strong>recuerda el último médico</strong> elegido, por 30 días.</p>
+          <ul class="bullets" style="font-size:18px">
+            <li>Se escribe en <code>Response</code>, se lee de <code>Request</code></li>
+            <li>Lo que se escribe recién se puede leer en el <strong>próximo</strong> request</li>
+            <li>Siempre es texto: hay que convertirlo y desconfiar (el usuario la puede cambiar)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 · Lo que no va en una cookie -->
+    <section class="slide" data-chapter="Cookies" data-topic="Lo que no va en una cookie">
+      <h2 class="slide-title">Lo que <span class="accent">no</span> va en una cookie</h2>
+      <div class="columns" style="align-items:start">
+        <div>
+<pre class="code sm"><span class="c">// ✘ Nunca</span>
+Response.Cookies.Append(<span class="s">"Usuario"</span>, <span class="s">"recepcion"</span>);
+Response.Cookies.Append(<span class="s">"Rol"</span>, <span class="s">"Recepcion"</span>);</pre>
+<pre class="out"><span class="bad">Cookie: Usuario=recepcion; Rol=Admin</span>   ← la editó a mano</pre>
+        </div>
+        <ul class="bullets" style="font-size:20px">
+          <li>La cookie está en la computadora del usuario: <strong>la puede leer y cambiar</strong></li>
+          <li>Nada de contraseñas, roles ni datos personales</li>
+          <li>Sí: preferencias inofensivas (el último médico, el tema oscuro, el idioma)</li>
+        </ul>
+      </div>
+      <div class="callout" style="margin-top:20px">Para saber quién es el usuario, la cookie lleva solo un <strong>identificador</strong> imposible de adivinar, y los datos quedan en el servidor. Eso es la <strong>sesión</strong>.</div>
+    </section>
+
+    <!-- 11 · Sesión -->
+    <section class="slide" data-chapter="Sesión" data-topic="¿Qué es la sesión?">
+      <h2 class="slide-title">La <span class="accent">sesión</span></h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 280" width="1040" role="img" aria-label="El navegador guarda solo la cookie con el Id de sesión; el servidor guarda, para cada Id, los datos de esa sesión">
+          <defs>
+            <marker id="s15" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+          </defs>
+          <rect x="20" y="40" width="330" height="200" rx="16" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+          <text x="185" y="76" text-anchor="middle" font-size="20" font-weight="600" fill="var(--text)" class="serif">Navegador</text>
+          <rect x="45" y="110" width="280" height="70" rx="10" fill="color-mix(in srgb, var(--accent) 12%, var(--panel))" stroke="var(--accent)" stroke-width="2"/>
+          <text x="185" y="138" text-anchor="middle" font-size="14" class="mono" fill="var(--text)">.AspNetCore.Session</text>
+          <text x="185" y="164" text-anchor="middle" font-size="14" class="mono" fill="var(--accent)">= CfDJ8K3x…</text>
+
+          <path d="M352,145 H560" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#s15)"/>
+          <text x="456" y="134" text-anchor="middle" font-size="14" fill="var(--muted)">viaja en cada request</text>
+
+          <rect x="566" y="20" width="514" height="240" rx="16" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+          <text x="823" y="56" text-anchor="middle" font-size="20" font-weight="600" fill="var(--text)" class="serif">Servidor (en memoria)</text>
+          <rect x="590" y="80" width="466" height="80" rx="10" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="2"/>
+          <text x="606" y="106" font-size="14" class="mono" fill="var(--accent)">CfDJ8K3x… →</text>
+          <text x="606" y="132" font-size="14" class="mono" fill="var(--text)">Usuario = "recepcion"   Rol = "Recepcion"</text>
+          <text x="606" y="152" font-size="14" class="mono" fill="var(--text)">Nombre = "Marta"</text>
+          <rect x="590" y="172" width="466" height="66" rx="10" fill="var(--panel-2)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="606" y="198" font-size="14" class="mono" fill="var(--muted)">P7wQ2a… →</text>
+          <text x="606" y="222" font-size="14" class="mono" fill="var(--muted)">Usuario = "admin"   Rol = "Admin"   …</text>
+        </svg>
+      </div>
+      <p class="small-note" style="text-align:center">Cada navegador tiene su Id; con el Id, el servidor encuentra sus datos. El usuario puede ver su Id, pero no los datos ni cambiar su rol.</p>
+    </section>
+
+    <!-- 12 · Cookie vs sesión -->
+    <section class="slide" data-chapter="Sesión" data-topic="Cookie vs sesión">
+      <h2 class="slide-title">Cookie <span class="accent">vs</span> sesión</h2>
+      <table class="tbl" style="margin-top:6px">
+        <tr><th></th><th>Cookie propia</th><th>Sesión</th></tr>
+        <tr><td>Dónde están los datos</td><td>En el navegador</td><td>En el servidor (el navegador tiene solo el Id)</td></tr>
+        <tr><td>¿El usuario los puede cambiar?</td><td>Sí</td><td>No</td></tr>
+        <tr><td>Cuánto dura</td><td>Lo que diga <code>Expires</code> (días, meses)</td><td>Hasta que pasa <code>IdleTimeout</code> sin actividad, o se reinicia la app</td></tr>
+        <tr><td>Tamaño</td><td>~4 KB</td><td>Lo que aguante la memoria del servidor</td></tr>
+        <tr><td>Para</td><td>Preferencias: último médico, idioma</td><td>Quién inició sesión, su rol</td></tr>
+      </table>
+      <p class="small-note" style="margin-top:16px">La sesión <strong>usa</strong> una cookie, pero solo para el Id. Ninguna de las dos reemplaza a la base: lo que tiene que durar se guarda en la base.</p>
+    </section>
+
+    <!-- 13 · Configurar -->
+    <section class="slide" data-chapter="Sesión" data-topic="Configurar la sesión">
+      <h2 class="slide-title">Configurar la sesión en <span class="accent"><code>Program.cs</code></span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="c">// 1 · Dónde se guardan los datos: en memoria</span>
+builder.Services.AddDistributedMemoryCache();
+
+<span class="c">// 2 · El servicio de sesión y su cookie</span>
+builder.Services.AddSession(options =&gt;
+{
+    options.IdleTimeout = <span class="t">TimeSpan</span>.FromMinutes(<span class="n">20</span>);
+    options.Cookie.HttpOnly = <span class="k">true</span>;
+    options.Cookie.IsEssential = <span class="k">true</span>;
+});
+
+builder.Services.AddControllersWithViews();
+<span class="k">var</span> app = builder.Build();
+
+app.UseStaticFiles();
+<span class="c">// 3 · El middleware, ANTES de los controladores</span>
+app.UseSession();
+
+app.MapControllerRoute(…);</pre>
+        <ul class="bullets" style="font-size:18px">
+          <li><code>IdleTimeout</code>: sin actividad ese tiempo, la sesión se pierde</li>
+          <li><code>HttpOnly</code>: JavaScript no puede leer la cookie del Id</li>
+          <li><code>IsEssential</code>: se manda aunque el usuario rechace las cookies opcionales</li>
+          <li>Si <code>UseSession</code> va después de <code>MapControllerRoute</code>, o falta, <code>HttpContext.Session</code> tira una excepción</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 14 · Usar la sesión -->
+    <section class="slide" data-chapter="Sesión" data-topic="Usar la sesión">
+      <h2 class="slide-title">Usar la <span class="accent">sesión</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+<pre class="code sm"><span class="c">// en un controlador: HttpContext.Session</span>
+HttpContext.Session.SetString(<span class="s">"Nombre"</span>, <span class="s">"Marta"</span>);
+HttpContext.Session.SetInt32(<span class="s">"Intentos"</span>, <span class="n">0</span>);
+
+<span class="k">string</span>? nombre = HttpContext.Session.GetString(<span class="s">"Nombre"</span>);
+<span class="k">int</span>? intentos = HttpContext.Session.GetInt32(<span class="s">"Intentos"</span>);
+
+HttpContext.Session.Remove(<span class="s">"Intentos"</span>);   <span class="c">// una clave</span>
+HttpContext.Session.Clear();               <span class="c">// todas: cerrar sesión</span></pre>
+          <p class="small-note">Están en <code>Microsoft.AspNetCore.Http</code> (ya incluido en un proyecto web). Si la clave no existe, <code>Get…</code> devuelve <code>null</code>.</p>
+        </div>
+        <div>
+          <h3>¿Y un objeto?</h3>
+          <p class="small-note" style="margin-top:0">La sesión guarda texto, enteros o bytes. Para un objeto, se serializa a JSON (tema 05):</p>
+<pre class="code sm">Session.SetString(<span class="s">"Carrito"</span>,
+    <span class="t">JsonSerializer</span>.Serialize(carrito));
+
+<span class="k">var</span> carrito = <span class="t">JsonSerializer</span>.Deserialize&lt;<span class="t">Carrito</span>&gt;(
+    Session.GetString(<span class="s">"Carrito"</span>)!);</pre>
+          <p class="small-note">Mejor guardar poco: el Id o el nombre de usuario, no la lista de turnos.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 · Las piezas del login -->
+    <section class="slide" data-chapter="Login" data-topic="Las piezas del login">
+      <h2 class="slide-title">Login en la clínica: las <span class="accent">piezas</span></h2>
+      <table class="tbl compact" style="margin-top:4px">
+        <tr><th>Pieza</th><th>Archivo</th><th>Responsabilidad</th></tr>
+        <tr><td>Modelo</td><td><code>Usuario</code></td><td>Nombre de usuario, nombre, clave, rol</td></tr>
+        <tr><td>Repositorio</td><td><code>UsuarioRepository</code></td><td>Buscar un usuario (tema 09)</td></tr>
+        <tr><td>ViewModel</td><td><code>LoginViewModel</code></td><td>Lo que carga el formulario, con validación (temas 12 y 13)</td></tr>
+        <tr><td>Servicio</td><td><code>AutenticacionService</code></td><td>Comprobar credenciales y guardar o limpiar la sesión</td></tr>
+        <tr><td>Controlador</td><td><code>LoginController</code></td><td>Mostrar el formulario, ingresar, salir</td></tr>
+        <tr><td>Filtros</td><td><code>[RequiereLogin]</code> · <code>[RequiereRol]</code></td><td>Proteger acciones</td></tr>
+      </table>
+      <p class="small-note" style="margin-top:14px">Cada una con <strong>una</strong> responsabilidad (tema 09). El controlador no sabe cómo se guarda la sesión ni dónde están los usuarios.</p>
+    </section>
+
+    <!-- 16 · Usuario y repositorio -->
+    <section class="slide" data-chapter="Login" data-topic="Usuarios">
+      <h2 class="slide-title">El usuario y su <span class="accent">repositorio</span></h2>
+      <div class="columns" style="align-items:start">
+<pre class="code sm"><span class="k">public class</span> <span class="t">Usuario</span>
+{
+    <span class="k">public string</span> NombreUsuario { <span class="k">get</span>; <span class="k">set</span>; } = <span class="s">""</span>;
+    <span class="k">public string</span> Nombre { <span class="k">get</span>; <span class="k">set</span>; } = <span class="s">""</span>;
+    <span class="k">public string</span> Clave { <span class="k">get</span>; <span class="k">set</span>; } = <span class="s">""</span>;
+    <span class="k">public string</span> Rol { <span class="k">get</span>; <span class="k">set</span>; } = <span class="s">""</span>;   <span class="c">// "Recepcion" o "Admin"</span>
+}
+
+<span class="k">public class</span> <span class="t">UsuarioRepository</span>
+{
+    <span class="k">private readonly</span> <span class="t">List</span>&lt;<span class="t">Usuario</span>&gt; usuarios = [ … ];   <span class="c">// en memoria</span>
+
+    <span class="k">public</span> <span class="t">Usuario</span>? Obtener(<span class="k">string</span> nombreUsuario) =&gt;
+        usuarios.FirstOrDefault(u =&gt; u.NombreUsuario == nombreUsuario);
+}</pre>
+        <div class="callout alt">
+          <strong>⚠ Contraseñas en texto plano: solo para el ejemplo.</strong>
+          <p style="margin:8px 0 0">En un sistema real se guarda un <strong>hash</strong> de la contraseña (una huella que no se puede revertir) y se compara el hash de lo que escribió el usuario. .NET lo trae hecho: <code>PasswordHasher&lt;T&gt;</code>, o todo el sistema con <strong>ASP.NET Core Identity</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17 · Servicio -->
+    <section class="slide" data-chapter="Login" data-topic="El servicio de autenticación">
+      <h2 class="slide-title">El servicio de <span class="accent">autenticación</span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="k">public class</span> <span class="t">AutenticacionService</span>(
+    <span class="t">UsuarioRepository</span> usuarios, <span class="t">IHttpContextAccessor</span> httpContextAccessor)
+{
+    <span class="k">private</span> <span class="t">ISession</span> Sesion =&gt; httpContextAccessor.HttpContext!.Session;
+
+    <span class="k">public bool</span> Login(<span class="k">string</span> nombreUsuario, <span class="k">string</span> clave)
+    {
+        <span class="t">Usuario</span>? usuario = usuarios.Obtener(nombreUsuario);
+        <span class="k">if</span> (usuario <span class="k">is null</span> || usuario.Clave != clave) <span class="k">return false</span>;
+
+        Sesion.SetString(<span class="s">"Usuario"</span>, usuario.NombreUsuario);
+        Sesion.SetString(<span class="s">"Nombre"</span>, usuario.Nombre);
+        Sesion.SetString(<span class="s">"Rol"</span>, usuario.Rol);
+        <span class="k">return true</span>;
+    }
+
+    <span class="k">public void</span> Logout() =&gt; Sesion.Clear();
+    <span class="k">public bool</span> EstaAutenticado() =&gt; Sesion.GetString(<span class="s">"Usuario"</span>) <span class="k">is not null</span>;
+    <span class="k">public bool</span> TieneRol(<span class="k">string</span> rol) =&gt; Sesion.GetString(<span class="s">"Rol"</span>) == rol;
+}</pre>
+        <div>
+          <ul class="bullets" style="font-size:18px">
+            <li>Un servicio no es un controlador: no tiene <code>HttpContext</code> a mano</li>
+            <li><code>IHttpContextAccessor</code> le da el del request actual</li>
+          </ul>
+<pre class="code sm"><span class="c">// Program.cs</span>
+builder.Services.AddSingleton&lt;<span class="t">UsuarioRepository</span>&gt;();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped&lt;<span class="t">AutenticacionService</span>&gt;();</pre>
+          <p class="small-note">Registrarlo así para que llegue por el constructor es el tema 14.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 · Controlador -->
+    <section class="slide" data-chapter="Login" data-topic="El controlador de login">
+      <h2 class="slide-title">El controlador de <span class="accent">login</span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm">[<span class="t">HttpPost</span>]
+[<span class="t">ValidateAntiForgeryToken</span>]
+<span class="k">public</span> <span class="t">IActionResult</span> Index(<span class="t">LoginViewModel</span> modelo)
+{
+    <span class="k">if</span> (!ModelState.IsValid) <span class="k">return</span> View(modelo);
+
+    <span class="k">if</span> (!autenticacion.Login(modelo.NombreUsuario, modelo.Clave))
+    {
+        ModelState.AddModelError(<span class="s">""</span>, <span class="s">"Usuario o contraseña incorrectos."</span>);
+        <span class="k">return</span> View(modelo);
+    }
+
+    <span class="k">if</span> (Url.IsLocalUrl(modelo.ReturnUrl)) <span class="k">return</span> Redirect(modelo.ReturnUrl);
+    <span class="k">return</span> RedirectToAction(<span class="s">"Index"</span>, <span class="s">"Home"</span>);
+}
+
+[<span class="t">HttpPost</span>]
+[<span class="t">ValidateAntiForgeryToken</span>]
+<span class="k">public</span> <span class="t">IActionResult</span> Salir()
+{
+    autenticacion.Logout();
+    <span class="k">return</span> RedirectToAction(<span class="s">"Index"</span>, <span class="s">"Home"</span>);
+}</pre>
+        <ul class="bullets" style="font-size:18px">
+          <li>El error no dice si falló el usuario o la contraseña: no le da pistas a quien prueba</li>
+          <li><code>ReturnUrl</code>: después de ingresar, vuelve a donde quería ir</li>
+          <li><code>Url.IsLocalUrl</code>: solo a direcciones de nuestro sitio. Si no, un link trucho podría mandar al usuario a otro sitio después del login</li>
+          <li>Salir es <strong>POST</strong>: cambia el estado</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 19 · El problema -->
+    <section class="slide" data-chapter="Filtros" data-topic="Proteger cada acción">
+      <h2 class="slide-title">¿Proteger cada <span class="accent">acción</span> a mano?</h2>
+      <div class="columns" style="align-items:start">
+<pre class="code sm"><span class="k">public</span> <span class="t">IActionResult</span> Index()
+{
+    <span class="k">if</span> (HttpContext.Session.GetString(<span class="s">"Usuario"</span>) <span class="k">is null</span>)
+        <span class="k">return</span> RedirectToAction(<span class="s">"Index"</span>, <span class="s">"Login"</span>);
+    …
+}
+
+<span class="k">public</span> <span class="t">IActionResult</span> Detalle(<span class="k">int</span> id)
+{
+    <span class="k">if</span> (HttpContext.Session.GetString(<span class="s">"Usuario"</span>) <span class="k">is null</span>)
+        <span class="k">return</span> RedirectToAction(<span class="s">"Index"</span>, <span class="s">"Login"</span>);
+    …
+}
+
+<span class="k">public</span> <span class="t">IActionResult</span> Crear()
+{
+    <span class="k">if</span> (HttpContext.Session.GetString(<span class="s">"Usuario"</span>) <span class="k">is null</span>) …</pre>
+        <div>
+          <ul class="bullets" style="font-size:20px">
+            <li>El mismo <code>if</code> en cada acción de cada controlador</li>
+            <li>Una acción nueva sin el <code>if</code> queda <strong>abierta</strong>, y nadie se da cuenta</li>
+          </ul>
+          <div class="callout" style="margin-top:14px">Otra vez DRY (tema 13). La solución en ASP.NET: un <strong>filtro</strong>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 20 · Filtros -->
+    <section class="slide" data-chapter="Filtros" data-topic="¿Qué es un filtro?">
+      <h2 class="slide-title">¿Qué es un <span class="accent">filtro</span>?</h2>
+      <p class="idea" style="font-size:24px; margin-top:0">Código que corre <em>antes</em> o <em>después</em> de una acción, sin estar escrito dentro de ella.</p>
+      <table class="tbl" style="margin-top:14px">
+        <tr><th></th><th>Middleware (tema 06)</th><th>Filtro</th></tr>
+        <tr><td>Cuándo corre</td><td>En todo el pipeline, para cada request</td><td>Alrededor de las acciones de los controladores</td></tr>
+        <tr><td>Sabe</td><td>Solo del request</td><td>Qué controlador y qué acción, sus parámetros</td></tr>
+        <tr><td>Se aplica</td><td>Globalmente, en <code>Program.cs</code></td><td>A una acción, a un controlador o a todos</td></tr>
+        <tr><td>Ejemplos</td><td><code>UseStaticFiles</code>, <code>UseSession</code></td><td><code>[ValidateAntiForgeryToken]</code>, <code>[RequiereLogin]</code></td></tr>
+      </table>
+      <p class="small-note" style="margin-top:14px">Ya veníamos usando uno: <code>[ValidateAntiForgeryToken]</code> es un filtro que corre antes de la acción.</p>
+    </section>
+
+    <!-- 21 · RequiereLogin -->
+    <section class="slide" data-chapter="Filtros" data-topic="[RequiereLogin]">
+      <h2 class="slide-title">Un filtro propio: <span class="accent"><code>[RequiereLogin]</code></span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="k">public class</span> <span class="t">RequiereLoginAttribute</span> : <span class="t">ActionFilterAttribute</span>
+{
+    <span class="k">public override void</span> OnActionExecuting(<span class="t">ActionExecutingContext</span> context)
+    {
+        <span class="k">var</span> sesion = context.HttpContext.Session;
+        <span class="k">if</span> (sesion.GetString(<span class="s">"Usuario"</span>) <span class="k">is null</span>)
+        {
+            <span class="k">var</span> pedido = context.HttpContext.Request;
+            context.Result = <span class="k">new</span> <span class="t">RedirectToActionResult</span>(<span class="s">"Index"</span>, <span class="s">"Login"</span>,
+                <span class="k">new</span> { returnUrl = pedido.Path + pedido.QueryString });
+        }
+    }
+}</pre>
+        <div>
+          <ul class="bullets" style="font-size:18px">
+            <li><code>OnActionExecuting</code> corre <strong>antes</strong> de la acción</li>
+            <li>Si pone un <code>context.Result</code>, la acción <strong>no se ejecuta</strong>: se responde eso</li>
+          </ul>
+<pre class="code sm">[<span class="t">RequiereLogin</span>]       <span class="c">// todas las acciones</span>
+<span class="k">public class</span> <span class="t">TurnosController</span> : <span class="t">Controller</span>
+{ … }</pre>
+<pre class="out">GET /Turnos  →  302  /Login?returnUrl=%2FTurnos</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 22 · RequiereRol -->
+    <section class="slide" data-chapter="Filtros" data-topic="[RequiereRol]">
+      <h2 class="slide-title">Autorización: <span class="accent"><code>[RequiereRol]</code></span></h2>
+      <div class="columns" style="align-items:start">
+<pre class="code sm"><span class="k">public class</span> <span class="t">RequiereRolAttribute</span>(<span class="k">string</span> rol)
+    : <span class="t">ActionFilterAttribute</span>
+{
+    <span class="k">public override void</span> OnActionExecuting(
+        <span class="t">ActionExecutingContext</span> context)
+    {
+        <span class="k">if</span> (context.HttpContext.Session
+                .GetString(<span class="s">"Rol"</span>) != rol)
+        {
+            context.Result =
+                <span class="k">new</span> <span class="t">ViewResult</span> { ViewName = <span class="s">"SinPermiso"</span> };
+        }
+    }
+}</pre>
+        <div>
+<pre class="code sm">[<span class="t">RequiereLogin</span>]
+<span class="k">public class</span> <span class="t">PacientesController</span> : <span class="t">Controller</span>
+{
+    <span class="k">public</span> <span class="t">IActionResult</span> Index(…)   { … }  <span class="c">// cualquiera logueado</span>
+
+    [<span class="t">HttpGet</span>]
+    [<span class="t">RequiereRol</span>(<span class="s">"Admin"</span>)]                  <span class="c">// solo administración</span>
+    <span class="k">public</span> <span class="t">IActionResult</span> Crear()         { … }
+}</pre>
+          <p class="small-note">El atributo recibe un parámetro, como <code>[StringLength(100)]</code>. Con <code>recepcion</code>, <code>/Pacientes/Crear</code> muestra «Sin permiso»; con <code>admin</code>, el formulario.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 23 · La vista y la sesión -->
+    <section class="slide" data-chapter="Filtros" data-topic="La vista lee la sesión">
+      <h2 class="slide-title">La vista también lee la <span class="accent">sesión</span></h2>
+      <div class="columns" style="align-items:start">
+<pre class="code sm"><span class="c">@* _Layout.cshtml: Context es el HttpContext *@</span>
+<span class="k">@if</span> (Context.Session.GetString(<span class="s">"Usuario"</span>) <span class="k">is string</span>)
+{
+    &lt;span&gt;Hola, <span class="k">@</span>Context.Session.GetString(<span class="s">"Nombre"</span>)&lt;/span&gt;
+    &lt;form <span class="t">asp-controller</span>=<span class="s">"Login"</span> <span class="t">asp-action</span>=<span class="s">"Salir"</span> method=<span class="s">"post"</span>&gt;
+        &lt;button type=<span class="s">"submit"</span>&gt;Salir&lt;/button&gt;
+    &lt;/form&gt;
+}
+<span class="k">else</span>
+{
+    &lt;a <span class="t">asp-controller</span>=<span class="s">"Login"</span> <span class="t">asp-action</span>=<span class="s">"Index"</span>&gt;Ingresar&lt;/a&gt;
+}</pre>
+        <div>
+<pre class="out">Clínica   Pacientes  Médicos  Turnos      Hola, Marta  Salir</pre>
+          <ul class="bullets" style="font-size:18px">
+            <li>Mostrar u ocultar según la sesión es <strong>comodidad</strong>, no seguridad</li>
+            <li>Ocultar el botón «Nuevo paciente» no protege nada: el que protege es el <strong>filtro</strong> en el servidor (igual que la validación, tema 13)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 24 · Lo que trae ASP.NET -->
+    <section class="slide" data-chapter="Cierre" data-topic="Lo que trae ASP.NET Core">
+      <h2 class="slide-title">Lo que trae <span class="accent">ASP.NET Core</span></h2>
+      <p class="small-note" style="margin-top:0">Hoy lo armamos a mano para entender cómo funciona. En un proyecto real se usa lo que ya viene:</p>
+      <table class="tbl" style="margin-top:8px">
+        <tr><th>A mano (hoy)</th><th>En ASP.NET Core</th></tr>
+        <tr><td>Usuario y rol en la sesión</td><td>Autenticación por cookie: <code>AddAuthentication().AddCookie()</code>, con <em>claims</em></td></tr>
+        <tr><td><code>[RequiereLogin]</code></td><td><code>[Authorize]</code></td></tr>
+        <tr><td><code>[RequiereRol("Admin")]</code></td><td><code>[Authorize(Roles = "Admin")]</code></td></tr>
+        <tr><td>Usuarios y contraseñas propios</td><td>ASP.NET Core Identity (registro, hash, recuperar clave…)</td></tr>
+      </table>
+      <p class="small-note" style="margin-top:14px">La idea es la misma: identificar en cada request y decidir qué se permite. Cambia quién escribe el código.</p>
+    </section>
+
+    <!-- 25 · Ejemplos y práctica -->
+    <section class="slide" data-chapter="Cierre" data-topic="Ejemplos y práctica">
+      <h2 class="slide-title">Ejemplos y <span class="accent">práctica</span></h2>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>Ejemplo de la clase</h3>
+          <p>La clínica del tema 13 con login, dos roles, <code>[RequiereLogin]</code>, <code>[RequiereRol]</code> y la cookie <code>UltimoMedico</code>.</p>
+<pre class="code sm"><span class="k">cd</span> tema-15-cookies-y-sesion/proyecto-ejemplo
+<span class="k">dotnet</span> run</pre>
+          <p class="small-note" style="margin:0">Se abre en <code>http://localhost:5195</code>. Los usuarios de prueba están en el README del proyecto.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Propuesta práctica</h3>
+          <p>Agregar un rol <code>Medico</code>: que al ingresar vea solo <strong>sus</strong> turnos. Guardar en la sesión el Id del médico y filtrar en el controlador.</p>
+          <p><span class="todo-placeholder">link de GitHub Classroom 2026</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 26 · Bibliografía -->
+    <section class="slide" data-chapter="Cierre" data-topic="Bibliografía">
+      <h2 class="slide-title"><span class="accent">Bibliografía</span></h2>
+      <ul class="bullets" style="font-size:17px">
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/fundamentals/app-state">Administración de sesiones y estado en ASP.NET Core</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/mvc/controllers/filters">Filtros en ASP.NET Core</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/security/authentication/cookie">Autenticación con cookies sin ASP.NET Core Identity</a> · <a href="https://learn.microsoft.com/es-es/aspnet/core/security/authorization/roles">Autorización basada en roles</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/security/preventing-open-redirects">Evitar ataques de redirección abierta</a></li>
+        <li>MDN — <a href="https://developer.mozilla.org/es/docs/Web/HTTP/Cookies">Cookies HTTP</a></li>
+        <li>OWASP — <a href="https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html">Session Management Cheat Sheet</a> · <a href="https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html">Password Storage Cheat Sheet</a></li>
+      </ul>
+    </section>
+
+    <!-- 27 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Próximo: inyección de dependencias e interfaces — quién crea los repositorios y los servicios.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+  <script src="../assets/pasos.js?v=6"></script>
+</body>
+</html>

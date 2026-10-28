@@ -1,0 +1,27 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Ingresar";
+}
+
+<h1>Ingresar</h1>
+
+<form asp-action="Index" method="post" class="formulario">
+    <div asp-validation-summary="ModelOnly"></div>
+    <input asp-for="ReturnUrl" type="hidden" />
+
+    <label asp-for="NombreUsuario"></label>
+    <input asp-for="NombreUsuario" autocomplete="username" />
+    <span asp-validation-for="NombreUsuario"></span>
+
+    <label asp-for="Clave"></label>
+    <input asp-for="Clave" autocomplete="current-password" />
+    <span asp-validation-for="Clave"></span>
+
+    <button type="submit">Ingresar</button>
+</form>
+
+<p class="nota">Usuarios de prueba: ver el README del proyecto.</p>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

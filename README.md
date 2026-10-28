@@ -20,7 +20,7 @@ El material se organiza **por tema** (estable entre años); el orden de dictado 
 | 07 | Bases de datos | [tema-07-bases-de-datos](./tema-07-bases-de-datos) |
 | 08 | Bases de datos: ADO.NET | [tema-08-ado-net](./tema-08-ado-net) |
 | 09 | Repositorios | _pendiente_ |
-| 10 | MVC | _pendiente_ |
+| 10 | MVC | [tema-10-mvc](./tema-10-mvc) |
 | 11 | Layout y Views en ASP.NET | _pendiente_ |
 | 12 | ViewModels | _pendiente_ |
 | 13 | Validación | _pendiente_ |

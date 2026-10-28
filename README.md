@@ -22,7 +22,7 @@ El material se organiza **por tema** (estable entre años); el orden de dictado 
 | 09 | Repositorios | [tema-09-repositorios](./tema-09-repositorios) |
 | 10 | MVC | [tema-10-mvc](./tema-10-mvc) |
 | 11 | Layout y Views en ASP.NET | [tema-11-layout-y-vistas](./tema-11-layout-y-vistas) |
-| 12 | ViewModels | _pendiente_ |
+| 12 | ViewModels | [tema-12-viewmodels](./tema-12-viewmodels) |
 | 13 | Validación | _pendiente_ |
 | 14 | Inyección de dependencias e interfaces | _pendiente_ |
 | 15 | Cookies y variables de sesión | _pendiente_ |

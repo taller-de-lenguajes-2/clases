@@ -1,0 +1,24 @@
+@model List<Paciente>
+@{
+    ViewData["Title"] = "Pacientes";
+}
+
+<h1>Pacientes</h1>
+
+<table>
+    <tr>
+        <th>Nombre</th>
+        <th>Teléfono</th>
+        <th></th>
+    </tr>
+    @foreach (var paciente in Model)
+    {
+        <tr>
+            <td>@paciente.Nombre</td>
+            <td>@(paciente.Telefono ?? "—")</td>
+            <td><a asp-action="Detalle" asp-route-id="@paciente.Id">Ver</a></td>
+        </tr>
+    }
+</table>
+
+<p class="nota">@Model.Count pacientes</p>

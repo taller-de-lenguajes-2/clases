@@ -1,0 +1,20 @@
+@model List<Medico>
+@{
+    ViewData["Title"] = "Médicos";
+}
+
+<h1>Médicos</h1>
+
+<table>
+    <tr>
+        <th>Nombre</th>
+        <th>Especialidad</th>
+    </tr>
+    @foreach (var medico in Model)
+    {
+        <tr>
+            <td>@medico.Nombre</td>
+            <td>@medico.Especialidad</td>
+        </tr>
+    }
+</table>

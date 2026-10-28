@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 10 — MVC · Taller de Lenguajes 2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css?v=6" />
+  <link rel="stylesheet" href="../assets/estilo-sereno.css?v=6" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <div class="title-grid">
+        <div>
+          <p class="slide-eyebrow">Tema 10 · Arquitectura</p>
+          <h1 class="title">El patrón <span class="accent">MVC</span></h1>
+        </div>
+        <div class="title-art">
+          <svg viewBox="0 0 420 320" width="400" role="img" aria-label="Tres círculos unidos: modelo arriba, vista y controlador abajo">
+            <g stroke-width="3">
+              <line x1="210" y1="95" x2="100" y2="235" stroke="var(--border)"/>
+              <line x1="210" y1="95" x2="320" y2="235" stroke="var(--border)"/>
+              <line x1="100" y1="235" x2="320" y2="235" stroke="var(--border)"/>
+              <circle cx="210" cy="85" r="62" fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)"/>
+              <circle cx="95" cy="235" r="62" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)"/>
+              <circle cx="325" cy="235" r="62" fill="var(--panel)" stroke="var(--muted)"/>
+            </g>
+            <text x="210" y="98" text-anchor="middle" font-size="40" font-weight="600" fill="var(--accent)" class="serif">M</text>
+            <text x="95" y="248" text-anchor="middle" font-size="40" font-weight="600" fill="var(--accent-2)" class="serif">V</text>
+            <text x="325" y="248" text-anchor="middle" font-size="40" font-weight="600" fill="var(--text)" class="serif">C</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 · Agenda -->
+    <section class="slide" data-chapter="Intro" data-topic="Agenda">
+      <h2 class="slide-title">Qué vamos a <span class="accent">ver</span></h2>
+      <div class="columns three agenda">
+        <div class="card">
+          <span class="num">1</span>
+          <h3>Repartir responsabilidades</h3>
+          <ul>
+            <li>El ejemplo del bar</li>
+            <li>Acoplamiento</li>
+            <li>Cohesión</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">2</span>
+          <h3>Patrones y arquitectura</h3>
+          <ul>
+            <li>Patrones de diseño</li>
+            <li>Patrones de arquitectura</li>
+            <li>Modelo · Vista · Controlador</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">3</span>
+          <h3>MVC en ASP.NET Core</h3>
+          <ul>
+            <li>El viaje de un request</li>
+            <li>Ruteo, controlador y vista</li>
+            <li>La clínica, ahora con páginas</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · El bar: todo en el mozo -->
+    <section class="slide" data-pasos data-chapter="Responsabilidades" data-topic="El bar: un solo mozo">
+      <h2 class="slide-title">Un bar con un solo <span class="accent">mozo</span></h2>
+      <p class="idea" style="font-size:28px; margin-top:0">Supongamos un bar donde <em>una sola persona</em> hace todo.</p>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 330" width="1000" role="img" aria-label="El mozo en el centro, con todas las tareas a su cargo: atender, tomar el pedido, buscar la receta, cocinar, servir y cobrar">
+          <!-- Mozo -->
+          <g>
+            <circle cx="550" cy="125" r="34" fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="3"/>
+            <path d="M490,255 a60,70 0 0 1 120,0 z" fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M538,190 l12,14 l12,-14" fill="none" stroke="var(--accent)" stroke-width="3"/>
+            <text x="550" y="295" text-anchor="middle" font-size="22" font-weight="600" fill="var(--text)" class="serif">Mozo</text>
+          </g>
+          <g font-size="19" fill="var(--text)">
+            <g data-paso="1">
+              <rect x="70" y="40" width="250" height="52" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="195" y="73" text-anchor="middle">Atiende al comensal</text>
+              <path d="M322,70 L500,115" stroke="var(--border)" stroke-width="2" stroke-dasharray="6 6"/>
+            </g>
+            <g data-paso="2">
+              <rect x="70" y="140" width="250" height="52" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="195" y="173" text-anchor="middle">Busca la receta en la carta</text>
+              <path d="M322,166 L496,160" stroke="var(--border)" stroke-width="2" stroke-dasharray="6 6"/>
+            </g>
+            <g data-paso="3">
+              <rect x="70" y="240" width="250" height="52" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="195" y="273" text-anchor="middle">Consigue la materia prima</text>
+              <path d="M322,262 L496,215" stroke="var(--border)" stroke-width="2" stroke-dasharray="6 6"/>
+            </g>
+            <g data-paso="4">
+              <rect x="780" y="40" width="250" height="52" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="905" y="73" text-anchor="middle">Cocina</text>
+              <path d="M778,70 L600,115" stroke="var(--border)" stroke-width="2" stroke-dasharray="6 6"/>
+            </g>
+            <g data-paso="5">
+              <rect x="780" y="140" width="250" height="52" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="905" y="173" text-anchor="middle">Sirve el plato</text>
+              <path d="M778,166 L604,160" stroke="var(--border)" stroke-width="2" stroke-dasharray="6 6"/>
+            </g>
+            <g data-paso="6">
+              <rect x="780" y="240" width="250" height="52" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+              <text x="905" y="273" text-anchor="middle">Cobra</text>
+              <path d="M778,262 L604,215" stroke="var(--border)" stroke-width="2" stroke-dasharray="6 6"/>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <div class="callout alt" data-paso="7" style="text-align:center">Si se enferma el mozo, cierra el bar. Si cambia una receta, la tiene que aprender <strong>él</strong>. Si hay 30 mesas…</div>
+    </section>
+
+    <!-- 4 · El bar: repartido -->
+    <section class="slide" data-pasos data-chapter="Responsabilidades" data-topic="El bar: repartir">
+      <h2 class="slide-title">Repartir las <span class="accent">responsabilidades</span></h2>
+      <div class="columns three" style="margin-top:10px">
+        <div class="card accent-top" data-paso="1">
+          <h3>Mozo</h3>
+          <p>Atiende al comensal, toma el <strong>pedido</strong> y lo lleva a la barra.</p>
+          <p class="small-note" style="margin:0">No sabe cocinar. No le hace falta.</p>
+        </div>
+        <div class="card accent-top" data-paso="2">
+          <h3>Cocinero</h3>
+          <p>Recibe el pedido y lo prepara con la <strong>carta de recetas</strong> y los recursos de la cocina.</p>
+          <p class="small-note" style="margin:0">No ve al comensal.</p>
+        </div>
+        <div class="card accent-top alt" data-paso="3">
+          <h3>Cocina · recetas · materia prima</h3>
+          <p>Lo que el cocinero <strong>usa</strong>. Cambiar de proveedor no cambia al mozo.</p>
+        </div>
+      </div>
+      <div class="callout" data-paso="4" style="margin-top:26px; text-align:center">Cada uno hace <strong>una cosa</strong> y se comunica con los otros por algo acordado: <strong>el pedido</strong>.</div>
+      <p class="small-note" data-paso="4" style="text-align:center">Con el software pasa lo mismo: cada parte con su tarea, y lo justo de contacto entre ellas.</p>
+    </section>
+
+    <!-- 5 · Acoplamiento vs cohesión -->
+    <section class="slide" data-chapter="Responsabilidades" data-topic="Dos medidas">
+      <h2 class="slide-title">Dos medidas de un <span class="accent">diseño</span></h2>
+      <div class="columns" style="margin-top:20px">
+        <div class="card tinte">
+          <h3>Acoplamiento</h3>
+          <p class="idea" style="font-size:24px; margin:0">¿Cuánto depende una parte <em>de las otras</em>?</p>
+          <p class="small-note">Entre módulos. Lo queremos <strong>bajo</strong>.</p>
+        </div>
+        <div class="card tinte alt">
+          <h3>Cohesión</h3>
+          <p class="idea" style="font-size:24px; margin:0">¿Cuánto tienen que ver entre sí las cosas <em>de una misma</em> parte?</p>
+          <p class="small-note">Dentro de un módulo. La queremos <strong>alta</strong>.</p>
+        </div>
+      </div>
+      <p class="small-note" style="text-align:center; margin-top:26px">En el bar: el mozo que cocina tiene <strong>baja cohesión</strong> (hace cosas que no tienen nada que ver) y todo el bar está <strong>acoplado</strong> a él.</p>
+    </section>
+
+    <!-- 6 · Acoplamiento: definición -->
+    <section class="slide" data-chapter="Acoplamiento" data-topic="¿Qué es el acoplamiento?">
+      <h2 class="slide-title">¿Qué es el <span class="accent">acoplamiento</span>?</h2>
+      <div class="callout" style="font-size:22px; margin-top:6px">
+        «La forma y el nivel de <strong>interdependencia</strong> entre módulos de software. Una medida de qué tan estrechamente conectadas están dos rutinas o módulos.»
+        <p class="small-note" style="margin:10px 0 0">ISO/IEC/IEEE 24765 — <em>Systems and software engineering — Vocabulary</em> (traducción libre)</p>
+      </div>
+      <p class="idea" style="font-size:26px; margin-top:30px">En POO: hay acoplamiento cada vez que una clase usa un dato o un método <em>de otra</em> clase.</p>
+      <p class="small-note">No se puede eliminar del todo (las clases tienen que colaborar), pero sí reducir: que cada clase sepa de las otras <strong>solo lo necesario</strong>.</p>
+    </section>
+
+    <!-- 7 · Acoplamiento alto: consecuencias -->
+    <section class="slide" data-chapter="Acoplamiento" data-topic="Alto acoplamiento">
+      <h2 class="slide-title">¿Qué tiene de malo el acoplamiento <span class="accent">alto</span>?</h2>
+      <p class="small-note" style="margin-top:0">Una clase conoce demasiado los detalles internos de otras, o depende directamente de ellas para muchas tareas.</p>
+      <div class="columns three" style="margin-top:16px">
+        <div class="card accent-top alt">
+          <h3>Rígido</h3>
+          <p>Un cambio en una clase obliga a cambiar <strong>muchas otras</strong>: efecto dominó.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Poco reutilizable</h3>
+          <p>No se puede llevar una clase a otro lado sin arrastrar a todas las que usa.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Difícil de probar</h3>
+          <p>Para probar una parte hay que armar <strong>todo</strong> lo demás.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8 · Cohesión: Calculadora -->
+    <section class="slide" data-chapter="Cohesión" data-topic="Una clase cohesiva">
+      <h2 class="slide-title">Una clase con <span class="accent">alta cohesión</span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="k">public class</span> <span class="t">Calculadora</span>
+{
+    <span class="k">public int</span> Sumar(<span class="k">int</span> a, <span class="k">int</span> b) =&gt; a + b;
+
+    <span class="k">public int</span> Restar(<span class="k">int</span> a, <span class="k">int</span> b) =&gt; a - b;
+
+    <span class="k">public int</span> Multiplicar(<span class="k">int</span> a, <span class="k">int</span> b) =&gt; a * b;
+
+    <span class="k">public int</span> Dividir(<span class="k">int</span> dividendo, <span class="k">int</span> divisor)
+    {
+        <span class="k">if</span> (divisor == <span class="n">0</span>)
+            <span class="k">throw new</span> <span class="t">ArgumentException</span>(<span class="s">"No se puede dividir por cero."</span>);
+        <span class="k">return</span> dividendo / divisor;
+    }
+}</pre>
+        <div>
+          <p class="idea" style="font-size:22px; margin-top:0">La cohesión es cuánto se relacionan los métodos de una clase <em>entre sí</em> y con su responsabilidad.</p>
+          <ul class="bullets" style="font-size:19px">
+            <li>Una sola responsabilidad: <strong>calcular</strong></li>
+            <li>Todos los métodos son del mismo tema</li>
+            <li>¿Un método <code>GuardarEnArchivo()</code> acá? Bajaría la cohesión</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9 · El caso del ecommerce -->
+    <section class="slide" data-pasos data-chapter="Acoplamiento" data-topic="Caso: una tienda online">
+      <h2 class="slide-title">Caso: una tienda <span class="accent">online</span></h2>
+      <p class="idea" style="font-size:26px; margin-top:0">Un negocio de ropa vende por la web. Cada vez que alguien compra, el sistema tiene que:</p>
+      <ol class="steps" style="margin-top:18px">
+        <li data-paso="1">registrar el <strong>pedido</strong>,</li>
+        <li data-paso="2">calcular el <strong>precio</strong>,</li>
+        <li data-paso="3">generar la <strong>factura</strong>,</li>
+        <li data-paso="4">y dejar todo listo para la <strong>entrega</strong>.</li>
+      </ol>
+      <div class="callout" data-paso="5" style="margin-top:20px">Parece lógico que una clase <code>Pedido</code> se encargue de todo. Al fin y al cabo, el pedido es el centro del proceso… ¿no?</div>
+      <p class="small-note" data-paso="6">Con el tiempo, <code>Pedido</code> crece: valida al cliente, revisa el stock, calcula impuestos, emite la factura, manda notificaciones…</p>
+    </section>
+
+    <!-- 10 · Pedido acoplado -->
+    <section class="slide" data-chapter="Acoplamiento" data-topic="Una clase acoplada">
+      <h2 class="slide-title">Una clase muy <span class="accent">acoplada</span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="k">public class</span> <span class="t">Pedido</span>
+{
+    <span class="k">private</span> <span class="t">Cliente</span> cliente;
+    <span class="k">private</span> <span class="t">Producto</span> producto;
+    <span class="k">private</span> <span class="t">Factura</span>? factura;
+
+    <span class="k">public</span> Pedido(<span class="t">Cliente</span> cliente, <span class="t">Producto</span> producto)
+    {
+        <span class="k">this</span>.cliente = cliente;
+        <span class="k">this</span>.producto = producto;
+    }
+
+    <span class="k">public void</span> Procesar()
+    {
+        <span class="c">// valida al cliente, revisa el stock del producto,</span>
+        <span class="c">// calcula impuestos, avisa por mail…</span>
+    }
+
+    <span class="k">public void</span> GenerarFactura()
+    {
+        factura = <span class="k">new</span> <span class="t">Factura</span>(cliente, producto);
+        factura.Emitir();
+    }
+}</pre>
+        <div>
+          <p class="small-note" style="margin-top:0">A primera vista cumple. Pero controla <strong>demasiado</strong>:</p>
+          <ul class="bullets" style="font-size:19px">
+            <li>Maneja la relación con el <code>Cliente</code></li>
+            <li>Trabaja directamente con el <code>Producto</code></li>
+            <li><strong>Crea</strong> y emite la <code>Factura</code></li>
+          </ul>
+          <div class="callout alt" style="margin-top:14px">Si cambia la forma de facturar (por ejemplo, factura electrónica de AFIP/ARCA), hay que tocar <code>Pedido</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · Separar responsabilidades -->
+    <section class="slide" data-chapter="Acoplamiento" data-topic="Separar responsabilidades">
+      <h2 class="slide-title">Separar las <span class="accent">responsabilidades</span></h2>
+      <div class="columns" style="align-items:start; gap:22px">
+        <div>
+          <h3>El pedido: solo datos</h3>
+<pre class="code sm" style="font-size:14px"><span class="k">public class</span> <span class="t">Pedido</span>
+{
+    <span class="k">public</span> <span class="t">Cliente</span> Cliente { <span class="k">get</span>; }
+    <span class="k">public</span> <span class="t">Producto</span> Producto { <span class="k">get</span>; }
+    <span class="k">public bool</span> Procesado { <span class="k">get</span>; <span class="k">private set</span>; }
+
+    <span class="k">public</span> Pedido(<span class="t">Cliente</span> c, <span class="t">Producto</span> p)
+    {
+        Cliente = c;
+        Producto = p;
+    }
+
+    <span class="k">public void</span> MarcarComoProcesado()
+        =&gt; Procesado = <span class="k">true</span>;
+}</pre>
+          <div class="callout" style="margin-top:16px; font-size:18px">Cambiar la factura ahora toca <strong>una sola clase</strong>. Y <code>ServicioDePedidos</code> recibe con quién facturar por el constructor: es la idea del <strong>tema 14</strong>, inyección de dependencias.</div>
+        </div>
+        <div>
+          <h3>Facturar</h3>
+<pre class="code sm" style="font-size:14px"><span class="k">public class</span> <span class="t">ServicioDeFacturacion</span>
+{
+    <span class="k">public void</span> GenerarFactura(<span class="t">Pedido</span> pedido)
+    {
+        <span class="k">var</span> factura = <span class="k">new</span> <span class="t">Factura</span>(
+            pedido.Cliente, pedido.Producto);
+        factura.Emitir();
+    }
+}</pre>
+          <h3 style="margin-top:12px">Coordinar</h3>
+<pre class="code sm" style="font-size:14px"><span class="k">public class</span> <span class="t">ServicioDePedidos</span>(
+    <span class="t">ServicioDeFacturacion</span> facturacion)
+{
+    <span class="k">public void</span> Procesar(<span class="t">Pedido</span> pedido)
+    {
+        <span class="c">// validar, revisar stock…</span>
+        pedido.MarcarComoProcesado();
+        facturacion.GenerarFactura(pedido);
+    }
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 · Criterio -->
+    <section class="slide" data-chapter="Cohesión" data-topic="El criterio">
+      <h2 class="slide-title">Bajo acoplamiento, <span class="accent">alta cohesión</span></h2>
+      <div class="columns" style="margin-top:14px">
+        <div>
+          <h3>El bajo acoplamiento permite</h3>
+          <ul class="bullets" style="font-size:20px">
+            <li>Mantener mejor cada parte</li>
+            <li>Reutilizarla en otro lado</li>
+            <li>Cambiar una sin tener que cambiar muchas</li>
+          </ul>
+        </div>
+        <div>
+          <h3>La alta cohesión permite</h3>
+          <ul class="bullets" style="font-size:20px">
+            <li>Saber <strong>dónde</strong> está cada cosa</li>
+            <li>Clases chicas y fáciles de entender</li>
+            <li>Un motivo para cambiar por clase</li>
+          </ul>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:24px">Cuanto menos dependan entre sí las partes, mejor. Pero el desacoplamiento <strong>total</strong> es imposible: las partes tienen que colaborar.</div>
+    </section>
+
+    <!-- 13 · Patrones de diseño -->
+    <section class="slide" data-chapter="Patrones" data-topic="Patrones de diseño">
+      <h2 class="slide-title">Patrones de <span class="accent">diseño</span></h2>
+      <p class="idea" style="font-size:28px; margin-top:0">Soluciones probadas para problemas <em>típicos y recurrentes</em> al desarrollar una aplicación.</p>
+      <div class="columns" style="margin-top:18px">
+        <div>
+          <h3>Qué buscan</h3>
+          <ul class="bullets" style="font-size:19px">
+            <li>Un catálogo de soluciones <strong>reutilizables</strong></li>
+            <li>No volver a resolver lo que ya está resuelto</li>
+            <li>Un <strong>vocabulario común</strong>: «acá va un repositorio»</li>
+            <li>Estandarizar la forma de diseñar</li>
+            <li>Que quien empieza aprenda de lo que ya se sabe</li>
+          </ul>
+        </div>
+        <div class="callout alt" style="align-self:center">Ya usamos uno: el <strong>repositorio</strong> (tema 09) resuelve «¿dónde pongo el SQL?» siempre de la misma manera.</div>
+      </div>
+    </section>
+
+    <!-- 14 · Clasificación -->
+    <section class="slide" data-chapter="Patrones" data-topic="Niveles de patrones">
+      <h2 class="slide-title">Patrones según su <span class="accent">escala</span></h2>
+      <div class="flow" style="margin-top:20px">
+        <div class="card accent-top">
+          <h3>De arquitectura</h3>
+          <p>La organización <strong>de todo el sistema</strong>: en qué partes grandes se divide.</p>
+          <p class="small-note" style="margin:0">MVC · capas · cliente-servidor</p>
+        </div>
+        <div class="arrow">→</div>
+        <div class="card accent-top">
+          <h3>De diseño</h3>
+          <p>Cómo se arman y se relacionan <strong>algunas clases</strong>.</p>
+          <p class="small-note" style="margin:0">Repositorio · Singleton · Strategy</p>
+        </div>
+        <div class="arrow">→</div>
+        <div class="card accent-top alt">
+          <h3>Dialectos (idioms)</h3>
+          <p>Propios de <strong>un lenguaje</strong> o entorno.</p>
+          <p class="small-note" style="margin:0"><code>using</code> para liberar recursos en C#</p>
+        </div>
+      </div>
+      <p class="small-note" style="text-align:center; margin-top:26px">De lo más general a lo más concreto.</p>
+    </section>
+
+    <!-- 15 · Arquitectura -->
+    <section class="slide" data-chapter="Patrones" data-topic="¿Por qué una arquitectura?">
+      <h2 class="slide-title">¿Por qué pensar la <span class="accent">arquitectura</span>?</h2>
+      <p class="idea" style="font-size:28px; margin-top:0">¿Cómo se comporta nuestro software cuando <em>crece</em>?</p>
+      <p class="small-note" style="text-align:center; margin:4px 0 0">La clínica en la materia: cada bloque es la misma aplicación, con algo más encima.</p>
+      <div class="diagram">
+        <svg viewBox="0 -25 1000 265" width="900" role="img" aria-label="La aplicación de la clínica crece con el tiempo: una consola, después base de datos, Web API, páginas web y más programadores">
+          <g stroke-width="2">
+            <rect x="60"  y="170" width="110" height="40" rx="6" fill="color-mix(in srgb, var(--accent-2) 18%, var(--panel))" stroke="var(--accent-2)"/>
+            <rect x="230" y="130" width="110" height="80" rx="6" fill="color-mix(in srgb, var(--accent-2) 22%, var(--panel))" stroke="var(--accent-2)"/>
+            <rect x="400" y="90"  width="110" height="120" rx="6" fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)"/>
+            <rect x="570" y="50"  width="110" height="160" rx="6" fill="color-mix(in srgb, var(--accent) 22%, var(--panel))" stroke="var(--accent)"/>
+            <rect x="740" y="10"  width="110" height="200" rx="6" fill="color-mix(in srgb, var(--accent) 30%, var(--panel))" stroke="var(--accent)"/>
+          </g>
+          <g font-size="17" fill="var(--text)" text-anchor="middle">
+            <text x="115" y="160">Una consola</text>
+            <text x="285" y="120">+ base de datos</text>
+            <text x="455" y="80">+ Web API</text>
+            <text x="625" y="40">+ páginas web</text>
+            <text x="795" y="0">+ más programadores</text>
+          </g>
+          <path d="M60,225 H850" stroke="var(--muted)" stroke-width="1.5"/>
+          <text x="855" y="230" font-size="15" fill="var(--muted)" font-style="italic">con el tiempo →</text>
+        </svg>
+      </div>
+      <div class="callout">Un <strong>patrón de arquitectura</strong> es una solución general y reutilizable para organizar un sistema. Decide <em>dónde va cada cosa</em> antes de que el sistema crezca.</div>
+    </section>
+
+    <!-- 16 · Partes de una web -->
+    <section class="slide" data-chapter="MVC" data-topic="Partes de una web">
+      <h2 class="slide-title">Las partes de una <span class="accent">web</span></h2>
+      <div class="columns" style="margin-top:10px">
+        <div class="card accent-top">
+          <h3>Front end</h3>
+          <p class="small-note" style="margin-top:0">Lo que corre en el <strong>navegador</strong>.</p>
+          <ul class="bullets" style="font-size:18px">
+            <li>HTML, CSS y JavaScript</li>
+            <li>Pedidos asincrónicos (<code>fetch</code>)</li>
+            <li>Accesibilidad</li>
+            <li>Que funcione en todos los navegadores</li>
+          </ul>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Back end</h3>
+          <p class="small-note" style="margin-top:0">Lo que corre en el <strong>servidor</strong>. Acá estamos nosotros: C#.</p>
+          <ul class="bullets" style="font-size:18px">
+            <li>Reglas del negocio</li>
+            <li>Acceso a la base de datos</li>
+            <li>Seguridad</li>
+            <li>Escalar cuando hay muchos usuarios</li>
+          </ul>
+        </div>
+      </div>
+      <p class="small-note" style="text-align:center; margin-top:20px">En la Web API (tema 06) el servidor devolvía <strong>JSON</strong> y otro armaba la página. Con MVC, el servidor arma y devuelve el <strong>HTML</strong>.</p>
+    </section>
+
+    <!-- 17 · MVC -->
+    <section class="slide" data-pasos data-chapter="MVC" data-topic="Modelo · Vista · Controlador">
+      <h2 class="slide-title">Modelo · Vista · <span class="accent">Controlador</span></h2>
+      <p class="small-note" style="margin-top:0">Un patrón de arquitectura que divide una aplicación interactiva en <strong>tres partes</strong>.</p>
+      <div class="columns" style="grid-template-columns: 1fr 1.1fr; align-items:center">
+        <div class="diagram">
+          <svg viewBox="0 0 480 380" width="460" role="img" aria-label="El controlador recibe al usuario, usa el modelo y elige la vista; la vista muestra datos del modelo">
+            <defs>
+              <marker id="f10" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+            </defs>
+            <g data-paso="1">
+              <circle cx="240" cy="80" r="66" fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="3"/>
+              <text x="240" y="88" text-anchor="middle" font-size="24" font-weight="600" fill="var(--accent)" class="serif">Modelo</text>
+            </g>
+            <g data-paso="2">
+              <circle cx="95" cy="290" r="66" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="3"/>
+              <text x="95" y="298" text-anchor="middle" font-size="24" font-weight="600" fill="var(--accent-2)" class="serif">Vista</text>
+            </g>
+            <g data-paso="3">
+              <circle cx="385" cy="290" r="66" fill="var(--panel)" stroke="var(--muted)" stroke-width="3"/>
+              <text x="385" y="297" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="serif">Controlador</text>
+            </g>
+            <g data-paso="4" font-size="15" fill="var(--muted)" font-style="italic">
+              <path d="M345,236 L285,140" stroke="var(--muted)" stroke-width="2.5" fill="none" marker-end="url(#f10)"/>
+              <text x="338" y="180">usa</text>
+              <path d="M316,298 L170,298" stroke="var(--muted)" stroke-width="2.5" fill="none" marker-end="url(#f10)"/>
+              <text x="243" y="288" text-anchor="middle">elige</text>
+              <path d="M135,236 L195,140" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 5" fill="none" marker-end="url(#f10)"/>
+              <text x="118" y="180">muestra</text>
+            </g>
+          </svg>
+        </div>
+        <div>
+          <div class="card tinte" data-paso="1" style="margin-bottom:12px"><h3>Modelo</h3><p style="margin:0">Los <strong>datos</strong> y las reglas del negocio. No sabe nada de pantallas.</p></div>
+          <div class="card tinte alt" data-paso="2" style="margin-bottom:12px"><h3>Vista</h3><p style="margin:0">Le <strong>muestra</strong> la información al usuario. Puede haber más de una para los mismos datos.</p></div>
+          <div class="card tinte" data-paso="3"><h3>Controlador</h3><p style="margin:0">Recibe lo que pide el usuario, usa el modelo y elige qué vista responde.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 · MVC = el bar -->
+    <section class="slide" data-chapter="MVC" data-topic="Volviendo al bar">
+      <h2 class="slide-title">Volviendo al <span class="accent">bar</span></h2>
+      <table class="tbl" style="margin-top:10px">
+        <tr><th>MVC</th><th>En el bar</th><th>En la clínica</th></tr>
+        <tr><td><strong>Controlador</strong></td><td>El mozo: toma el pedido y decide a quién llevárselo</td><td><code>PacientesController</code></td></tr>
+        <tr><td><strong>Modelo</strong></td><td>La cocina, las recetas y la materia prima</td><td><code>Paciente</code> + <code>PacienteRepository</code> + <code>clinica.db</code></td></tr>
+        <tr><td><strong>Vista</strong></td><td>El plato servido, como lo ve el comensal</td><td><code>Pacientes/Index.cshtml</code></td></tr>
+      </table>
+      <div class="callout" style="margin-top:24px">Cambiar la presentación del plato no cambia la receta. Cambiar el diseño de la página <strong>no toca el SQL</strong>.</div>
+    </section>
+
+    <!-- 19 · El viaje de un request -->
+    <section class="slide" data-pasos data-chapter="ASP.NET MVC" data-topic="El viaje de un request">
+      <h2 class="slide-title">El viaje de un <span class="accent">request</span> en MVC</h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 340" width="1060" role="img" aria-label="El navegador pide /Pacientes; el ruteo elige PacientesController.Index; el controlador pide la lista al repositorio; elige la vista; la vista arma el HTML que vuelve al navegador">
+          <defs>
+            <marker id="v10" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+          </defs>
+          <!-- Navegador -->
+          <rect x="10" y="110" width="170" height="120" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+          <rect x="10" y="110" width="170" height="28" rx="14" fill="var(--panel-2)"/>
+          <text x="95" y="180" text-anchor="middle" font-size="20" font-weight="600" fill="var(--text)" class="serif">Navegador</text>
+          <text x="95" y="206" text-anchor="middle" font-size="14" fill="var(--muted)" class="mono">/Pacientes</text>
+
+          <g data-paso="1">
+            <path d="M182,150 H262" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#v10)"/>
+            <text x="222" y="140" text-anchor="middle" font-size="14" fill="var(--muted)" class="mono">GET</text>
+            <rect x="268" y="110" width="170" height="80" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="1.5"/>
+            <text x="353" y="146" text-anchor="middle" font-size="19" font-weight="600" fill="var(--text)" class="serif">Ruteo</text>
+            <text x="353" y="172" text-anchor="middle" font-size="12" fill="var(--muted)" class="mono">{controller}/{action}</text>
+          </g>
+          <g data-paso="2">
+            <path d="M440,150 H520" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#v10)"/>
+            <rect x="526" y="100" width="210" height="100" rx="14" fill="var(--panel)" stroke="var(--muted)" stroke-width="2.5"/>
+            <text x="631" y="142" text-anchor="middle" font-size="20" font-weight="600" fill="var(--text)" class="serif">Controlador</text>
+            <text x="631" y="170" text-anchor="middle" font-size="13" fill="var(--muted)" class="mono">Pacientes.Index()</text>
+          </g>
+          <g data-paso="3">
+            <path d="M631,98 V58 H800" stroke="var(--muted)" stroke-width="2.5" fill="none" marker-end="url(#v10)"/>
+            <text x="700" y="48" font-size="14" fill="var(--muted)" font-style="italic">Listar()</text>
+            <rect x="806" y="20" width="250" height="80" rx="14" fill="color-mix(in srgb, var(--accent) 14%, var(--panel))" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="931" y="56" text-anchor="middle" font-size="20" font-weight="600" fill="var(--accent)" class="serif">Modelo</text>
+            <text x="931" y="82" text-anchor="middle" font-size="13" fill="var(--muted)" class="mono">repositorio → clinica.db</text>
+            <path d="M806,80 H760 V98" stroke="var(--accent)" stroke-width="2" stroke-dasharray="6 5" fill="none" marker-end="url(#v10)"/>
+            <text x="770" y="128" font-size="13" fill="var(--accent)" class="mono">List&lt;Paciente&gt;</text>
+          </g>
+          <g data-paso="4">
+            <path d="M631,202 V262 H800" stroke="var(--muted)" stroke-width="2.5" fill="none" marker-end="url(#v10)"/>
+            <text x="660" y="252" font-size="14" fill="var(--muted)" font-style="italic">View(pacientes)</text>
+            <rect x="806" y="220" width="250" height="84" rx="14" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <text x="931" y="256" text-anchor="middle" font-size="20" font-weight="600" fill="var(--accent-2)" class="serif">Vista</text>
+            <text x="931" y="282" text-anchor="middle" font-size="13" fill="var(--muted)" class="mono">Pacientes/Index.cshtml</text>
+          </g>
+          <g data-paso="5">
+            <path d="M931,306 V328 H95 V234" stroke="var(--accent-2)" stroke-width="2.5" fill="none" marker-end="url(#v10)"/>
+            <text x="500" y="320" text-anchor="middle" font-size="15" font-weight="600" fill="var(--accent-2)">HTML</text>
+          </g>
+        </svg>
+      </div>
+      <p class="small-note">Clic sobre el diagrama o → para avanzar. El controlador no arma HTML ni escribe SQL: <strong>coordina</strong>.</p>
+    </section>
+
+    <!-- 20 · Crear el proyecto -->
+    <section class="slide" data-chapter="ASP.NET MVC" data-topic="Crear el proyecto">
+      <h2 class="slide-title">Crear un proyecto <span class="accent">MVC</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+<pre class="code"><span class="k">dotnet</span> new mvc -o ClinicaMvc
+<span class="k">cd</span> ClinicaMvc
+<span class="k">dotnet</span> run</pre>
+          <p class="small-note">En Visual Studio: plantilla <strong>Aplicación web de ASP.NET Core (Modelo-Vista-Controlador)</strong>.</p>
+          <p class="small-note">La plantilla trae Bootstrap y páginas de ejemplo. El proyecto de la clase arranca más limpio.</p>
+        </div>
+<pre class="code sm">ClinicaMvc/
+├── <span class="t">Controllers/</span>      <span class="c">← los controladores</span>
+│   └── PacientesController.cs
+├── <span class="t">Models/</span>           <span class="c">← las clases del modelo</span>
+│   └── Modelos.cs
+├── <span class="t">Repositorios/</span>     <span class="c">← el SQL (tema 09)</span>
+├── <span class="t">Views/</span>            <span class="c">← una carpeta por controlador</span>
+│   ├── Pacientes/
+│   │   ├── Index.cshtml
+│   │   └── Detalle.cshtml
+│   └── Shared/
+│       └── _Layout.cshtml
+├── <span class="t">wwwroot/</span>          <span class="c">← CSS, imágenes, JS</span>
+├── appsettings.json
+└── Program.cs</pre>
+      </div>
+    </section>
+
+    <!-- 21 · Program.cs -->
+    <section class="slide" data-chapter="ASP.NET MVC" data-topic="Program.cs">
+      <h2 class="slide-title"><code>Program.cs</code>: de Web API a <span class="accent">MVC</span></h2>
+<pre class="code sm"><span class="k">var</span> builder = <span class="t">WebApplication</span>.CreateBuilder(args);
+
+builder.Services.AddScoped(_ =&gt; <span class="k">new</span> <span class="t">PacienteRepository</span>(cadenaConexion));
+builder.Services.AddControllersWithViews();        <span class="c">// en la Web API: AddControllers()</span>
+
+<span class="k">var</span> app = builder.Build();
+
+app.UseStaticFiles();                              <span class="c">// sirve wwwroot: el CSS de las páginas</span>
+
+app.MapControllerRoute(                            <span class="c">// en la Web API: MapControllers()</span>
+    name: <span class="s">"default"</span>,
+    pattern: <span class="s">"{controller=Home}/{action=Index}/{id?}"</span>);
+
+app.Run();</pre>
+      <div class="columns" style="margin-top:12px">
+        <div class="card tinte"><h3><code>AddControllersWithViews</code></h3><p style="margin:0">Controladores <strong>y</strong> el motor de vistas Razor.</p></div>
+        <div class="card tinte alt"><h3><code>MapControllerRoute</code></h3><p style="margin:0">Una ruta <strong>convencional</strong> para todos, en vez de <code>[Route]</code> en cada controlador.</p></div>
+      </div>
+    </section>
+
+    <!-- 22 · Ruteo convencional -->
+    <section class="slide" data-chapter="ASP.NET MVC" data-topic="Ruteo convencional">
+      <h2 class="slide-title">Ruteo <span class="accent">convencional</span></h2>
+      <p class="idea" style="font-size:26px; margin-top:0"><code>{controller=Home}/{action=Index}/{id?}</code></p>
+      <table class="tbl" style="margin-top:14px">
+        <tr><th>URL</th><th>Controlador</th><th>Acción</th><th><code>id</code></th></tr>
+        <tr><td><code>/</code></td><td><code>HomeController</code></td><td><code>Index()</code></td><td>—</td></tr>
+        <tr><td><code>/Pacientes</code></td><td><code>PacientesController</code></td><td><code>Index()</code></td><td>—</td></tr>
+        <tr><td><code>/Pacientes/Detalle/3</code></td><td><code>PacientesController</code></td><td><code>Detalle(int id)</code></td><td><code>3</code></td></tr>
+        <tr><td><code>/Medicos</code></td><td><code>MedicosController</code></td><td><code>Index()</code></td><td>—</td></tr>
+      </table>
+      <ul class="bullets" style="font-size:19px; margin-top:16px">
+        <li><code>=Home</code> y <code>=Index</code> son los valores <strong>por defecto</strong> si el tramo no está</li>
+        <li><code>{id?}</code>: el <code>?</code> lo hace <strong>opcional</strong></li>
+        <li>El sufijo <code>Controller</code> no va en la URL</li>
+      </ul>
+    </section>
+
+    <!-- 23 · El controlador MVC -->
+    <section class="slide" data-chapter="ASP.NET MVC" data-topic="El controlador">
+      <h2 class="slide-title">El <span class="accent">controlador</span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="k">public class</span> <span class="t">PacientesController</span>(<span class="t">PacienteRepository</span> repositorio)
+    : <span class="t">Controller</span>
+{
+    <span class="c">// GET /Pacientes</span>
+    <span class="k">public</span> <span class="t">IActionResult</span> Index()
+    {
+        <span class="t">List</span>&lt;<span class="t">Paciente</span>&gt; pacientes = repositorio.Listar();
+        <span class="k">return</span> View(pacientes);
+    }
+
+    <span class="c">// GET /Pacientes/Detalle/3</span>
+    <span class="k">public</span> <span class="t">IActionResult</span> Detalle(<span class="k">int</span> id)
+    {
+        <span class="t">Paciente</span>? paciente = repositorio.Obtener(id);
+        <span class="k">if</span> (paciente <span class="k">is null</span>) <span class="k">return</span> NotFound();
+
+        <span class="k">return</span> View(paciente);
+    }
+}</pre>
+        <div>
+          <ul class="bullets" style="font-size:19px">
+            <li>Hereda de <code>Controller</code> (la Web API usaba <code>ControllerBase</code>): suma <code>View()</code></li>
+            <li><code>View(pacientes)</code> le pasa el <strong>modelo</strong> a la vista</li>
+            <li>Sin <code>[ApiController]</code> ni <code>[Route]</code>: manda la ruta convencional</li>
+          </ul>
+          <div class="callout" style="margin-top:14px"><code>View()</code> busca <code>Views/<strong>Pacientes</strong>/<strong>Index</strong>.cshtml</code>: carpeta del controlador, archivo de la acción.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 24 · La vista -->
+    <section class="slide" data-chapter="ASP.NET MVC" data-topic="La vista">
+      <h2 class="slide-title">La <span class="accent">vista</span>: HTML con C#</h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3><code>Views/Pacientes/Index.cshtml</code></h3>
+<pre class="code sm"><span class="k">@model</span> <span class="t">List</span>&lt;<span class="t">Paciente</span>&gt;
+
+&lt;h1&gt;Pacientes&lt;/h1&gt;
+&lt;table&gt;
+    <span class="k">@foreach</span> (<span class="k">var</span> paciente <span class="k">in</span> Model)
+    {
+        &lt;tr&gt;
+            &lt;td&gt;<span class="k">@</span>paciente.Nombre&lt;/td&gt;
+            &lt;td&gt;<span class="k">@</span>(paciente.Telefono ?? <span class="s">"—"</span>)&lt;/td&gt;
+        &lt;/tr&gt;
+    }
+&lt;/table&gt;</pre>
+        </div>
+        <div>
+          <ul class="bullets" style="font-size:19px">
+            <li><code>@model</code>: de qué tipo es lo que recibe</li>
+            <li><code>Model</code>: el objeto que mandó <code>View(...)</code></li>
+            <li><code>@</code> pasa de HTML a C#</li>
+          </ul>
+<pre class="out">Pacientes
+Ana Gómez       381-4567890
+Bruno Díaz      —
+Carla Ruiz      381-5550001
+Diego Herrera   —
+Mariana Paz     381-6001234</pre>
+          <p class="small-note">Es <strong>Razor</strong>. La vista solo muestra: no consulta la base ni decide nada. Layout, vistas y Razor en detalle: <strong>tema 11</strong>.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 25 · Web API vs MVC -->
+    <section class="slide" data-chapter="ASP.NET MVC" data-topic="Web API y MVC">
+      <h2 class="slide-title">Web API y MVC, <span class="accent">lado a lado</span></h2>
+      <table class="tbl" style="margin-top:8px">
+        <tr><th></th><th>Web API (tema 06)</th><th>MVC (hoy)</th></tr>
+        <tr><td>Devuelve</td><td><strong>JSON</strong> con los datos</td><td><strong>HTML</strong>: la página armada</td></tr>
+        <tr><td>Quién la usa</td><td>Otro programa: front end, app, Swagger</td><td>Una persona, con el navegador</td></tr>
+        <tr><td>Clase base</td><td><code>ControllerBase</code></td><td><code>Controller</code></td></tr>
+        <tr><td>Rutas</td><td><code>[Route("api/[controller]")]</code></td><td><code>{controller}/{action}/{id?}</code></td></tr>
+        <tr><td>Respuesta</td><td><code>Ok(pacientes)</code></td><td><code>View(pacientes)</code></td></tr>
+        <tr><td>Registro</td><td><code>AddControllers()</code></td><td><code>AddControllersWithViews()</code></td></tr>
+      </table>
+      <div class="callout" style="margin-top:20px">El <strong>modelo y los repositorios son los mismos</strong>. Solo cambia cómo se le muestra el resultado a quien lo pidió: eso es separar responsabilidades.</div>
+    </section>
+
+    <!-- 26 · Ejemplos y práctica -->
+    <section class="slide" data-chapter="Cierre" data-topic="Ejemplos y práctica">
+      <h2 class="slide-title">Ejemplos y <span class="accent">práctica</span></h2>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>Ejemplo de la clase</h3>
+          <p>La clínica en ASP.NET Core MVC (.NET 10): lista y detalle de pacientes, y lista de médicos, sobre <code>clinica.db</code>.</p>
+<pre class="code sm"><span class="k">cd</span> tema-10-mvc/proyecto-ejemplo
+<span class="k">dotnet</span> run</pre>
+          <p class="small-note" style="margin:0">Se abre en <code>http://localhost:5190</code>. La primera vez crea <code>clinica.db</code> con el script del tema 07.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Propuesta práctica</h3>
+          <p>Agregar al ejemplo una página <code>/Medicos/Detalle/{id}</code>: acción en el controlador, método <code>Obtener</code> en el repositorio y su vista.</p>
+          <p><span class="todo-placeholder">link de GitHub Classroom 2026</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 27 · Bibliografía -->
+    <section class="slide" data-chapter="Cierre" data-topic="Bibliografía">
+      <h2 class="slide-title"><span class="accent">Bibliografía</span></h2>
+      <ul class="bullets" style="font-size:17px">
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/mvc/overview">Información general de ASP.NET Core MVC</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/tutorials/first-mvc-app/start-mvc">Introducción a ASP.NET Core MVC (tutorial)</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/mvc/controllers/routing">Enrutamiento a acciones de controlador</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/dotnet/architecture/modern-web-apps-azure/architectural-principles">Principios de arquitectura</a> (separación de intereses, responsabilidad única)</li>
+        <li>Gamma, Helm, Johnson y Vlissides — <em>Design Patterns: Elements of Reusable Object-Oriented Software</em> (1994)</li>
+        <li>Buschmann et al. — <em>Pattern-Oriented Software Architecture, Vol. 1</em> (1996): patrones de arquitectura, diseño e idioms</li>
+      </ul>
+    </section>
+
+    <!-- 28 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Próximo: layout y vistas — la parte V, en detalle.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+  <script src="../assets/pasos.js?v=6"></script>
+</body>
+</html>

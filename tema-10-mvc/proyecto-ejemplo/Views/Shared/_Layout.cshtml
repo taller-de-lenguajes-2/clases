@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] · Clínica</title>
+    <link rel="stylesheet" href="~/css/sitio.css" />
+</head>
+<body>
+    <!-- La parte común a todas las páginas: se ve en detalle en el tema 11 -->
+    <header>
+        <a class="marca" asp-controller="Home" asp-action="Index">Clínica</a>
+        <nav>
+            <a asp-controller="Pacientes" asp-action="Index">Pacientes</a>
+            <a asp-controller="Medicos" asp-action="Index">Médicos</a>
+        </nav>
+    </header>
+    <main>
+        @RenderBody()
+    </main>
+</body>
+</html>

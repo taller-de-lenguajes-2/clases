@@ -1,0 +1,17 @@
+@model Paciente
+@{
+    ViewData["Title"] = Model.Nombre;
+}
+
+<h1>@Model.Nombre</h1>
+
+<dl>
+    <dt>Id</dt>
+    <dd>@Model.Id</dd>
+    <dt>DNI</dt>
+    <dd>@(Model.DNI ?? "sin DNI")</dd>
+    <dt>Teléfono</dt>
+    <dd>@(Model.Telefono ?? "sin teléfono")</dd>
+</dl>
+
+<p><a asp-action="Index">← Volver a la lista</a></p>

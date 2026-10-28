@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 14 — Inyección de dependencias · Taller de Lenguajes 2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css?v=6" />
+  <link rel="stylesheet" href="../assets/estilo-sereno.css?v=6" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <div class="title-grid">
+        <div>
+          <p class="slide-eyebrow">Tema 14 · Arquitectura</p>
+          <h1 class="title">Inyección de <span class="accent">dependencias</span></h1>
+        </div>
+        <div class="title-art">
+          <svg viewBox="0 0 420 300" width="400" role="img" aria-label="Un contenedor entrega un repositorio al controlador, que lo recibe por una interfaz">
+            <rect x="20" y="100" width="150" height="100" rx="18" fill="var(--panel)" stroke="var(--border)" stroke-width="3"/>
+            <text x="95" y="156" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="serif">Controlador</text>
+            <path d="M170,140 h26 a14,14 0 0 1 0,28 h-26" fill="none" stroke="var(--accent)" stroke-width="4"/>
+            <circle cx="232" cy="154" r="16" fill="color-mix(in srgb, var(--accent) 22%, var(--panel))" stroke="var(--accent)" stroke-width="4"/>
+            <path d="M248,154 H270" stroke="var(--accent)" stroke-width="4"/>
+            <rect x="270" y="100" width="130" height="100" rx="18" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="3"/>
+            <text x="335" y="148" text-anchor="middle" font-size="16" font-weight="600" fill="var(--accent-2)" class="serif">Reposi-</text>
+            <text x="335" y="168" text-anchor="middle" font-size="16" font-weight="600" fill="var(--accent-2)" class="serif">torio</text>
+            <path d="M335,95 V40 H95 V95" fill="none" stroke="var(--muted)" stroke-width="2.5" stroke-dasharray="8 6" class="flujo"/>
+            <text x="215" y="30" text-anchor="middle" font-size="14" fill="var(--muted)">el contenedor lo entrega</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 · Agenda -->
+    <section class="slide" data-chapter="Intro" data-topic="Agenda">
+      <h2 class="slide-title">Qué vamos a <span class="accent">ver</span></h2>
+      <div class="columns three agenda">
+        <div class="card">
+          <span class="num">1</span>
+          <h3>Dependencias</h3>
+          <ul>
+            <li>Qué es depender de otra clase</li>
+            <li>Inyectar en vez de crear</li>
+            <li>Inversión de dependencias (la D de SOLID)</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">2</span>
+          <h3>El contenedor de .NET</h3>
+          <ul>
+            <li>Registrar</li>
+            <li>Recibir en el constructor</li>
+            <li>Cambiar una implementación</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">3</span>
+          <h3>Tiempos de vida</h3>
+          <ul>
+            <li>Transient · Scoped · Singleton</li>
+            <li>Verlos en vivo</li>
+            <li>Errores comunes</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · Dependencia -->
+    <section class="slide" data-chapter="Dependencias" data-topic="¿Qué es una dependencia?">
+      <h2 class="slide-title">¿Qué es una <span class="accent">dependencia</span>?</h2>
+      <div class="columns" style="grid-template-columns: 1fr 1.2fr; align-items:center">
+        <div class="diagram">
+          <svg viewBox="0 0 420 160" width="400" role="img" aria-label="A usa a B: A depende de B">
+            <defs>
+              <marker id="d14" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+            </defs>
+            <rect x="10" y="40" width="130" height="80" rx="16" fill="var(--panel)" stroke="var(--border)" stroke-width="2.5"/>
+            <text x="75" y="90" text-anchor="middle" font-size="30" font-weight="600" fill="var(--text)" class="serif">A</text>
+            <path d="M142,80 H274" stroke="var(--muted)" stroke-width="2.5" stroke-dasharray="8 6" marker-end="url(#d14)"/>
+            <text x="208" y="68" text-anchor="middle" font-size="15" fill="var(--muted)" font-style="italic">usa</text>
+            <rect x="280" y="40" width="130" height="80" rx="16" fill="color-mix(in srgb, var(--accent) 14%, var(--panel))" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="345" y="90" text-anchor="middle" font-size="30" font-weight="600" fill="var(--accent)" class="serif">B</text>
+          </svg>
+        </div>
+        <div>
+          <p class="idea" style="font-size:23px; margin-top:0">Si una clase A <em>usa</em> a una clase B, A <em>depende</em> de B: la necesita para funcionar.</p>
+          <ul class="bullets" style="font-size:19px">
+            <li><code>TurnosController</code> depende de <code>TurnoRepository</code></li>
+            <li><code>TurnoRepository</code> depende de la cadena de conexión</li>
+            <li><code>AutenticacionService</code> depende de <code>UsuarioRepository</code></li>
+          </ul>
+          <p class="small-note">No es malo: las clases tienen que colaborar. El tema es <strong>cómo</strong> consigue A su B.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 · Impresora -->
+    <section class="slide" data-chapter="Dependencias" data-topic="El ejemplo de la impresora">
+      <h2 class="slide-title">Una impresora y su <span class="accent">cartucho</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3>La impresora crea su cartucho</h3>
+<pre class="code sm"><span class="k">public class</span> <span class="t">Impresora</span>
+{
+    <span class="k">private readonly</span> <span class="t">CartuchoNegro</span> cartucho = <span class="k">new</span>();
+
+    <span class="k">public void</span> Imprimir(<span class="t">Papel</span> papel)
+    {
+        cartucho.Usar(papel.Texto.Length);
+        <span class="t">Console</span>.WriteLine(papel.Texto);
+    }
+}</pre>
+          <ul class="bullets" style="font-size:18px">
+            <li>¿Y si quiero imprimir en <strong>color</strong>? Hay que cambiar <code>Impresora</code></li>
+            <li>¿Y para probarla sin gastar tinta? No se puede</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Se lo dan desde afuera</h3>
+<pre class="code sm"><span class="k">public class</span> <span class="t">Impresora</span>(<span class="t">ICartucho</span> cartucho)
+{
+    <span class="k">public void</span> Imprimir(<span class="t">Papel</span> papel)
+    {
+        cartucho.Usar(papel.Texto.Length);
+        <span class="t">Console</span>.WriteLine(papel.Texto);
+    }
+}
+
+<span class="k">var</span> enBlanco = <span class="k">new</span> <span class="t">Impresora</span>(<span class="k">new</span> <span class="t">CartuchoNegro</span>());
+<span class="k">var</span> enColor  = <span class="k">new</span> <span class="t">Impresora</span>(<span class="k">new</span> <span class="t">CartuchoColor</span>());</pre>
+          <p class="small-note">La impresora no sabe qué cartucho tiene: sabe que es un <code>ICartucho</code>. Igual que una impresora de verdad.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5 · Inyección -->
+    <section class="slide" data-chapter="Dependencias" data-topic="Inyectar en vez de crear">
+      <h2 class="slide-title">Inyectar en vez de <span class="accent">crear</span></h2>
+      <p class="idea" style="font-size:24px; margin-top:0">La inyección de dependencias es darle a un objeto, <em>desde afuera</em>, lo que necesita, en lugar de que lo cree él mismo.</p>
+      <div class="columns" style="margin-top:16px; align-items:start">
+        <div class="card accent-top alt">
+          <h3>Crea su dependencia</h3>
+<pre class="code sm"><span class="k">public class</span> <span class="t">TurnosController</span> : <span class="t">Controller</span>
+{
+    <span class="k">private readonly</span> <span class="t">TurnoRepository</span> turnos =
+        <span class="k">new</span> <span class="t">TurnoRepository</span>(<span class="s">"Data Source=clinica.db"</span>);
+}</pre>
+          <p class="small-note" style="margin:0">El controlador sabe que es SQLite, dónde está el archivo y cómo se arma el repositorio.</p>
+        </div>
+        <div class="card accent-top">
+          <h3>La recibe</h3>
+<pre class="code sm"><span class="k">public class</span> <span class="t">TurnosController</span>(<span class="t">ITurnoRepository</span> turnos)
+    : <span class="t">Controller</span>
+{
+    …
+}</pre>
+          <p class="small-note" style="margin:0">El controlador solo sabe que recibe algo que sabe listar e insertar turnos.</p>
+        </div>
+      </div>
+      <p class="small-note" style="text-align:center">Lo más común es inyectar por el <strong>constructor</strong>: sin la dependencia, el objeto no se puede crear.</p>
+    </section>
+
+    <!-- 6 · Ya lo veníamos haciendo -->
+    <section class="slide" data-chapter="Dependencias" data-topic="Ya lo veníamos haciendo">
+      <h2 class="slide-title">Ya lo veníamos <span class="accent">haciendo</span></h2>
+      <table class="tbl" style="margin-top:6px">
+        <tr><th>Tema</th><th>Dónde</th></tr>
+        <tr><td>09 · Repositorios</td><td><code>Recepcion(IPacienteRepository pacientes)</code>: SQLite o JSON, sin tocar <code>Recepcion</code></td></tr>
+        <tr><td>10 a 13 · MVC</td><td><code>PacientesController(PacienteRepository repositorio)</code>: ¿quién lo crea?</td></tr>
+        <tr><td>15 · Sesión</td><td><code>AutenticacionService(UsuarioRepository, IHttpContextAccessor)</code></td></tr>
+      </table>
+      <div class="callout" style="margin-top:20px">Nunca escribimos <code>new PacientesController(...)</code>. Lo hace ASP.NET, y le pasa lo que registramos en <code>Program.cs</code>. Hoy: cómo funciona eso, y por qué conviene que reciba <strong>interfaces</strong>.</div>
+    </section>
+
+    <!-- 7 · DIP -->
+    <section class="slide" data-chapter="Dependencias" data-topic="Inversión de dependencias">
+      <h2 class="slide-title">La D de SOLID: <span class="accent">inversión</span> de dependencias</h2>
+      <div class="columns" style="grid-template-columns: 1fr 1.1fr; align-items:center">
+        <ol class="steps" style="font-size:19px">
+          <li>Los módulos de <strong>alto nivel</strong> (lo que decide) no dependen de los de <strong>bajo nivel</strong> (los detalles). Los dos dependen de <strong>abstracciones</strong>.</li>
+          <li>Las abstracciones no dependen de los detalles: los detalles dependen de las abstracciones.</li>
+        </ol>
+        <div class="diagram">
+          <svg viewBox="0 0 480 320" width="460" role="img" aria-label="TurnosController depende de la interfaz ITurnoRepository; TurnoRepository la implementa. Las dos flechas apuntan a la interfaz">
+            <defs>
+              <marker id="i14" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+              <marker id="i14h" viewBox="0 0 12 12" refX="11" refY="6" markerWidth="12" markerHeight="12" orient="auto"><path d="M0,0 L12,6 L0,12 z" fill="var(--panel)" stroke="var(--accent)" stroke-width="1.5"/></marker>
+            </defs>
+            <rect x="120" y="10" width="240" height="70" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="240" y="42" text-anchor="middle" font-size="17" font-weight="600" fill="var(--text)" class="mono">TurnosController</text>
+            <text x="240" y="64" text-anchor="middle" font-size="13" fill="var(--muted)">alto nivel</text>
+            <path d="M240,82 V122" stroke="var(--muted)" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#i14)"/>
+            <text x="250" y="108" font-size="13" fill="var(--muted)" font-style="italic">usa</text>
+            <rect x="100" y="128" width="280" height="64" rx="14" fill="color-mix(in srgb, var(--accent) 14%, var(--panel))" stroke="var(--accent)" stroke-width="2.5"/>
+            <text x="240" y="156" text-anchor="middle" font-size="17" font-weight="600" fill="var(--accent)" class="mono">ITurnoRepository</text>
+            <text x="240" y="178" text-anchor="middle" font-size="13" fill="var(--muted)">abstracción</text>
+            <path d="M240,238 V198" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#i14h)"/>
+            <text x="250" y="222" font-size="13" fill="var(--accent)" font-style="italic">implementa</text>
+            <rect x="120" y="240" width="240" height="70" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="240" y="272" text-anchor="middle" font-size="17" font-weight="600" fill="var(--text)" class="mono">TurnoRepository</text>
+            <text x="240" y="294" text-anchor="middle" font-size="13" fill="var(--muted)">bajo nivel: SQLite</text>
+          </svg>
+        </div>
+      </div>
+      <p class="small-note">La inyección de dependencias es la técnica para cumplir este principio: alguien de afuera decide qué implementación recibe cada clase.</p>
+    </section>
+
+    <!-- 8 · Beneficios -->
+    <section class="slide" data-chapter="Dependencias" data-topic="¿Para qué sirve?">
+      <h2 class="slide-title">¿Para qué <span class="accent">sirve</span>?</h2>
+      <div class="columns" style="grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top:8px">
+        <div class="card tinte"><h3>Desacoplamiento</h3><p style="margin:0">Una clase no sabe cómo se crean sus dependencias: se las dan (tema 10).</p></div>
+        <div class="card tinte"><h3>Cambiar implementaciones</h3><p style="margin:0">SQLite por SQL Server, un repositorio real por uno de prueba: cambia una línea.</p></div>
+        <div class="card tinte alt"><h3>Mantenibilidad</h3><p style="margin:0">Cómo se arma todo está en un solo lugar: <code>Program.cs</code>.</p></div>
+        <div class="card tinte alt"><h3>Pruebas</h3><p style="margin:0">Para probar el controlador se le pasa un repositorio falso, sin base de datos.</p></div>
+      </div>
+    </section>
+
+    <!-- 9 · Qué inyectamos -->
+    <section class="slide" data-chapter="Contenedor" data-topic="¿Qué inyectamos?">
+      <h2 class="slide-title">¿Qué <span class="accent">inyectamos</span>?</h2>
+      <div class="columns" style="align-items:start">
+<pre class="code sm"><span class="k">public interface</span> <span class="t">ITurnoRepository</span>
+{
+    <span class="t">List</span>&lt;<span class="t">Turno</span>&gt; Listar();
+    <span class="t">List</span>&lt;<span class="t">Turno</span>&gt; ListarPorPaciente(<span class="k">int</span> pacienteId);
+    <span class="k">bool</span> MedicoOcupado(<span class="k">int</span> medicoId, <span class="t">DateTime</span> fecha);
+    <span class="k">int</span> Insertar(<span class="t">Turno</span> turno);
+}
+
+<span class="k">public class</span> <span class="t">TurnoRepository</span>(<span class="t">IConfiguration</span> configuracion)
+    : <span class="t">ITurnoRepository</span>
+{
+    <span class="k">private readonly string</span> cadenaConexion =
+        configuracion.GetConnectionString(<span class="s">"Clinica"</span>)!;
+
+    <span class="k">public</span> <span class="t">List</span>&lt;<span class="t">Turno</span>&gt; Listar() { … }   <span class="c">// SQL con ADO.NET</span>
+    …
+}</pre>
+        <div>
+          <ul class="bullets" style="font-size:19px">
+            <li><strong>Servicios</strong>: repositorios, el servicio de autenticación, un servicio de mail…</li>
+            <li>Por su <strong>interfaz</strong>, cuando puede haber más de una implementación</li>
+            <li>El repositorio ya no recibe un <code>string</code>: pide <code>IConfiguration</code>, que también es un servicio</li>
+          </ul>
+          <div class="callout" style="margin-top:12px">Las entidades y los ViewModels (<code>Turno</code>, <code>TurnoCrearViewModel</code>) <strong>no</strong> se inyectan: son datos, se crean con <code>new</code>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 10 · Inversión de control -->
+    <section class="slide" data-chapter="Contenedor" data-topic="El contenedor">
+      <h2 class="slide-title">El <span class="accent">contenedor</span> de .NET</h2>
+      <p class="idea" style="font-size:24px; margin-top:0">En vez de que cada clase cree sus dependencias, un <em>contenedor</em> las crea y las entrega. A eso se le dice <em>inversión de control</em>.</p>
+      <div class="flow" style="margin-top:22px">
+        <div class="card accent-top">
+          <h3>1 · Registrar</h3>
+          <p class="small-note" style="margin:0">En <code>Program.cs</code>: para tal interfaz, tal clase, con tal tiempo de vida</p>
+        </div>
+        <div class="arrow">→</div>
+        <div class="card accent-top alt">
+          <h3>2 · Recibir</h3>
+          <p class="small-note" style="margin:0">La clase lo pide en su constructor; .NET se lo pasa</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · Registrar -->
+    <section class="slide" data-chapter="Contenedor" data-topic="1 · Registrar">
+      <h2 class="slide-title">Paso 1: <span class="accent">registrar</span></h2>
+<pre class="code" style="font-size:20px; margin-top:10px">builder.Services.<span class="hl route">AddScoped</span>&lt;<span class="hl body">ITurnoRepository</span>, <span class="hl query">TurnoRepository</span>&gt;();</pre>
+      <table class="tbl" style="margin-top:16px">
+        <tr><th>Parte</th><th>Qué es</th></tr>
+        <tr><td><code>builder.Services</code></td><td>El contenedor de servicios de la aplicación</td></tr>
+        <tr><td><span class="hl route"><code>AddScoped</code></span></td><td>El <strong>tiempo de vida</strong>: cuánto dura cada objeto (más adelante)</td></tr>
+        <tr><td><span class="hl body"><code>ITurnoRepository</code></span></td><td>Lo que se <strong>pide</strong>: la interfaz</td></tr>
+        <tr><td><span class="hl query"><code>TurnoRepository</code></span></td><td>Lo que se <strong>entrega</strong>: la clase que la implementa</td></tr>
+      </table>
+<pre class="code sm" style="margin-top:14px">builder.Services.AddSingleton&lt;<span class="t">IUsuarioRepository</span>, <span class="t">UsuarioRepository</span>&gt;();
+builder.Services.AddScoped&lt;<span class="t">IAutenticacionService</span>, <span class="t">AutenticacionService</span>&gt;();
+builder.Services.AddScoped&lt;<span class="t">ServicioIntermedio</span>&gt;();     <span class="c">// sin interfaz: se pide por la clase</span></pre>
+    </section>
+
+    <!-- 12 · Recibir -->
+    <section class="slide" data-chapter="Contenedor" data-topic="2 · Recibir">
+      <h2 class="slide-title">Paso 2: <span class="accent">recibir</span> en el constructor</h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3>Constructor primario (C# 12)</h3>
+<pre class="code sm"><span class="k">public class</span> <span class="t">TurnosController</span>(
+    <span class="t">ITurnoRepository</span> turnos,
+    <span class="t">IPacienteRepository</span> pacientes,
+    <span class="t">IMedicoRepository</span> medicos) : <span class="t">Controller</span>
+{
+    <span class="k">public</span> <span class="t">IActionResult</span> Index()
+    {
+        <span class="k">var</span> filas = turnos.Listar() …
+    }
+}</pre>
+        </div>
+        <div>
+          <h3>La forma clásica</h3>
+<pre class="code sm"><span class="k">public class</span> <span class="t">TurnosController</span> : <span class="t">Controller</span>
+{
+    <span class="k">private readonly</span> <span class="t">ITurnoRepository</span> _turnos;
+
+    <span class="k">public</span> TurnosController(<span class="t">ITurnoRepository</span> turnos)
+    {
+        _turnos = turnos;
+    }
+    …
+}</pre>
+          <p class="small-note">Son equivalentes. La clásica es la que van a ver en la mayoría de los ejemplos de internet.</p>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:8px">El controlador <strong>no</strong> sabe qué clase recibe ni cómo se creó. Solo sabe qué puede hacer con ella.</div>
+    </section>
+
+    <!-- 13 · Cómo arma el contenedor -->
+    <section class="slide" data-pasos data-chapter="Contenedor" data-topic="Dependencias de las dependencias">
+      <h2 class="slide-title">Las dependencias de las <span class="accent">dependencias</span></h2>
+      <p class="small-note" style="margin-top:0">Llega <code>GET /Turnos</code>. ¿Qué hace el contenedor?</p>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 300" width="1040" role="img" aria-label="Para crear TurnosController el contenedor necesita tres repositorios, y cada repositorio necesita IConfiguration">
+          <defs>
+            <marker id="c14" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+          </defs>
+          <rect x="400" y="10" width="300" height="60" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+          <text x="550" y="47" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="mono">TurnosController</text>
+          <g data-paso="1">
+            <path d="M480,72 L220,128" stroke="var(--muted)" stroke-width="2" marker-end="url(#c14)"/>
+            <path d="M550,72 V128" stroke="var(--muted)" stroke-width="2" marker-end="url(#c14)"/>
+            <path d="M620,72 L880,128" stroke="var(--muted)" stroke-width="2" marker-end="url(#c14)"/>
+            <g font-size="15" class="mono" text-anchor="middle">
+              <rect x="80" y="134" width="280" height="56" rx="12" fill="color-mix(in srgb, var(--accent) 12%, var(--panel))" stroke="var(--accent)" stroke-width="2"/>
+              <text x="220" y="158" fill="var(--accent)">ITurnoRepository</text>
+              <text x="220" y="178" fill="var(--text)" font-size="13">→ TurnoRepository</text>
+              <rect x="410" y="134" width="280" height="56" rx="12" fill="color-mix(in srgb, var(--accent) 12%, var(--panel))" stroke="var(--accent)" stroke-width="2"/>
+              <text x="550" y="158" fill="var(--accent)">IPacienteRepository</text>
+              <text x="550" y="178" fill="var(--text)" font-size="13">→ PacienteRepository</text>
+              <rect x="740" y="134" width="280" height="56" rx="12" fill="color-mix(in srgb, var(--accent) 12%, var(--panel))" stroke="var(--accent)" stroke-width="2"/>
+              <text x="880" y="158" fill="var(--accent)">IMedicoRepository</text>
+              <text x="880" y="178" fill="var(--text)" font-size="13">→ MedicoRepository</text>
+            </g>
+          </g>
+          <g data-paso="2">
+            <path d="M220,192 L520,238" stroke="var(--muted)" stroke-width="2" marker-end="url(#c14)"/>
+            <path d="M550,192 V238" stroke="var(--muted)" stroke-width="2" marker-end="url(#c14)"/>
+            <path d="M880,192 L580,238" stroke="var(--muted)" stroke-width="2" marker-end="url(#c14)"/>
+            <rect x="430" y="244" width="240" height="50" rx="12" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="2"/>
+            <text x="550" y="275" text-anchor="middle" font-size="15" class="mono" fill="var(--accent-2)">IConfiguration</text>
+          </g>
+        </svg>
+      </div>
+      <p class="small-note" data-paso="3" style="text-align:center">Crea de abajo hacia arriba: la configuración, los tres repositorios y recién ahí el controlador. Nadie escribió un solo <code>new</code>.</p>
+    </section>
+
+    <!-- 14 · Cambiar implementación -->
+    <section class="slide" data-chapter="Contenedor" data-topic="Cambiar una implementación">
+      <h2 class="slide-title">Cambiar una <span class="accent">implementación</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3>En <code>Program.cs</code>: una línea</h3>
+<pre class="code sm"><span class="c">// antes</span>
+builder.Services.AddScoped&lt;<span class="t">IPacienteRepository</span>, <span class="t">PacienteRepository</span>&gt;();
+
+<span class="c">// después: los pacientes vienen de un JSON (tema 09)</span>
+builder.Services.AddScoped&lt;<span class="t">IPacienteRepository</span>, <span class="t">PacienteRepositoryJson</span>&gt;();</pre>
+          <p class="small-note">Ningún controlador cambia: todos piden <code>IPacienteRepository</code>.</p>
+        </div>
+        <div>
+          <h3>Para probar sin base</h3>
+<pre class="code sm"><span class="k">class</span> <span class="t">TurnoRepositoryFalso</span> : <span class="t">ITurnoRepository</span>
+{
+    <span class="k">public</span> <span class="t">List</span>&lt;<span class="t">Turno</span>&gt; Listar() =&gt; [ <span class="k">new</span> <span class="t">Turno</span> { … } ];
+    …
+}
+
+<span class="k">var</span> controlador = <span class="k">new</span> <span class="t">TurnosController</span>(
+    <span class="k">new</span> <span class="t">TurnoRepositoryFalso</span>(), …);
+<span class="k">var</span> resultado = controlador.Index();</pre>
+          <p class="small-note">Así se escriben las pruebas automáticas: se le inyecta al controlador lo que uno quiere.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 15 · Tiempos de vida -->
+    <section class="slide" data-chapter="Tiempos de vida" data-topic="Los tres tiempos de vida">
+      <h2 class="slide-title">Los tres <span class="accent">tiempos de vida</span></h2>
+      <p class="small-note" style="margin-top:0">Cuando una clase pide un servicio, ¿el contenedor crea uno nuevo o le da uno que ya tenía?</p>
+      <div class="columns three" style="margin-top:12px">
+        <div class="card accent-top">
+          <h3>Transient</h3>
+          <p class="idea" style="font-size:20px; margin:0">Uno nuevo <em>cada vez</em> que se pide.</p>
+          <p class="small-note"><code>AddTransient</code></p>
+        </div>
+        <div class="card accent-top">
+          <h3>Scoped</h3>
+          <p class="idea" style="font-size:20px; margin:0">Uno por <em>request</em>: todos los que lo piden en el mismo request comparten el mismo.</p>
+          <p class="small-note"><code>AddScoped</code></p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Singleton</h3>
+          <p class="idea" style="font-size:20px; margin:0">Uno solo para toda la <em>aplicación</em>, hasta que se reinicia.</p>
+          <p class="small-note"><code>AddSingleton</code></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 16 · Cuándo cada uno -->
+    <section class="slide" data-chapter="Tiempos de vida" data-topic="¿Cuál usar?">
+      <h2 class="slide-title">¿Cuál <span class="accent">usar</span>?</h2>
+      <table class="tbl" style="margin-top:6px">
+        <tr><th></th><th>Para</th><th>En la clínica</th></tr>
+        <tr><td><strong>Transient</strong></td><td>Servicios livianos, sin estado, que hacen un cálculo o una transformación y listo</td><td>un servicio que arma el texto de un recordatorio de turno</td></tr>
+        <tr><td><strong>Scoped</strong></td><td>Lo que tiene que ser el mismo durante todo un request: repositorios, servicios que usan la sesión o una transacción</td><td><code>PacienteRepository</code>, <code>AutenticacionService</code></td></tr>
+        <tr><td><strong>Singleton</strong></td><td>Lo que es caro de crear o guarda algo para toda la aplicación: configuración, caché, datos en memoria</td><td><code>UsuarioRepository</code> (la lista en memoria)</td></tr>
+      </table>
+      <div class="callout alt" style="margin-top:18px">Ojo con el Singleton: lo comparten <strong>todos los usuarios</strong> al mismo tiempo. Si guarda algo de un usuario (el paciente que está mirando), lo ve el resto.</div>
+    </section>
+
+    <!-- 17 · En vivo -->
+    <section class="slide" data-chapter="Tiempos de vida" data-topic="Verlo en vivo">
+      <h2 class="slide-title">Verlo en <span class="accent">vivo</span>: <code>/TiemposDeVida</code></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+<pre class="code sm"><span class="k">public class</span> <span class="t">Operacion</span> : <span class="t">IOperacionTransient</span>,
+    <span class="t">IOperacionScoped</span>, <span class="t">IOperacionSingleton</span>
+{
+    <span class="c">// un código al azar, al crearse</span>
+    <span class="k">public string</span> Codigo { <span class="k">get</span>; } =
+        <span class="t">Guid</span>.NewGuid().ToString()[..<span class="n">6</span>];
+}
+
+builder.Services.AddTransient&lt;<span class="t">IOperacionTransient</span>, <span class="t">Operacion</span>&gt;();
+builder.Services.AddScoped&lt;<span class="t">IOperacionScoped</span>, <span class="t">Operacion</span>&gt;();
+builder.Services.AddSingleton&lt;<span class="t">IOperacionSingleton</span>, <span class="t">Operacion</span>&gt;();</pre>
+          <p class="small-note">El controlador pide las tres, y también las pide otro servicio (<code>ServicioIntermedio</code>) en el mismo request.</p>
+        </div>
+        <div>
+          <p class="small-note" style="margin:0 0 4px">Primera carga</p>
+          <table class="tbl compact">
+            <tr><th></th><th>Controlador</th><th>Servicio</th></tr>
+            <tr><td>Transient</td><td><code>019956</code></td><td><code>f7275c</code></td></tr>
+            <tr><td>Scoped</td><td><code>98e624</code></td><td><code>98e624</code></td></tr>
+            <tr><td>Singleton</td><td><code>76244e</code></td><td><code>76244e</code></td></tr>
+          </table>
+          <p class="small-note" style="margin:12px 0 4px">Recargando</p>
+          <table class="tbl compact">
+            <tr><th></th><th>Controlador</th><th>Servicio</th></tr>
+            <tr><td>Transient</td><td><code>f74b6d</code></td><td><code>e7e0c4</code></td></tr>
+            <tr><td>Scoped</td><td><code>7d9c19</code></td><td><code>7d9c19</code></td></tr>
+            <tr><td>Singleton</td><td><code>76244e</code></td><td><code>76244e</code></td></tr>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 18 · Problemas -->
+    <section class="slide" data-chapter="Tiempos de vida" data-topic="Errores comunes">
+      <h2 class="slide-title">Errores <span class="accent">comunes</span></h2>
+      <div class="columns three" style="margin-top:6px">
+        <div class="card accent-top alt">
+          <h3>No registrado</h3>
+<pre class="out" style="font-size:12px"><span class="bad">Unable to resolve service for type
+'ITurnoRepository' while attempting
+to activate 'TurnosController'.</span></pre>
+          <p class="small-note" style="margin:6px 0 0">Se pide algo que no está en <code>Program.cs</code>. El más frecuente.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Dependencia circular</h3>
+          <p style="margin:0">A pide B y B pide A: el contenedor no puede crear a ninguno y tira una excepción.</p>
+          <p class="small-note">Suele indicar que a alguna clase le sobran responsabilidades.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Dependencia cautiva</h3>
+          <p style="margin:0">Un Singleton que recibe un Scoped: se queda con el del primer request para siempre.</p>
+          <p class="small-note">En <code>Development</code>, .NET lo detecta y no arranca.</p>
+        </div>
+      </div>
+      <p class="small-note" style="text-align:center; margin-top:18px">Regla: un servicio solo puede recibir servicios que vivan <strong>igual o más</strong> que él.</p>
+    </section>
+
+    <!-- 19 · Ejemplos y práctica -->
+    <section class="slide" data-chapter="Cierre" data-topic="Ejemplos y práctica">
+      <h2 class="slide-title">Ejemplos y <span class="accent">práctica</span></h2>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>Ejemplo de la clase</h3>
+          <p>La clínica del tema 15 con interfaces para los repositorios y el servicio de autenticación, todo registrado en <code>Program.cs</code>, y la página <code>/TiemposDeVida</code>.</p>
+<pre class="code sm"><span class="k">cd</span> tema-14-inyeccion-de-dependencias/proyecto-ejemplo
+<span class="k">dotnet</span> run</pre>
+          <p class="small-note" style="margin:0">Se abre en <code>http://localhost:5194</code>.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Propuesta práctica</h3>
+          <p>Pasar el proyecto de la práctica a interfaces y registrarlo en el contenedor. Después, agregar un <code>PacienteRepositoryEnMemoria</code> y usarlo cambiando solo <code>Program.cs</code>.</p>
+          <p><span class="todo-placeholder">link de GitHub Classroom 2026</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 20 · Bibliografía -->
+    <section class="slide" data-chapter="Cierre" data-topic="Bibliografía">
+      <h2 class="slide-title"><span class="accent">Bibliografía</span></h2>
+      <ul class="bullets" style="font-size:17px">
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/fundamentals/dependency-injection">Inserción de dependencias en ASP.NET Core</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/dotnet/core/extensions/dependency-injection">Inserción de dependencias en .NET</a> · <a href="https://learn.microsoft.com/es-es/dotnet/core/extensions/dependency-injection-guidelines">Instrucciones</a></li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/aspnet/core/mvc/controllers/dependency-injection">Inserción de dependencias en controladores</a></li>
+        <li>Matthew Jones — <a href="https://exceptionnotfound.net/dependency-injection-in-dotnet-6-intro-and-background/">Dependency Injection in .NET 6</a> (serie: introducción, registro y tiempos de vida)</li>
+        <li>Martin Fowler — <a href="https://martinfowler.com/articles/injection.html">Inversion of Control Containers and the Dependency Injection pattern</a> (2004)</li>
+        <li>Robert C. Martin — <em>Clean Architecture</em> (2017): el principio de inversión de dependencias</li>
+      </ul>
+    </section>
+
+    <!-- 21 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Cierre">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Del archivo suelto del tema 07 a una aplicación en capas, con cada pieza en su lugar.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+  <script src="../assets/pasos.js?v=6"></script>
+</body>
+</html>

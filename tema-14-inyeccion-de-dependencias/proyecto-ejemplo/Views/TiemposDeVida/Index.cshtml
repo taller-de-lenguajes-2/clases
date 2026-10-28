@@ -1,0 +1,29 @@
+@model List<(string Tiempo, string EnControlador, string EnServicio)>
+@{
+    ViewData["Title"] = "Tiempos de vida";
+}
+
+<h1>Tiempos de vida</h1>
+<p>Cada objeto recibe un código al azar al crearse. Recargá la página y compará.</p>
+
+<table>
+    <tr>
+        <th>Tiempo de vida</th>
+        <th>En el controlador</th>
+        <th>En ServicioIntermedio</th>
+    </tr>
+    @foreach (var fila in Model)
+    {
+        <tr>
+            <td>@fila.Tiempo</td>
+            <td><code>@fila.EnControlador</code></td>
+            <td><code>@fila.EnServicio</code></td>
+        </tr>
+    }
+</table>
+
+<ul class="nota">
+    <li><strong>Transient</strong>: distinto en cada lugar y en cada recarga.</li>
+    <li><strong>Scoped</strong>: igual en los dos lugares (mismo request), distinto en cada recarga.</li>
+    <li><strong>Singleton</strong>: siempre el mismo, hasta que se reinicia la aplicación.</li>
+</ul>

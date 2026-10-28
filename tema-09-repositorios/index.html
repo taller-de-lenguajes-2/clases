@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tema 09 — Repositorios · Taller de Lenguajes 2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..700;1,9..144,400..700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.css" />
+  <link rel="stylesheet" href="../assets/taller2.css?v=6" />
+  <link rel="stylesheet" href="../assets/estilo-sereno.css?v=6" />
+</head>
+<body>
+  <div class="deck" id="deck"
+       data-brand="Taller de Lenguajes 2 · FACET · 2026"
+       data-home="../index.html"
+       data-repo="https://github.com/taller-de-lenguajes-2/clases">
+
+    <!-- 1 · Portada -->
+    <section class="slide title-slide hero active" data-chapter="Intro" data-topic="Portada">
+      <div class="title-grid">
+        <div>
+          <p class="slide-eyebrow">Tema 09 · Persistencia</p>
+          <h1 class="title">El patrón <span class="accent">repositorio</span></h1>
+        </div>
+        <div class="title-art">
+          <svg viewBox="0 0 420 300" width="400" role="img" aria-label="La lógica del programa habla con un repositorio, y el repositorio con la base de datos">
+            <rect x="10" y="105" width="110" height="90" rx="18" fill="var(--panel)" stroke="var(--border)" stroke-width="3"/>
+            <text x="65" y="158" text-anchor="middle" font-size="22" font-weight="600" fill="var(--text)" class="serif">C#</text>
+            <path d="M124,150 H150" stroke="var(--muted)" stroke-width="3"/>
+            <rect x="152" y="80" width="120" height="140" rx="18" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="3"/>
+            <text x="212" y="146" text-anchor="middle" font-size="16" font-weight="600" fill="var(--accent-2)" class="serif">Reposi-</text>
+            <text x="212" y="168" text-anchor="middle" font-size="16" font-weight="600" fill="var(--accent-2)" class="serif">torio</text>
+            <path d="M276,150 H306" stroke="var(--muted)" stroke-width="3"/>
+            <g fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="3">
+              <path d="M310,170 v40 a50,16 0 0 0 100,0 v-40"/>
+              <ellipse cx="360" cy="170" rx="50" ry="16"/>
+              <path d="M310,110 v40 a50,16 0 0 0 100,0 v-40"/>
+              <ellipse cx="360" cy="110" rx="50" ry="16"/>
+            </g>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 · Agenda -->
+    <section class="slide" data-chapter="Intro" data-topic="Agenda">
+      <h2 class="slide-title">Qué vamos a <span class="accent">ver</span></h2>
+      <div class="columns three agenda">
+        <div class="card">
+          <span class="num">1</span>
+          <h3>Responsabilidad única</h3>
+          <ul>
+            <li>Los principios SOLID</li>
+            <li>La S: una razón para cambiar</li>
+            <li>El ejemplo del bar</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">2</span>
+          <h3>El repositorio</h3>
+          <ul>
+            <li>Qué es y qué resuelve</li>
+            <li>Uno por entidad</li>
+            <li>Quién lo usa</li>
+          </ul>
+        </div>
+        <div class="card">
+          <span class="num">3</span>
+          <h3>Con una interfaz</h3>
+          <ul>
+            <li><code>IPacienteRepository</code></li>
+            <li>SQLite o JSON, sin tocar el resto</li>
+            <li>Arquitectura en capas</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · Dónde quedamos -->
+    <section class="slide" data-chapter="Intro" data-topic="Dónde quedamos">
+      <h2 class="slide-title">Dónde <span class="accent">quedamos</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <p class="small-note" style="margin-top:0">En el tema 08, todo el SQL quedó en una sola clase:</p>
+<pre class="code sm"><span class="k">public class</span> <span class="t">AccesoDatos</span>(<span class="k">string</span> cadenaConexion)
+{
+    <span class="k">public</span> <span class="t">List</span>&lt;<span class="t">Paciente</span>&gt; ListarPacientes()        { … }
+    <span class="k">public</span> <span class="t">Paciente</span>? ObtenerPaciente(<span class="k">int</span> id)   { … }
+    <span class="k">public</span> <span class="t">List</span>&lt;<span class="t">Paciente</span>&gt; BuscarPacientes(…)      { … }
+    <span class="k">public int</span> InsertarPaciente(<span class="t">Paciente</span> p)      { … }
+    <span class="k">public bool</span> EliminarPaciente(<span class="k">int</span> id)       { … }
+    <span class="k">public</span> <span class="t">List</span>&lt;<span class="t">Turno</span>&gt; ListarTurnos()            { … }
+    <span class="c">// … y médicos, y lo que venga</span>
+}</pre>
+        </div>
+        <div>
+          <ul class="bullets" style="font-size:20px">
+            <li>Crece con cada tabla nueva</li>
+            <li>Mezcla pacientes, médicos y turnos</li>
+            <li>Si mañana los pacientes vienen de otro lado, ¿qué tocamos?</li>
+          </ul>
+          <div class="callout" style="margin-top:14px">Y en la Web API, ¿el controlador escribe el SQL? Hoy: <strong>dónde va cada cosa</strong> cuando hay datos de por medio.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 · SOLID -->
+    <section class="slide" data-chapter="SOLID" data-topic="Los principios SOLID">
+      <h2 class="slide-title">Los principios <span class="accent">SOLID</span></h2>
+      <p class="small-note" style="margin-top:0">Cinco pautas de diseño orientado a objetos para escribir código fácil de mantener y de hacer crecer. Las reunió <strong>Robert C. Martin</strong>.</p>
+      <table class="tbl" style="margin-top:10px">
+        <tr><th></th><th>Principio</th><th>En una línea</th></tr>
+        <tr><td><strong class="accent">S</strong></td><td>Responsabilidad única <span class="small-note">(SRP)</span></td><td>Una clase, una sola razón para cambiar. <strong>Hoy.</strong></td></tr>
+        <tr><td><strong>O</strong></td><td>Abierto/cerrado <span class="small-note">(OCP)</span></td><td>Agregar comportamiento sin modificar lo que ya anda</td></tr>
+        <tr><td><strong>L</strong></td><td>Sustitución de Liskov <span class="small-note">(LSP)</span></td><td>Una clase hija tiene que poder usarse donde se espera la madre (tema 03)</td></tr>
+        <tr><td><strong>I</strong></td><td>Segregación de interfaces <span class="small-note">(ISP)</span></td><td>Interfaces chicas, que nadie tenga que implementar lo que no usa</td></tr>
+        <tr><td><strong>D</strong></td><td>Inversión de dependencias <span class="small-note">(DIP)</span></td><td>Depender de abstracciones (interfaces), no de clases concretas. Tema 14</td></tr>
+      </table>
+    </section>
+
+    <!-- 5 · SRP -->
+    <section class="slide" data-chapter="SOLID" data-topic="Responsabilidad única">
+      <h2 class="slide-title">Responsabilidad <span class="accent">única</span></h2>
+      <div class="callout" style="font-size:24px; margin-top:6px">
+        «Cada módulo de software debe tener una, y solo una, <strong>razón para cambiar</strong>.»
+        <p class="small-note" style="margin:10px 0 0">Robert C. Martin (traducción libre)</p>
+      </div>
+      <div class="columns" style="margin-top:24px">
+        <div class="card accent-top alt">
+          <h3>La navaja suiza</h3>
+          <p>Sierra, cuchillo, tijera y tirabuzón en una sola pieza. Si se rompe la bisagra, te quedás sin <strong>todas</strong>. Para afilar el cuchillo, desarmás todo.</p>
+        </div>
+        <div class="card accent-top">
+          <h3>Herramientas separadas</h3>
+          <p>Cada una hace <strong>una cosa</strong>. Se cambia, se arregla o se mejora sin tocar a las otras.</p>
+        </div>
+      </div>
+      <p class="small-note" style="text-align:center; margin-top:20px">Una clase con muchas responsabilidades es más difícil de entender, de modificar y de probar.</p>
+    </section>
+
+    <!-- 6 · El bar -->
+    <section class="slide" data-pasos data-chapter="SOLID" data-topic="El bar: cada uno lo suyo">
+      <h2 class="slide-title">Un bar con <span class="accent">clases</span></h2>
+      <p class="small-note" style="margin-top:0">Cada parte tiene <strong>una</strong> responsabilidad y se comunica con las demás pasándose el pedido.</p>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 330" width="1060" role="img" aria-label="El cliente le hace el pedido al mozo, el mozo se lo pasa al cocinero, el cocinero lo elabora con lo que hay en la cocina y lo devuelve; el mozo se lo entrega al cliente">
+          <defs>
+            <marker id="b9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+          </defs>
+          <g font-size="20" font-weight="600" fill="var(--text)" class="serif" text-anchor="middle">
+            <rect x="20" y="40" width="180" height="250" rx="16" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="110" y="74">Cliente</text>
+            <rect x="320" y="40" width="180" height="250" rx="16" fill="color-mix(in srgb, var(--accent-2) 10%, var(--panel))" stroke="var(--accent-2)" stroke-width="2"/>
+            <text x="410" y="74">Mozo</text>
+            <rect x="620" y="40" width="180" height="250" rx="16" fill="color-mix(in srgb, var(--accent) 10%, var(--panel))" stroke="var(--accent)" stroke-width="2"/>
+            <text x="710" y="74">Cocinero</text>
+            <rect x="900" y="40" width="180" height="250" rx="16" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="990" y="74">Cocina</text>
+          </g>
+          <g font-size="15" fill="var(--muted)" font-style="italic" text-anchor="middle">
+            <g data-paso="1">
+              <path d="M200,110 H316" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#b9)"/>
+              <text x="258" y="96">hace un pedido</text>
+            </g>
+            <g data-paso="2">
+              <path d="M500,140 H616" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#b9)"/>
+              <text x="558" y="126">pasa el pedido</text>
+            </g>
+            <g data-paso="3">
+              <path d="M800,170 H896" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#b9)"/>
+              <path d="M896,200 H804" stroke="var(--muted)" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#b9)"/>
+              <text x="850" y="156">pide</text>
+              <text x="850" y="220">ingredientes</text>
+              <text x="710" y="230" font-style="normal" fill="var(--accent)">elabora</text>
+            </g>
+            <g data-paso="4">
+              <path d="M616,250 H504" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#b9)"/>
+              <text x="558" y="236">devuelve el plato</text>
+            </g>
+            <g data-paso="5">
+              <path d="M316,270 H204" stroke="var(--accent)" stroke-width="2.5" marker-end="url(#b9)"/>
+              <text x="258" y="256">entrega</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+      <p class="small-note" data-paso="6" style="text-align:center">El mozo no sabe dónde se guardan los ingredientes. El cocinero no sabe qué mesa pidió. Si cambia el proveedor, solo se entera la <strong>cocina</strong>.</p>
+    </section>
+
+    <!-- 7 · Razones para cambiar -->
+    <section class="slide" data-chapter="SOLID" data-topic="¿Cuántas razones para cambiar?">
+      <h2 class="slide-title">¿Cuántas razones tiene para <span class="accent">cambiar</span>?</h2>
+      <p class="small-note" style="margin-top:0">Volvamos a <code>AccesoDatos</code>. Cada fila es un motivo distinto para abrir la misma clase:</p>
+      <table class="tbl" style="margin-top:8px">
+        <tr><th>Si cambia…</th><th>hay que tocar <code>AccesoDatos</code></th></tr>
+        <tr><td>la tabla <code>Paciente</code> (una columna nueva)</td><td>✔</td></tr>
+        <tr><td>la consulta de turnos (un <code>JOIN</code> más)</td><td>✔</td></tr>
+        <tr><td>los médicos pasan a venir de un servicio web</td><td>✔</td></tr>
+        <tr><td>la base pasa de SQLite a SQL Server</td><td>✔</td></tr>
+      </table>
+      <div class="callout" style="margin-top:20px">Cuatro razones, una clase. La solución: <strong>una clase por entidad</strong>, que se encargue solo de guardar y traer esa entidad.</div>
+    </section>
+
+    <!-- 8 · El patrón repositorio -->
+    <section class="slide" data-chapter="Repositorio" data-topic="¿Qué es un repositorio?">
+      <h2 class="slide-title">¿Qué es un <span class="accent">repositorio</span>?</h2>
+      <p class="idea" style="font-size:27px; margin-top:0">La responsabilidad única aplicada a los datos: una clase que <em>encapsula</em> todas las operaciones de acceso a datos de <em>una</em> entidad.</p>
+      <div class="columns three" style="margin-top:22px">
+        <div class="card accent-top">
+          <h3>Separa</h3>
+          <p>La lógica del negocio («no se repite un DNI») del acceso a los datos (el SQL).</p>
+        </div>
+        <div class="card accent-top">
+          <h3>Esconde</h3>
+          <p>De afuera se ve <code>Listar()</code> u <code>Obtener(id)</code>. Conexiones, comandos y lectores quedan adentro.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Permite cambiar</h3>
+          <p>De SQLite a SQL Server, a un JSON o a un servicio web, <strong>sin tocar</strong> el resto del programa.</p>
+        </div>
+      </div>
+      <p class="small-note" style="text-align:center; margin-top:20px">Sirve para cualquier fuente de datos externa: bases de datos, archivos JSON, servicios web, documentos…</p>
+    </section>
+
+    <!-- 9 · Diagrama -->
+    <section class="slide" data-chapter="Repositorio" data-topic="Entre la lógica y los datos">
+      <h2 class="slide-title">Entre la lógica y los <span class="accent">datos</span></h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 300" width="1060" role="img" aria-label="La lógica de negocio pide y recibe objetos del repositorio; el repositorio habla con la fuente de datos en SQL o JSON">
+          <defs>
+            <marker id="d9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+          </defs>
+          <rect x="10" y="80" width="250" height="140" rx="18" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+          <text x="135" y="140" text-anchor="middle" font-size="22" font-weight="600" fill="var(--text)" class="serif">Lógica de negocio</text>
+          <text x="135" y="170" text-anchor="middle" font-size="14" fill="var(--muted)">controlador · recepción</text>
+
+          <rect x="425" y="60" width="250" height="180" rx="18" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="2.5"/>
+          <text x="550" y="140" text-anchor="middle" font-size="24" font-weight="600" fill="var(--accent-2)" class="serif">Repositorio</text>
+          <text x="550" y="170" text-anchor="middle" font-size="14" fill="var(--muted)">traduce en los dos sentidos</text>
+
+          <g fill="color-mix(in srgb, var(--accent) 16%, var(--panel))" stroke="var(--accent)" stroke-width="2.5">
+            <path d="M880,110 v80 a90,24 0 0 0 180,0 v-80"/>
+            <ellipse cx="970" cy="110" rx="90" ry="24"/>
+          </g>
+          <text x="970" y="185" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="serif">Fuente de datos</text>
+          <text x="970" y="208" text-anchor="middle" font-size="13" fill="var(--muted)">SQLite · JSON · web</text>
+
+          <path d="M262,125 H419" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#d9)"/>
+          <path d="M419,175 H266" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#d9)"/>
+          <text x="340" y="112" text-anchor="middle" font-size="14" fill="var(--muted)" class="mono">Obtener(3)</text>
+          <text x="340" y="200" text-anchor="middle" font-size="14" fill="var(--accent-2)" class="mono">Paciente</text>
+
+          <path d="M677,125 H874" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#d9)"/>
+          <path d="M874,175 H681" stroke="var(--muted)" stroke-width="2.5" marker-end="url(#d9)"/>
+          <text x="776" y="112" text-anchor="middle" font-size="13" fill="var(--muted)" class="mono">SELECT … WHERE Id = @id</text>
+          <text x="776" y="200" text-anchor="middle" font-size="14" fill="var(--accent)" class="mono">una fila</text>
+        </svg>
+      </div>
+      <div class="callout">Del lado izquierdo viajan <strong>objetos</strong> (<code>Paciente</code>). Del lado derecho, <strong>SQL y filas</strong>. Nadie más ve el SQL.</div>
+    </section>
+
+    <!-- 10 · Uno por entidad -->
+    <section class="slide" data-chapter="Repositorio" data-topic="Uno por entidad">
+      <h2 class="slide-title">Un repositorio por <span class="accent">entidad</span></h2>
+      <div class="columns" style="align-items:center">
+<pre class="code">Repositorios/
+├── PacienteRepository.cs   <span class="c">← tabla Paciente</span>
+├── MedicoRepository.cs     <span class="c">← tabla Medico</span>
+└── TurnoRepository.cs      <span class="c">← tabla Turno (con JOIN)</span></pre>
+        <div>
+          <table class="tbl compact">
+            <tr><th>Operación</th><th>Método típico</th></tr>
+            <tr><td>Traer todos</td><td><code>List&lt;Paciente&gt; Listar()</code></td></tr>
+            <tr><td>Traer uno</td><td><code>Paciente? Obtener(int id)</code></td></tr>
+            <tr><td>Agregar</td><td><code>int Insertar(Paciente p)</code></td></tr>
+            <tr><td>Modificar</td><td><code>bool Actualizar(Paciente p)</code></td></tr>
+            <tr><td>Borrar</td><td><code>bool Eliminar(int id)</code></td></tr>
+          </table>
+          <p class="small-note">Son las operaciones <strong>CRUD</strong> (crear, leer, actualizar, borrar). Se suman las búsquedas que haga falta: <code>Buscar(texto)</code>, <code>TurnosDelDia(fecha)</code>…</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 · PacienteRepository -->
+    <section class="slide" data-chapter="Repositorio" data-topic="PacienteRepository">
+      <h2 class="slide-title"><span class="accent"><code>PacienteRepository</code></span></h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="k">public class</span> <span class="t">PacienteRepository</span>(<span class="k">string</span> cadenaConexion)
+{
+    <span class="k">public</span> <span class="t">Paciente</span>? Obtener(<span class="k">int</span> id)
+    {
+        <span class="k">using var</span> conexion = <span class="k">new</span> <span class="t">SqliteConnection</span>(cadenaConexion);
+        conexion.Open();
+
+        <span class="k">var</span> sql = <span class="s">"SELECT Id, Nombre, DNI, Telefono FROM Paciente WHERE Id = @id"</span>;
+        <span class="k">using var</span> comando = <span class="k">new</span> <span class="t">SqliteCommand</span>(sql, conexion);
+        comando.Parameters.AddWithValue(<span class="s">"@id"</span>, id);
+
+        <span class="k">using var</span> lector = comando.ExecuteReader();
+        <span class="k">return</span> lector.Read() ? LeerPaciente(lector) : <span class="k">null</span>;
+    }
+
+    <span class="k">public</span> <span class="t">List</span>&lt;<span class="t">Paciente</span>&gt; Listar()             { … }
+    <span class="k">public int</span> Insertar(<span class="t">Paciente</span> paciente)    { … }
+    <span class="k">public bool</span> Actualizar(<span class="t">Paciente</span> paciente) { … }
+    <span class="k">public bool</span> Eliminar(<span class="k">int</span> id)             { … }
+
+    <span class="k">private static</span> <span class="t">Paciente</span> LeerPaciente(<span class="t">SqliteDataReader</span> lector) { … }
+}</pre>
+        <div>
+          <ul class="bullets" style="font-size:19px">
+            <li>Es el ADO.NET del tema 08, <strong>ordenado</strong></li>
+            <li>Recibe la cadena de conexión: no la inventa</li>
+            <li>Devuelve <strong>objetos</strong>, nunca un <code>SqliteDataReader</code></li>
+            <li>Lo que es detalle (<code>LeerPaciente</code>) es <code>private</code>: ocultamiento (tema 01)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 12 · Quién lo usa -->
+    <section class="slide" data-chapter="Repositorio" data-topic="Quién lo usa">
+      <h2 class="slide-title">Quien lo usa no ve <span class="accent">SQL</span></h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3>En una Web API (tema 08)</h3>
+<pre class="code sm">[<span class="t">HttpGet</span>(<span class="s">"{id}"</span>)]
+<span class="k">public</span> <span class="t">IActionResult</span> Obtener(<span class="k">int</span> id)
+{
+    <span class="t">Paciente</span>? paciente = repositorio.Obtener(id);
+    <span class="k">return</span> paciente <span class="k">is null</span> ? NotFound() : Ok(paciente);
+}</pre>
+        </div>
+        <div>
+          <h3>En la lógica de la recepción</h3>
+<pre class="code sm"><span class="k">public int</span>? DarDeAlta(<span class="t">Paciente</span> nuevo)
+{
+    <span class="k">bool</span> repetido = pacientes.Listar()
+        .Any(p =&gt; p.DNI == nuevo.DNI);
+    <span class="k">if</span> (repetido) <span class="k">return null</span>;
+
+    <span class="k">return</span> pacientes.Insertar(nuevo);
+}</pre>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:12px">El controlador decide <strong>qué responder</strong>; la recepción decide <strong>las reglas</strong>; el repositorio solo <strong>guarda y trae</strong>. Cada uno con su responsabilidad.</div>
+    </section>
+
+    <!-- 13 · Interfaz -->
+    <section class="slide" data-chapter="Interfaz" data-topic="El contrato: una interfaz">
+      <h2 class="slide-title">El contrato: una <span class="accent">interfaz</span></h2>
+      <div class="columns" style="align-items:start">
+<pre class="code"><span class="k">public interface</span> <span class="t">IPacienteRepository</span>
+{
+    <span class="t">List</span>&lt;<span class="t">Paciente</span>&gt; Listar();
+    <span class="t">Paciente</span>? Obtener(<span class="k">int</span> id);
+    <span class="t">List</span>&lt;<span class="t">Paciente</span>&gt; Buscar(<span class="k">string</span> texto);
+    <span class="k">int</span> Insertar(<span class="t">Paciente</span> paciente);
+    <span class="k">bool</span> Actualizar(<span class="t">Paciente</span> paciente);
+    <span class="k">bool</span> Eliminar(<span class="k">int</span> id);
+}</pre>
+        <div>
+          <ul class="bullets" style="font-size:20px">
+            <li>Dice <strong>qué</strong> se puede hacer con los pacientes guardados</li>
+            <li>No dice <strong>cómo</strong> ni <strong>dónde</strong></li>
+            <li>Es una interfaz como las del <strong>tema 04</strong></li>
+          </ul>
+          <p class="small-note" style="margin-top:16px">Ojo con las versiones que circulan por internet: <code>IEnumerable</code> sin tipo (mejor <code>List&lt;Paciente&gt;</code> o <code>IEnumerable&lt;Paciente&gt;</code>), o <code>Delete(User)</code> en una clase y <code>Delete(int)</code> en la otra. La interfaz y la clase tienen que coincidir.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 14 · Dos implementaciones -->
+    <section class="slide" data-chapter="Interfaz" data-topic="Dos implementaciones">
+      <h2 class="slide-title">Dos <span class="accent">implementaciones</span>, un contrato</h2>
+      <div class="columns" style="align-items:start">
+        <div>
+          <h3>En SQLite</h3>
+<pre class="code sm"><span class="k">public class</span> <span class="t">PacienteRepository</span>(<span class="k">string</span> cadena)
+    : <span class="t">IPacienteRepository</span>
+{
+    <span class="k">public</span> <span class="t">Paciente</span>? Obtener(<span class="k">int</span> id)
+    {
+        <span class="c">// SqliteConnection, SELECT … WHERE Id = @id</span>
+    }
+    …
+}</pre>
+        </div>
+        <div>
+          <h3>En un archivo JSON</h3>
+<pre class="code sm"><span class="k">public class</span> <span class="t">PacienteRepositoryJson</span>(<span class="k">string</span> archivo)
+    : <span class="t">IPacienteRepository</span>
+{
+    <span class="k">public</span> <span class="t">Paciente</span>? Obtener(<span class="k">int</span> id)
+        =&gt; Leer().FirstOrDefault(p =&gt; p.Id == id);
+    …
+    <span class="k">private</span> <span class="t">List</span>&lt;<span class="t">Paciente</span>&gt; Leer() =&gt; <span class="t">JsonSerializer</span>
+        .Deserialize&lt;<span class="t">List</span>&lt;<span class="t">Paciente</span>&gt;&gt;(<span class="t">File</span>.ReadAllText(archivo));
+}</pre>
+        </div>
+      </div>
+      <p class="small-note" style="text-align:center">Por dentro no se parecen en nada. Por fuera son <strong>iguales</strong>: los dos son un <code>IPacienteRepository</code>.</p>
+    </section>
+
+    <!-- 15 · La única línea -->
+    <section class="slide" data-chapter="Interfaz" data-topic="La única línea que cambia">
+      <h2 class="slide-title">La única línea que <span class="accent">cambia</span></h2>
+<pre class="code sm"><span class="c">// Program.cs: el único lugar que sabe dónde están los datos</span>
+<span class="t">IPacienteRepository</span> repositorio = usarJson
+    ? <span class="k">new</span> <span class="t">PacienteRepositoryJson</span>(<span class="s">"pacientes.json"</span>)
+    : <span class="k">new</span> <span class="t">PacienteRepository</span>(<span class="s">"Data Source=clinica.db"</span>);
+
+<span class="k">var</span> recepcion = <span class="k">new</span> <span class="t">Recepcion</span>(repositorio);    <span class="c">// Recepcion recibe un IPacienteRepository</span>
+recepcion.DarDeAlta(<span class="k">new</span> <span class="t">Paciente</span> { Nombre = <span class="s">"Lucía Fernández"</span>, DNI = <span class="s">"42000111"</span> });</pre>
+      <div class="columns" style="margin-top:12px">
+        <div>
+          <p class="small-note" style="margin:0 0 4px"><code>dotnet run</code></p>
+<pre class="out">Repositorio: PacienteRepository
+Alta de Lucía Fernández con Id 6.</pre>
+        </div>
+        <div>
+          <p class="small-note" style="margin:0 0 4px"><code>dotnet run -- json</code></p>
+<pre class="out">Repositorio: PacienteRepositoryJson
+Alta de Lucía Fernández con Id 1.</pre>
+        </div>
+      </div>
+      <div class="callout" style="margin-top:12px"><code>Recepcion</code> no cambió ni una línea. Que reciba el repositorio en el constructor, en vez de crearlo, es la idea de la <strong>inyección de dependencias</strong> (tema 14).</div>
+    </section>
+
+    <!-- 16 · Capas -->
+    <section class="slide" data-chapter="Arquitectura" data-topic="Arquitectura en capas">
+      <h2 class="slide-title">Arquitectura en <span class="accent">capas</span></h2>
+      <div class="columns" style="grid-template-columns: 1.1fr 1fr; align-items:center">
+        <div class="diagram">
+          <svg viewBox="0 0 520 380" width="500" role="img" aria-label="Capas apiladas: controladores, servicios, repositorios y acceso a datos; abajo, las fuentes de datos">
+            <defs>
+              <marker id="c9" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
+            </defs>
+            <g font-size="18" font-weight="600" text-anchor="middle" class="serif">
+              <rect x="20" y="10" width="480" height="56" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+              <text x="260" y="45" fill="var(--text)">Controladores · presentación</text>
+              <rect x="20" y="90" width="480" height="56" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+              <text x="260" y="125" fill="var(--text)">Servicios · lógica de negocio</text>
+              <rect x="20" y="170" width="480" height="56" rx="12" fill="color-mix(in srgb, var(--accent-2) 16%, var(--panel))" stroke="var(--accent-2)" stroke-width="2.5"/>
+              <text x="260" y="205" fill="var(--accent-2)">Repositorios</text>
+              <rect x="20" y="250" width="480" height="56" rx="12" fill="color-mix(in srgb, var(--accent) 12%, var(--panel))" stroke="var(--accent)" stroke-width="2"/>
+              <text x="260" y="285" fill="var(--accent)">Acceso a datos · ADO.NET</text>
+            </g>
+            <g stroke="var(--muted)" stroke-width="2" marker-end="url(#c9)">
+              <line x1="260" y1="68" x2="260" y2="86"/>
+              <line x1="260" y1="148" x2="260" y2="166"/>
+              <line x1="260" y1="228" x2="260" y2="246"/>
+              <line x1="140" y1="308" x2="110" y2="334"/>
+              <line x1="260" y1="308" x2="260" y2="334"/>
+              <line x1="380" y1="308" x2="410" y2="334"/>
+            </g>
+            <g font-size="14" fill="var(--muted)" text-anchor="middle">
+              <text x="100" y="360">SQLite</text>
+              <text x="260" y="360">SQL Server</text>
+              <text x="420" y="360">JSON</text>
+            </g>
+          </svg>
+        </div>
+        <div>
+          <ul class="bullets" style="font-size:19px">
+            <li>Cada capa usa solo a la de <strong>abajo</strong></li>
+            <li>Ninguna se saltea una capa: el controlador no abre conexiones</li>
+            <li>En proyectos chicos, la capa de servicios puede no estar: el controlador usa al repositorio directo, como en la Web API del tema 08</li>
+          </ul>
+          <div class="callout" style="margin-top:12px">Es separar responsabilidades a escala de todo el sistema. En el tema 10 lo vemos con <strong>MVC</strong>.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 17 · Reglas -->
+    <section class="slide" data-chapter="Arquitectura" data-topic="Qué va y qué no">
+      <h2 class="slide-title">Qué va en un repositorio y <span class="accent">qué no</span></h2>
+      <div class="columns" style="margin-top:6px">
+        <div class="card accent-top">
+          <h3>Sí</h3>
+          <ul class="bullets" style="font-size:18px">
+            <li>El SQL, siempre con parámetros</li>
+            <li>Abrir y cerrar conexiones</li>
+            <li>Pasar de filas a objetos, y de objetos a parámetros</li>
+            <li>Devolver <code>null</code> o <code>false</code> si no existe</li>
+          </ul>
+        </div>
+        <div class="card accent-top alt">
+          <h3>No</h3>
+          <ul class="bullets" style="font-size:18px">
+            <li><code>Console.WriteLine</code> o HTML: no muestra nada</li>
+            <li>Reglas del negocio («un médico atiende hasta 20 turnos por día»)</li>
+            <li>Devolver un <code>SqliteDataReader</code> o un <code>DataTable</code></li>
+            <li>SQL de <strong>otra</strong> entidad</li>
+          </ul>
+        </div>
+      </div>
+      <p class="small-note" style="text-align:center; margin-top:18px">La prueba: ¿podría cambiar de SQLite a JSON sin tocar nada fuera del repositorio? Si la respuesta es no, algo se escapó.</p>
+    </section>
+
+    <!-- 18 · Ejemplos y práctica -->
+    <section class="slide" data-chapter="Cierre" data-topic="Ejemplos y práctica">
+      <h2 class="slide-title">Ejemplos y <span class="accent">práctica</span></h2>
+      <div class="columns">
+        <div class="card accent-top">
+          <h3>Ejemplo de la clase</h3>
+          <p>Consola .NET 10 con <code>IPacienteRepository</code>, sus dos implementaciones y la <code>Recepcion</code> que las usa sin saber cuál es.</p>
+<pre class="code sm"><span class="k">cd</span> tema-09-repositorios/proyecto-ejemplo
+<span class="k">dotnet</span> run
+<span class="k">dotnet</span> run -- json</pre>
+          <p class="small-note" style="margin:0">La Web API del tema 08 (<code>tema-08-ado-net/proyecto-api</code>) ya está armada con repositorios.</p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Propuesta práctica</h3>
+          <p>Sacar el SQL del proyecto de la práctica anterior a repositorios, uno por entidad, con su interfaz. Ningún controlador escribe SQL.</p>
+          <p><span class="todo-placeholder">link de GitHub Classroom 2026</span></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 19 · Bibliografía -->
+    <section class="slide" data-chapter="Cierre" data-topic="Bibliografía">
+      <h2 class="slide-title"><span class="accent">Bibliografía</span></h2>
+      <ul class="bullets" style="font-size:17px">
+        <li>Microsoft — <a href="https://learn.microsoft.com/en-us/previous-versions/msp-n-p/ff649690(v=pandp.10)">The Repository Pattern</a> (patterns &amp; practices)</li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/dotnet/architecture/microservices/microservice-ddd-cqrs-patterns/infrastructure-persistence-layer-design">Diseño del nivel de persistencia de infraestructura</a> (repositorios)</li>
+        <li>Microsoft Learn — <a href="https://learn.microsoft.com/es-es/dotnet/architecture/modern-web-apps-azure/architectural-principles">Principios de arquitectura</a> (responsabilidad única, separación de intereses)</li>
+        <li>Martin Fowler — <a href="https://martinfowler.com/eaaCatalog/repository.html">Repository</a>, en <em>Patterns of Enterprise Application Architecture</em> (2002)</li>
+        <li>Robert C. Martin — <em>Clean Architecture</em> (2017), capítulos sobre SOLID</li>
+      </ul>
+    </section>
+
+    <!-- 20 · Cierre -->
+    <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
+      <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
+      <p class="subtitle">Próximo: el patrón MVC — separar responsabilidades en toda la aplicación.</p>
+    </section>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
+  <script src="../assets/pasos.js?v=6"></script>
+</body>
+</html>

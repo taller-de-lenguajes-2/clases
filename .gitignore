@@ -5,3 +5,4 @@ obj/
 logs/
 *.db
 !tema-07-bases-de-datos/material/clinica.db
+tema-09-repositorios/proyecto-ejemplo/pacientes.json

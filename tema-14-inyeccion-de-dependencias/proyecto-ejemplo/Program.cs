@@ -6,12 +6,18 @@ CultureInfo.DefaultThreadCurrentCulture = new CultureInfo("es-AR");
 
 var builder = WebApplication.CreateBuilder(args);
 
-var cadenaConexion = builder.Configuration.GetConnectionString("Clinica")!;
+// La cadena se lee UNA vez, al arrancar. Si falta en appsettings.json, la app no levanta
+// (mejor que un error raro en el primer request)
+var cadenaConexion = builder.Configuration.GetConnectionString("Clinica")
+    ?? throw new InvalidOperationException("Falta la cadena de conexión 'Clinica' en appsettings.json");
 CrearBaseSiNoExiste(cadenaConexion);
 
 // ── El contenedor: qué clase se usa para cada interfaz, y cuánto vive cada objeto ──
 
-// Repositorios: uno nuevo por request. Reciben IConfiguration, que también está en el contenedor
+// La cadena, envuelta en un tipo propio: un solo objeto para toda la aplicación (es un dato que no cambia)
+builder.Services.AddSingleton(new ConexionDb(cadenaConexion));
+
+// Repositorios: uno nuevo por request. Reciben ConexionDb, que también está en el contenedor
 builder.Services.AddScoped<IPacienteRepository, PacienteRepository>();
 builder.Services.AddScoped<IMedicoRepository, MedicoRepository>();
 builder.Services.AddScoped<ITurnoRepository, TurnoRepository>();

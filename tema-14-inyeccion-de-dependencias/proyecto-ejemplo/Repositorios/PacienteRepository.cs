@@ -1,10 +1,10 @@
 using Microsoft.Data.Sqlite;
 
 // El repositorio del tema 08: todo el SQL de la tabla Paciente vive acá.
-// Recibe la configuración por el constructor: la pide al contenedor, como cualquier dependencia
-public class PacienteRepository(IConfiguration configuracion) : IPacienteRepository
+// Recibe la cadena de conexión por el constructor (envuelta en ConexionDb): la pide al contenedor, como cualquier dependencia
+public class PacienteRepository(ConexionDb conexionDb) : IPacienteRepository
 {
-    private readonly string cadenaConexion = configuracion.GetConnectionString("Clinica")!;
+    private readonly string cadenaConexion = conexionDb.Cadena;
 
     public List<Paciente> Listar()
     {

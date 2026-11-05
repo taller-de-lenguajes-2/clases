@@ -17,7 +17,8 @@ Se abre en `http://localhost:5194`. La primera vez crea `clinica.db` con el scri
 |---|---|
 | `Program.cs` | El registro: `AddScoped<IPacienteRepository, PacienteRepository>()`, `AddSingleton<IUsuarioRepository, UsuarioRepository>()`, etc. |
 | `Repositorios/Interfaces.cs` · `Servicios/IAutenticacionService.cs` | Las abstracciones de las que dependen los controladores |
-| `Repositorios/PacienteRepository.cs` | Recibe `IConfiguration` por el constructor: el contenedor resuelve también las dependencias de las dependencias |
+| `Repositorios/ConexionDb.cs` | La cadena de conexión envuelta en un tipo propio, registrada como Singleton en `Program.cs` |
+| `Repositorios/PacienteRepository.cs` | Recibe `ConexionDb` por el constructor: el contenedor resuelve también las dependencias de las dependencias |
 | `Controllers/TurnosController.cs` | Pide tres repositorios por el constructor, todos por su interfaz |
 | `Servicios/TiemposDeVida.cs` · `Controllers/TiemposDeVidaController.cs` | La misma clase registrada como Transient, Scoped y Singleton |
 

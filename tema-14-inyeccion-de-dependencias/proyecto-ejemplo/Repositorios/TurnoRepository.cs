@@ -2,10 +2,10 @@ using System.Globalization;
 using Microsoft.Data.Sqlite;
 
 // La tabla Turno guarda las claves foráneas; para tener el paciente y el médico hace falta un JOIN
-// Recibe la configuración por el constructor: la pide al contenedor, como cualquier dependencia
-public class TurnoRepository(IConfiguration configuracion) : ITurnoRepository
+// Recibe la cadena de conexión por el constructor (envuelta en ConexionDb): la pide al contenedor, como cualquier dependencia
+public class TurnoRepository(ConexionDb conexionDb) : ITurnoRepository
 {
-    private readonly string cadenaConexion = configuracion.GetConnectionString("Clinica")!;
+    private readonly string cadenaConexion = conexionDb.Cadena;
 
     // La fecha se guarda como texto: 'AAAA-MM-DD HH:MM'
     private const string FormatoFecha = "yyyy-MM-dd HH:mm";

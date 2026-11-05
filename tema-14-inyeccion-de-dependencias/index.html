@@ -60,6 +60,7 @@
           <ul>
             <li>Registrar</li>
             <li>Recibir en el constructor</li>
+            <li>La cadena de conexión</li>
             <li>Cambiar una implementación</li>
           </ul>
         </div>
@@ -238,11 +239,10 @@
     <span class="k">int</span> Insertar(<span class="t">Turno</span> turno);
 }
 
-<span class="k">public class</span> <span class="t">TurnoRepository</span>(<span class="t">IConfiguration</span> configuracion)
+<span class="k">public class</span> <span class="t">TurnoRepository</span>(<span class="t">ConexionDb</span> conexionDb)
     : <span class="t">ITurnoRepository</span>
 {
-    <span class="k">private readonly string</span> cadenaConexion =
-        configuracion.GetConnectionString(<span class="s">"Clinica"</span>)!;
+    <span class="k">private readonly string</span> cadenaConexion = conexionDb.Cadena;
 
     <span class="k">public</span> <span class="t">List</span>&lt;<span class="t">Turno</span>&gt; Listar() { … }   <span class="c">// SQL con ADO.NET</span>
     …
@@ -251,7 +251,7 @@
           <ul class="bullets" style="font-size:19px">
             <li><strong>Servicios</strong>: repositorios, el servicio de autenticación, un servicio de mail…</li>
             <li>Por su <strong>interfaz</strong>, cuando puede haber más de una implementación</li>
-            <li>El repositorio ya no recibe un <code>string</code>: pide <code>IConfiguration</code>, que también es un servicio</li>
+            <li>También la <strong>cadena de conexión</strong>, envuelta en <code>ConexionDb</code> (lo vemos en un rato)</li>
           </ul>
           <div class="callout" style="margin-top:12px">Las entidades y los ViewModels (<code>Turno</code>, <code>TurnoCrearViewModel</code>) <strong>no</strong> se inyectan: son datos, se crean con <code>new</code>.</div>
         </div>
@@ -331,7 +331,7 @@ builder.Services.AddScoped&lt;<span class="t">ServicioIntermedio</span>&gt;();  
       <h2 class="slide-title">Las dependencias de las <span class="accent">dependencias</span></h2>
       <p class="small-note" style="margin-top:0">Llega <code>GET /Turnos</code>. ¿Qué hace el contenedor?</p>
       <div class="diagram">
-        <svg viewBox="0 0 1100 300" width="1040" role="img" aria-label="Para crear TurnosController el contenedor necesita tres repositorios, y cada repositorio necesita IConfiguration">
+        <svg viewBox="0 0 1100 300" width="1040" role="img" aria-label="Para crear TurnosController el contenedor necesita tres repositorios, y cada repositorio necesita ConexionDb">
           <defs>
             <marker id="c14" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker>
           </defs>
@@ -358,13 +358,40 @@ builder.Services.AddScoped&lt;<span class="t">ServicioIntermedio</span>&gt;();  
             <path d="M550,192 V238" stroke="var(--muted)" stroke-width="2" marker-end="url(#c14)"/>
             <path d="M880,192 L580,238" stroke="var(--muted)" stroke-width="2" marker-end="url(#c14)"/>
             <rect x="430" y="244" width="240" height="50" rx="12" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="2"/>
-            <text x="550" y="275" text-anchor="middle" font-size="15" class="mono" fill="var(--accent-2)">IConfiguration</text>
+            <text x="550" y="275" text-anchor="middle" font-size="15" class="mono" fill="var(--accent-2)">ConexionDb</text>
           </g>
         </svg>
       </div>
-      <p class="small-note" data-paso="3" style="text-align:center">Crea de abajo hacia arriba: la configuración, los tres repositorios y recién ahí el controlador. Nadie escribió un solo <code>new</code>.</p>
+      <p class="small-note" data-paso="3" style="text-align:center">Crea de abajo hacia arriba: con la cadena arma los tres repositorios, y recién ahí el controlador. Lo único que armamos a mano es la cadena (<code>new ConexionDb(…)</code>, en un rato).</p>
     </section>
 
+    <!-- 13b · Inyectar la cadena -->
+    <section class="slide" data-pasos data-chapter="Contenedor" data-topic="La cadena de conexión">
+      <h2 class="slide-title">Inyectar la <span class="accent">cadena de conexión</span></h2>
+      <div style="display:grid; grid-template-columns: 220px 1fr; gap:16px 24px; align-items:center; margin-top:4px">
+        <div data-paso="1" style="font-size:21px"><strong>1 · Se escribe</strong><br><span class="small-note">appsettings.json</span></div>
+<pre data-paso="1" class="code" style="margin:0"><span class="s">"ConnectionStrings"</span>: { <span class="s">"Clinica"</span>: <span class="s">"Data Source=clinica.db"</span> }</pre>
+        <div data-paso="2" style="font-size:21px"><strong>2 · Se envuelve</strong><br><span class="small-note">un tipo propio</span></div>
+<pre data-paso="2" class="code" style="margin:0"><span class="k">public record</span> <span class="t">ConexionDb</span>(<span class="k">string</span> Cadena);</pre>
+        <div data-paso="3" style="font-size:21px"><strong>3 · Se registra</strong><br><span class="small-note">Program.cs</span></div>
+<pre data-paso="3" class="code" style="margin:0"><span class="k">var</span> cadena = builder.Configuration.GetConnectionString(<span class="s">"Clinica"</span>)!;
+builder.Services.AddSingleton(<span class="k">new</span> <span class="t">ConexionDb</span>(cadena));</pre>
+        <div data-paso="4" style="font-size:21px"><strong>4 · Se pide</strong><br><span class="small-note">el repositorio</span></div>
+<pre data-paso="4" class="code" style="margin:0"><span class="k">public class</span> <span class="t">TurnoRepository</span>(<span class="t">ConexionDb</span> conexionDb) : <span class="t">ITurnoRepository</span></pre>
+      </div>
+      <p class="idea" data-paso="5" style="font-size:24px; margin-top:22px">La cadena es <em>una dependencia más</em>: llega por el constructor.</p>
+    </section>
+
+    <!-- 13c · Por qué un tipo propio -->
+    <section class="slide" data-chapter="Contenedor" data-topic="¿Por qué ConexionDb?">
+      <h2 class="slide-title">¿Por qué un <span class="accent">tipo propio</span>?</h2>
+      <p class="small-note" style="margin-top:0">El repositorio podría pedir…</p>
+      <table class="tbl" style="font-size:21px; margin-top:8px">
+        <tr><td style="font-size:26px; width:50px; color:var(--red)">✗</td><td style="width:230px"><code style="font-size:19px">string</code></td><td>El contenedor busca <strong>por tipo</strong>: no sabe qué <code>string</code> darle</td></tr>
+        <tr><td style="font-size:26px; width:50px; color:var(--yellow)">~</td><td style="width:230px"><code style="font-size:19px">IConfiguration</code></td><td>Funciona, pero recibe <strong>toda</strong> la configuración</td></tr>
+        <tr><td style="font-size:26px; width:50px; color:var(--green)">✓</td><td style="width:230px"><code style="font-size:19px">ConexionDb</code></td><td>Recibe <strong>solo</strong> la cadena, y el tipo dice qué es</td></tr>
+      </table>
+    </section>
     <!-- 14 · Cambiar implementación -->
     <section class="slide" data-chapter="Contenedor" data-topic="Cambiar una implementación">
       <h2 class="slide-title">Cambiar una <span class="accent">implementación</span></h2>
@@ -415,6 +442,233 @@ builder.Services.AddScoped&lt;<span class="t">IPacienteRepository</span>, <span 
           <p class="small-note"><code>AddSingleton</code></p>
         </div>
       </div>
+    </section>
+
+    <!-- 15b · Cuándo se crea el objeto -->
+    <section class="slide" data-pasos data-chapter="Tiempos de vida" data-topic="¿Cuándo se crea el objeto?">
+      <h2 class="slide-title">¿<span class="accent">Cuándo</span> se crea el objeto?</h2>
+      <div class="columns wide-left" style="align-items:start">
+<pre class="code sm"><span class="c">// Program.cs</span>
+builder.Services.AddTransient&lt;<span class="t">ITurnoRepository</span>, <span class="t">TurnoRepository</span>&gt;();
+builder.Services.AddTransient&lt;<span class="t">RecordatorioService</span>&gt;();
+
+<span class="c">// Un servicio que usa el repositorio</span>
+<span class="k">public class</span> <span class="t">RecordatorioService</span>(<span class="t">ITurnoRepository</span> repo)
+{
+    <span class="k">public</span> <span class="t">List</span>&lt;<span class="k">string</span>&gt; Armar(<span class="k">int</span> pacienteId) =&gt;
+        repo.ListarPorPaciente(pacienteId)
+            .Select(t =&gt; <span class="s">$"Tiene turno el {t.Fecha:g}"</span>)
+            .ToList();
+}
+
+<span class="c">// Un controlador que usa el repositorio y también el servicio</span>
+<span class="k">public class</span> <span class="t">TurnosController</span>(
+    <span class="t">ITurnoRepository</span> repo,
+    <span class="t">RecordatorioService</span> recordatorios) : <span class="t">Controller</span>
+{ <span class="c">/* ... */</span> }</pre>
+        <div>
+          <p class="small-note" style="margin-top:0">Llega <code>GET /Turnos</code>. Para construir el controlador, el contenedor:</p>
+          <ol class="steps">
+            <li data-paso="1">Lee el constructor de <code>TurnosController</code>: pide un <code>ITurnoRepository</code> y un <code>RecordatorioService</code>.</li>
+            <li data-paso="2">Crea un <code>TurnoRepository</code> para el controlador → <strong>#a13f07</strong>.</li>
+            <li data-paso="3">Para crear el servicio lee <em>su</em> constructor: también pide un <code>ITurnoRepository</code>. Es Transient, así que crea <strong>otro</strong> → <strong>#b7c2e9</strong>.</li>
+            <li data-paso="4">Arma el servicio con <strong>#b7c2e9</strong> y el controlador con <strong>#a13f07</strong> y el servicio.</li>
+          </ol>
+        </div>
+      </div>
+      <div class="callout" data-paso="5" style="margin-top:12px">El objeto se crea <strong>cuando se construye la clase que lo pide</strong>, no cuando se lo usa. Con <code>AddScoped</code>, en el paso 3 el contenedor le daría al servicio el mismo <strong>#a13f07</strong>.</div>
+    </section>
+
+    <!-- 15c · Transient paso a paso -->
+    <section class="slide" data-pasos data-chapter="Tiempos de vida" data-topic="Transient, paso a paso">
+      <h2 class="slide-title"><span class="accent">Transient</span>: uno nuevo cada vez</h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 470" width="1000" role="img" aria-label="En cada request, el controlador y el servicio reciben cada uno su propio objeto nuevo; al terminar el request se descartan">
+          <defs>
+            <marker id="tvT" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent-2)"/></marker>
+          </defs>
+          <!-- Aplicación -->
+          <rect x="10" y="10" width="1080" height="96" rx="18" fill="var(--panel-2)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="32" y="46" font-size="19" font-weight="600" fill="var(--text)" class="serif">Aplicación</text>
+          <text x="32" y="70" font-size="13" fill="var(--muted)">vive mientras el programa corre</text>
+          <text x="620" y="64" text-anchor="middle" font-size="15" font-style="italic" fill="var(--muted)">acá no queda ningún objeto Transient</text>
+          <!-- Request 1 -->
+          <rect x="10" y="128" width="520" height="330" rx="18" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="8 6"/>
+          <text x="32" y="156" font-size="15" font-weight="700" fill="var(--accent)">Request 1</text>
+          <text x="118" y="156" font-size="12" fill="var(--muted)" class="mono">GET /TiemposDeVida</text>
+          <g data-paso="1">
+            <rect x="40" y="190" width="200" height="66" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="140" y="218" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="serif">Controlador</text>
+            <text x="140" y="240" text-anchor="middle" font-size="11.5" fill="var(--muted)" class="mono">TiemposDeVidaController</text>
+            <path d="M140,258 V346" stroke="var(--accent-2)" stroke-width="2.5" marker-end="url(#tvT)"/>
+            <text x="150" y="308" font-size="13" font-weight="600" fill="var(--accent-2)" class="mono">new</text>
+            <rect x="65" y="352" width="150" height="58" rx="12" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <text x="140" y="374" text-anchor="middle" font-size="12" fill="var(--muted)" class="mono">Operacion</text>
+            <text x="140" y="398" text-anchor="middle" font-size="19" font-weight="700" fill="var(--accent-2)" class="mono">#019956</text>
+          </g>
+          <g data-paso="2">
+            <rect x="300" y="190" width="200" height="66" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="400" y="218" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="serif">Servicio</text>
+            <text x="400" y="240" text-anchor="middle" font-size="11.5" fill="var(--muted)" class="mono">ServicioIntermedio</text>
+            <path d="M400,258 V346" stroke="var(--accent-2)" stroke-width="2.5" marker-end="url(#tvT)"/>
+            <text x="410" y="308" font-size="13" font-weight="600" fill="var(--accent-2)" class="mono">new</text>
+            <rect x="325" y="352" width="150" height="58" rx="12" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <text x="400" y="374" text-anchor="middle" font-size="12" fill="var(--muted)" class="mono">Operacion</text>
+            <text x="400" y="398" text-anchor="middle" font-size="19" font-weight="700" fill="var(--accent-2)" class="mono">#f7275c</text>
+          </g>
+          <g data-paso="3">
+            <rect x="10" y="128" width="520" height="330" rx="18" fill="var(--bg)" opacity="0.8"/>
+            <text x="270" y="300" text-anchor="middle" font-size="22" font-weight="700" fill="var(--red)">✕ fin del request</text>
+            <text x="270" y="326" text-anchor="middle" font-size="14" fill="var(--muted)">se descarta todo lo que se creó para este request</text>
+          </g>
+          <!-- Request 2 -->
+          <g data-paso="4">
+            <rect x="570" y="128" width="520" height="330" rx="18" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="8 6"/>
+            <text x="592" y="156" font-size="15" font-weight="700" fill="var(--accent)">Request 2</text>
+            <text x="678" y="156" font-size="12" fill="var(--muted)" class="mono">GET /TiemposDeVida</text>
+            <rect x="600" y="190" width="200" height="66" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="700" y="218" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="serif">Controlador</text>
+            <text x="700" y="240" text-anchor="middle" font-size="11.5" fill="var(--muted)" class="mono">TiemposDeVidaController</text>
+            <path d="M700,258 V346" stroke="var(--accent-2)" stroke-width="2.5" marker-end="url(#tvT)"/>
+            <text x="710" y="308" font-size="13" font-weight="600" fill="var(--accent-2)" class="mono">new</text>
+            <rect x="625" y="352" width="150" height="58" rx="12" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <text x="700" y="374" text-anchor="middle" font-size="12" fill="var(--muted)" class="mono">Operacion</text>
+            <text x="700" y="398" text-anchor="middle" font-size="19" font-weight="700" fill="var(--accent-2)" class="mono">#f74b6d</text>
+            <rect x="860" y="190" width="200" height="66" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="960" y="218" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="serif">Servicio</text>
+            <text x="960" y="240" text-anchor="middle" font-size="11.5" fill="var(--muted)" class="mono">ServicioIntermedio</text>
+            <path d="M960,258 V346" stroke="var(--accent-2)" stroke-width="2.5" marker-end="url(#tvT)"/>
+            <text x="970" y="308" font-size="13" font-weight="600" fill="var(--accent-2)" class="mono">new</text>
+            <rect x="885" y="352" width="150" height="58" rx="12" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <text x="960" y="374" text-anchor="middle" font-size="12" fill="var(--muted)" class="mono">Operacion</text>
+            <text x="960" y="398" text-anchor="middle" font-size="19" font-weight="700" fill="var(--accent-2)" class="mono">#e7e0c4</text>
+          </g>
+        </svg>
+      </div>
+      <p class="small-note" style="text-align:center; margin:0">Clic sobre el diagrama o → para avanzar. <span data-paso="5"><strong>Un objeto nuevo por cada constructor que lo pide</strong>: nunca se comparte.</span></p>
+    </section>
+
+    <!-- 15d · Scoped paso a paso -->
+    <section class="slide" data-pasos data-chapter="Tiempos de vida" data-topic="Scoped, paso a paso">
+      <h2 class="slide-title"><span class="accent">Scoped</span>: uno por request</h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 470" width="1000" role="img" aria-label="En cada request se crea un solo objeto, que comparten el controlador y el servicio; al terminar el request se descarta y el siguiente request recibe otro">
+          <defs>
+            <marker id="tvS" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent-2)"/></marker>
+          </defs>
+          <!-- Aplicación -->
+          <rect x="10" y="10" width="1080" height="96" rx="18" fill="var(--panel-2)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="32" y="46" font-size="19" font-weight="600" fill="var(--text)" class="serif">Aplicación</text>
+          <text x="32" y="70" font-size="13" fill="var(--muted)">vive mientras el programa corre</text>
+          <text x="620" y="64" text-anchor="middle" font-size="15" font-style="italic" fill="var(--muted)">acá no queda ningún objeto Scoped</text>
+          <!-- Request 1 -->
+          <rect x="10" y="128" width="520" height="330" rx="18" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="8 6"/>
+          <text x="32" y="156" font-size="15" font-weight="700" fill="var(--accent)">Request 1</text>
+          <text x="118" y="156" font-size="12" fill="var(--muted)" class="mono">GET /TiemposDeVida</text>
+          <g data-paso="1">
+            <rect x="40" y="190" width="200" height="66" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="140" y="218" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="serif">Controlador</text>
+            <text x="140" y="240" text-anchor="middle" font-size="11.5" fill="var(--muted)" class="mono">TiemposDeVidaController</text>
+            <path d="M140,258 C140,310 230,300 240,346" fill="none" stroke="var(--accent-2)" stroke-width="2.5" marker-end="url(#tvS)"/>
+            <text x="120" y="312" text-anchor="end" font-size="13" font-weight="600" fill="var(--accent-2)" class="mono">new</text>
+            <rect x="195" y="352" width="150" height="58" rx="12" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <text x="270" y="374" text-anchor="middle" font-size="12" fill="var(--muted)" class="mono">Operacion</text>
+            <text x="270" y="398" text-anchor="middle" font-size="19" font-weight="700" fill="var(--accent-2)" class="mono">#98e624</text>
+          </g>
+          <g data-paso="2">
+            <rect x="300" y="190" width="200" height="66" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="400" y="218" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="serif">Servicio</text>
+            <text x="400" y="240" text-anchor="middle" font-size="11.5" fill="var(--muted)" class="mono">ServicioIntermedio</text>
+            <path d="M400,258 C400,310 310,300 300,346" fill="none" stroke="var(--accent-2)" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#tvS)"/>
+            <text x="410" y="312" font-size="13" font-weight="600" fill="var(--accent-2)">la misma</text>
+          </g>
+          <g data-paso="3">
+            <rect x="10" y="128" width="520" height="330" rx="18" fill="var(--bg)" opacity="0.8"/>
+            <text x="270" y="300" text-anchor="middle" font-size="22" font-weight="700" fill="var(--red)">✕ fin del request</text>
+            <text x="270" y="326" text-anchor="middle" font-size="14" fill="var(--muted)">se descarta todo lo que se creó para este request</text>
+          </g>
+          <!-- Request 2 -->
+          <g data-paso="4">
+            <rect x="570" y="128" width="520" height="330" rx="18" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="8 6"/>
+            <text x="592" y="156" font-size="15" font-weight="700" fill="var(--accent)">Request 2</text>
+            <text x="678" y="156" font-size="12" fill="var(--muted)" class="mono">GET /TiemposDeVida</text>
+            <rect x="600" y="190" width="200" height="66" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="700" y="218" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="serif">Controlador</text>
+            <text x="700" y="240" text-anchor="middle" font-size="11.5" fill="var(--muted)" class="mono">TiemposDeVidaController</text>
+            <path d="M700,258 C700,310 790,300 800,346" fill="none" stroke="var(--accent-2)" stroke-width="2.5" marker-end="url(#tvS)"/>
+            <text x="680" y="312" text-anchor="end" font-size="13" font-weight="600" fill="var(--accent-2)" class="mono">new</text>
+            <rect x="755" y="352" width="150" height="58" rx="12" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <text x="830" y="374" text-anchor="middle" font-size="12" fill="var(--muted)" class="mono">Operacion</text>
+            <text x="830" y="398" text-anchor="middle" font-size="19" font-weight="700" fill="var(--accent-2)" class="mono">#7d9c19</text>
+            <rect x="860" y="190" width="200" height="66" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="960" y="218" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="serif">Servicio</text>
+            <text x="960" y="240" text-anchor="middle" font-size="11.5" fill="var(--muted)" class="mono">ServicioIntermedio</text>
+            <path d="M960,258 C960,310 870,300 860,346" fill="none" stroke="var(--accent-2)" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#tvS)"/>
+            <text x="970" y="312" font-size="13" font-weight="600" fill="var(--accent-2)">la misma</text>
+          </g>
+        </svg>
+      </div>
+      <p class="small-note" style="text-align:center; margin:0">Clic sobre el diagrama o → para avanzar. <span data-paso="5"><strong>Uno por request</strong>, compartido por todos los que lo piden en ese request.</span></p>
+    </section>
+
+    <!-- 15e · Singleton paso a paso -->
+    <section class="slide" data-pasos data-chapter="Tiempos de vida" data-topic="Singleton, paso a paso">
+      <h2 class="slide-title"><span class="accent">Singleton</span>: uno para toda la aplicación</h2>
+      <div class="diagram">
+        <svg viewBox="0 0 1100 470" width="1000" role="img" aria-label="Un único objeto vive a nivel de la aplicación; el controlador y el servicio de cada request usan su referencia; al terminar un request el objeto sigue">
+          <defs>
+            <marker id="tvG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--accent-2)"/></marker>
+          </defs>
+          <!-- Aplicación -->
+          <rect x="10" y="10" width="1080" height="96" rx="18" fill="var(--panel-2)" stroke="var(--border)" stroke-width="1.5"/>
+          <text x="32" y="46" font-size="19" font-weight="600" fill="var(--text)" class="serif">Aplicación</text>
+          <text x="32" y="70" font-size="13" fill="var(--muted)">vive mientras el programa corre</text>
+          <!-- Request 1 -->
+          <rect x="10" y="128" width="520" height="330" rx="18" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="8 6"/>
+          <text x="32" y="156" font-size="15" font-weight="700" fill="var(--accent)">Request 1</text>
+          <text x="118" y="156" font-size="12" fill="var(--muted)" class="mono">GET /TiemposDeVida</text>
+          <g data-paso="1">
+            <rect x="475" y="24" width="150" height="58" rx="12" fill="color-mix(in srgb, var(--accent-2) 14%, var(--panel))" stroke="var(--accent-2)" stroke-width="2.5"/>
+            <text x="550" y="46" text-anchor="middle" font-size="12" fill="var(--muted)" class="mono">Operacion</text>
+            <text x="550" y="70" text-anchor="middle" font-size="19" font-weight="700" fill="var(--accent-2)" class="mono">#76244e</text>
+            <text x="645" y="50" font-size="13" fill="var(--muted)">se crea la primera vez que alguien lo pide</text>
+            <text x="645" y="70" font-size="13" fill="var(--muted)">y queda acá hasta que se reinicia la app</text>
+            <rect x="40" y="290" width="200" height="66" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="140" y="318" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="serif">Controlador</text>
+            <text x="140" y="340" text-anchor="middle" font-size="11.5" fill="var(--muted)" class="mono">TiemposDeVidaController</text>
+            <path d="M140,288 C140,200 470,190 515,88" fill="none" stroke="var(--accent-2)" stroke-width="2.5" marker-end="url(#tvG)"/>
+            <text x="300" y="210" font-size="13" font-weight="600" fill="var(--accent-2)" class="mono">new <tspan font-family="var(--sans)" font-weight="400">(la primera vez)</tspan></text>
+          </g>
+          <g data-paso="2">
+            <rect x="300" y="290" width="200" height="66" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="400" y="318" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="serif">Servicio</text>
+            <text x="400" y="340" text-anchor="middle" font-size="11.5" fill="var(--muted)" class="mono">ServicioIntermedio</text>
+            <path d="M400,288 C400,220 525,180 538,88" fill="none" stroke="var(--accent-2)" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#tvG)"/>
+            <text x="440" y="262" font-size="13" font-weight="600" fill="var(--accent-2)">la misma</text>
+          </g>
+          <g data-paso="3">
+            <rect x="10" y="128" width="520" height="330" rx="18" fill="var(--bg)" opacity="0.8"/>
+            <text x="270" y="390" text-anchor="middle" font-size="22" font-weight="700" fill="var(--red)">✕ fin del request</text>
+            <text x="270" y="416" text-anchor="middle" font-size="14" fill="var(--muted)">se descartan el controlador y el servicio; el Singleton sigue</text>
+          </g>
+          <!-- Request 2 -->
+          <g data-paso="4">
+            <rect x="570" y="128" width="520" height="330" rx="18" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="8 6"/>
+            <text x="1068" y="156" text-anchor="end"><tspan font-size="15" font-weight="700" fill="var(--accent)">Request 2</tspan><tspan dx="10" font-size="12" fill="var(--muted)" class="mono">GET /TiemposDeVida</tspan></text>
+            <rect x="600" y="290" width="200" height="66" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="700" y="318" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="serif">Controlador</text>
+            <text x="700" y="340" text-anchor="middle" font-size="11.5" fill="var(--muted)" class="mono">TiemposDeVidaController</text>
+            <path d="M700,288 C700,220 575,180 562,88" fill="none" stroke="var(--accent-2)" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#tvG)"/>
+            <text x="620" y="262" text-anchor="end" font-size="13" font-weight="600" fill="var(--accent-2)">la misma</text>
+            <rect x="860" y="290" width="200" height="66" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="960" y="318" text-anchor="middle" font-size="18" font-weight="600" fill="var(--text)" class="serif">Servicio</text>
+            <text x="960" y="340" text-anchor="middle" font-size="11.5" fill="var(--muted)" class="mono">ServicioIntermedio</text>
+            <path d="M960,288 C960,200 630,190 585,88" fill="none" stroke="var(--accent-2)" stroke-width="2.5" stroke-dasharray="7 5" marker-end="url(#tvG)"/>
+            <text x="800" y="234" text-anchor="middle" font-size="13" font-weight="600" fill="var(--accent-2)">la misma</text>
+          </g>
+        </svg>
+      </div>
+      <p class="small-note" style="text-align:center; margin:0">Clic sobre el diagrama o → para avanzar. <span data-paso="5"><strong>Un solo objeto</strong>: todos los requests usan la misma referencia.</span></p>
     </section>
 
     <!-- 16 · Cuándo cada uno -->

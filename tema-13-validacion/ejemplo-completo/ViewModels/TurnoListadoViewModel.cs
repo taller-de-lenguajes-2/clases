@@ -2,7 +2,7 @@
 // Una fila del listado de turnos: solo textos, ya formateados para mostrar.
 public class TurnoListadoViewModel
 {
-    public string Dia { get; }          // "lun 20/10"
+    public string Dia { get; }          // "mar 20/10"
     public string Hora { get; }         // "09:00"
     public string Paciente { get; }
     public string Medico { get; }       // "Inés Molina (Cardiología)"

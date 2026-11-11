@@ -1,0 +1,46 @@
+@model TurnoCrearViewModel
+@{
+    ViewData["Title"] = "Sacar un turno";
+}
+
+<h1>Sacar un turno</h1>
+
+@* [V1] asp-for genera los atributos data-val-* a partir de los del ViewModel:
+   jQuery Validation los lee y avisa en el navegador, sin enviar el formulario. *@
+<form asp-action="Crear" method="post" class="formulario">
+    @* "ModelOnly" muestra los errores que no son de un campo del formulario.
+       Ojo: un error de una propiedad que no tiene campo (por ejemplo «The Medicos field is required.»
+       de la lista) no se ve en ningún lado; el formulario vuelve sin decir por qué.
+       Para depurar, cambiar a "All" muestra todos los errores de ModelState. *@
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <label asp-for="PacienteId"></label>
+    <select asp-for="PacienteId" asp-items="Model.Pacientes">
+        <option value="">— Elegir —</option>
+    </select>
+    <span asp-validation-for="PacienteId"></span>
+
+    <label asp-for="MedicoId"></label>
+    <select asp-for="MedicoId" asp-items="Model.Medicos">
+        <option value="">— Elegir —</option>
+    </select>
+    <span asp-validation-for="MedicoId"></span>
+
+    <label asp-for="Fecha"></label>
+    <input asp-for="Fecha" />
+    <span asp-validation-for="Fecha"></span>
+
+    <label asp-for="Observaciones"></label>
+    <input asp-for="Observaciones" />
+    <span asp-validation-for="Observaciones"></span>
+
+    <p class="nota">La clínica atiende de lunes a viernes, de 8 a 20.</p>
+
+    <button type="submit">Guardar</button>
+</form>
+
+<p><a asp-action="Index">← Volver a los turnos</a></p>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -430,7 +430,6 @@ Turnos anteriores: 2</pre>
 }
 
 [<span class="t">HttpPost</span>]
-[<span class="t">ValidateAntiForgeryToken</span>]
 <span class="k">public</span> <span class="t">IActionResult</span> Crear(<span class="t">TurnoCrearViewModel</span> modelo)
 {
     <span class="t">Paciente</span>? paciente = pacientes.Obtener(modelo.PacienteId);

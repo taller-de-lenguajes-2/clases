@@ -31,7 +31,6 @@ public class PacientesController(PacienteRepository pacientes, TurnoRepository t
 
     // El formulario llega en un ViewModel; la entidad se arma acá, con los campos que corresponden
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public IActionResult Crear(PacienteCrearViewModel modelo)
     {
         // Una regla que ningún atributo puede saber: hay que consultar la base

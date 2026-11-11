@@ -27,7 +27,6 @@ public class TurnosController(
 
     // POST /Turnos/Crear → llega un TurnoCrearViewModel; de ahí se arma la entidad
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public IActionResult Crear(TurnoCrearViewModel modelo)
     {
         Paciente? paciente = pacientes.Obtener(modelo.PacienteId);

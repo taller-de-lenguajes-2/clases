@@ -87,13 +87,14 @@
       <div class="callout" data-paso="5" style="margin-top:20px">Regla de oro: <strong>nunca confiar</strong> en lo que llega del cliente. Puede ser un error de quien carga… o alguien probando qué pasa.</div>
     </section>
 
-    <!-- 4 · Dónde validar -->
-    <section class="slide" data-chapter="Dónde" data-topic="¿Dónde validar?">
-      <h2 class="slide-title">¿Dónde <span class="accent">validar</span>? En los dos lados</h2>
+    <!-- 4 · Dónde validar (adivinanza: → va revelando) -->
+    <section class="slide" data-pasos data-chapter="Dónde" data-topic="¿Dónde validar?">
+      <h2 class="slide-title">¿Dónde <span class="accent">validar</span>?</h2>
+      <p class="idea" style="font-size:24px; margin-top:0">El DNI tiene que ser 7 u 8 números. ¿Lo controlamos en el navegador, con JavaScript, o en el servidor, con C#? ¿Qué ganamos y qué perdemos en cada caso?</p>
       <div class="columns" style="margin-top:8px">
         <div class="card accent-top">
           <h3>Front end · JavaScript</h3>
-          <ul class="bullets" style="font-size:18px">
+          <ul class="bullets" style="font-size:18px" data-paso="1">
             <li>Avisa <strong>al instante</strong>, sin ir al servidor</li>
             <li>Es por <strong>comodidad</strong> de quien carga</li>
             <li>Se puede saltear: desactivar JavaScript, editar el HTML, mandar el request con otra herramienta</li>
@@ -101,14 +102,14 @@
         </div>
         <div class="card accent-top alt">
           <h3>Back end · C#</h3>
-          <ul class="bullets" style="font-size:18px">
+          <ul class="bullets" style="font-size:18px" data-paso="2">
             <li>Es la que <strong>protege</strong> los datos</li>
             <li>No se puede saltear: todo pasa por el servidor</li>
             <li>Puede consultar la base: «¿ese DNI ya existe?»</li>
           </ul>
         </div>
       </div>
-      <div class="callout" style="margin-top:18px">La del navegador es opcional y la del servidor es <strong>obligatoria</strong>. Y la base (<code>NOT NULL</code>, <code>UNIQUE</code>, <code>FOREIGN KEY</code>) es la última red.</div>
+      <div class="callout" style="margin-top:18px" data-paso="3"><strong>En los dos.</strong> La del navegador es opcional y la del servidor es <strong>obligatoria</strong>. Y la base (<code>NOT NULL</code>, <code>UNIQUE</code>, <code>FOREIGN KEY</code>) es la última red.</div>
     </section>
 
     <!-- 5 · El problema -->
@@ -299,7 +300,6 @@
       <h2 class="slide-title">En el servidor: <span class="accent"><code>ModelState</code></span></h2>
       <div class="columns wide-left" style="align-items:start">
 <pre class="code sm">[<span class="t">HttpPost</span>]
-[<span class="t">ValidateAntiForgeryToken</span>]
 <span class="k">public</span> <span class="t">IActionResult</span> Crear(<span class="t">PacienteCrearViewModel</span> modelo)
 {
     <span class="k">if</span> (!ModelState.IsValid)
@@ -456,6 +456,7 @@
 <pre class="code sm"><span class="k">cd</span> tema-13-validacion/proyecto-ejemplo
 <span class="k">dotnet</span> run</pre>
           <p class="small-note" style="margin:0">Se abre en <code>http://localhost:5193</code>.</p>
+          <p class="small-note" style="margin:8px 0 0">Y en <code>tema-13-validacion/ejemplo-completo</code> (puerto 5196): las reglas de negocio en la entidad y en los casos de uso, con cada tipo de validación marcado de <code>[V1]</code> a <code>[V6]</code>.</p>
         </div>
         <div class="card accent-top alt">
           <h3>Propuesta práctica</h3>

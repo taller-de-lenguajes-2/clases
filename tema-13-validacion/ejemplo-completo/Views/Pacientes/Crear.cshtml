@@ -1,0 +1,34 @@
+@model PacienteCrearViewModel
+@{
+    ViewData["Title"] = "Nuevo paciente";
+}
+
+<h1>Nuevo paciente</h1>
+
+@* [V1] asp-for genera los atributos data-val-* a partir de los del ViewModel:
+   jQuery Validation los lee y avisa en el navegador, sin enviar el formulario. *@
+<form asp-action="Crear" method="post" class="formulario">
+    @* Los errores que no son de un campo en particular *@
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <label asp-for="Nombre"></label>
+    <input asp-for="Nombre" />
+    <span asp-validation-for="Nombre"></span>
+
+    <label asp-for="DNI"></label>
+    <input asp-for="DNI" />
+    <span asp-validation-for="DNI"></span>
+
+    <label asp-for="Telefono"></label>
+    <input asp-for="Telefono" />
+    <span asp-validation-for="Telefono"></span>
+
+    <button type="submit">Guardar</button>
+</form>
+
+<p><a asp-action="Index">← Volver a la lista</a></p>
+
+@section Scripts {
+    @* jQuery Validation lee los data-val-* que generó asp-for y valida antes de enviar *@
+    <partial name="_ValidationScriptsPartial" />
+}

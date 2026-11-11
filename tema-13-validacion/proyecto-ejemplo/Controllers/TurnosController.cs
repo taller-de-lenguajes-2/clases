@@ -24,7 +24,6 @@ public class TurnosController(
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
     public IActionResult Crear(TurnoCrearViewModel modelo)
     {
         // 1 · Los atributos del ViewModel ya corrieron: si algo falló, ModelState lo tiene

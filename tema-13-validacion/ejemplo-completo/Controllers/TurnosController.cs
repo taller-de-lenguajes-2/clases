@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 // El controlador solo hace de intermediario: recibe el formulario, le pide al caso de uso
-// que haga el trabajo y elige qué vista mostrar. Las reglas de negocio no están acá.
+// que haga el trabajo y elige qué vista mostrar. Ninguna regla de negocio está acá.
 public class TurnosController(
     TurnoRepository turnos,
     PacienteRepository pacientes,
@@ -41,7 +41,7 @@ public class TurnosController(
         int medicoId = modelo.MedicoId!.Value;
         DateTime fecha = modelo.Fecha!.Value;
 
-        // ── [V4] + [V5] las reglas de negocio las controla el caso de uso ──
+        // ── [V5] el caso de uso sigue el flujo y le pregunta a las entidades [V4] ──
         // (en el tema 14 vamos a ver cómo pedírselo al framework en vez de hacer new)
         var sacarTurno = new SacarTurno(turnos, pacientes, medicos);
         Resultado resultado = sacarTurno.Ejecutar(pacienteId, medicoId, fecha, modelo.Observaciones);

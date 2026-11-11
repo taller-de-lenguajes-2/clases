@@ -5,9 +5,11 @@ public class RegistrarPaciente(PacienteRepository pacientes)
     {
         var resultado = new Resultado();
 
-        // ── [V5] REGLA DEL CASO DE USO: no hay dos pacientes con el mismo DNI ──
-        // Ningún atributo lo puede saber: hay que consultar la base.
-        // (Si igual se cuela un repetido, el UNIQUE de la base lo frena: [V6])
+        // «No hay dos pacientes con el mismo DNI» es una regla del negocio (con fichas de
+        // papel tampoco se abrían dos para la misma persona), pero es sobre TODOS los
+        // pacientes: ninguna entidad sola la puede decidir.
+        // La garantiza la base (UNIQUE) [V6]; el caso de uso pregunta antes de guardar
+        // para avisarle al usuario con un mensaje claro.                        [V5]
         if (!string.IsNullOrEmpty(dni) && pacientes.ExisteDni(dni))
         {
             resultado.AgregarError("DNI", "Ya hay un paciente con ese DNI.");

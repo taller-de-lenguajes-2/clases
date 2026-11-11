@@ -36,7 +36,7 @@ public class PacientesController(PacienteRepository pacientes, TurnoRepository t
         // ── [V2] los atributos del ViewModel ya corrieron: si algo falló, ModelState lo tiene ──
         if (!ModelState.IsValid) return View(modelo);
 
-        // ── [V5] DNI repetido: lo controla el caso de uso, porque necesita la base ──
+        // ── [V5] el caso de uso avisa si el DNI ya existe (lo garantiza la base: [V6]) ──
         var registrarPaciente = new RegistrarPaciente(pacientes);
         Resultado resultado = registrarPaciente.Ejecutar(modelo.Nombre, modelo.DNI, modelo.Telefono);
 

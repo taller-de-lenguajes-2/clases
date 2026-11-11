@@ -35,16 +35,16 @@ public class TurnoRepository(string cadenaConexion)
         return LeerTurnos(comando);
     }
 
-    // Para la regla "un médico no atiende dos turnos a la misma hora"
-    public bool MedicoOcupado(int medicoId, DateTime fecha)
+    // La agenda de un médico: el caso de uso la trae y se la pasa a Medico.EstaLibre.
+    // El repositorio solo busca datos; la regla la decide la entidad.
+    public List<Turno> ListarPorMedico(int medicoId)
     {
         using var conexion = new SqliteConnection(cadenaConexion);
         conexion.Open();
 
-        using var comando = new SqliteCommand("SELECT COUNT(*) FROM Turno WHERE MedicoId = @medicoId AND Fecha = @fecha", conexion);
+        using var comando = new SqliteCommand(SelectConJoin + " WHERE t.MedicoId = @medicoId ORDER BY t.Fecha", conexion);
         comando.Parameters.AddWithValue("@medicoId", medicoId);
-        comando.Parameters.AddWithValue("@fecha", fecha.ToString(FormatoFecha, CultureInfo.InvariantCulture));
-        return Convert.ToInt32(comando.ExecuteScalar()) > 0;
+        return LeerTurnos(comando);
     }
 
     // ── [V6] LA BASE, ÚLTIMA RED: PacienteId y MedicoId son FOREIGN KEY y NOT NULL:

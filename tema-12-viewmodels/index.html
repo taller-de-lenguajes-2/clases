@@ -417,7 +417,46 @@ Turnos anteriores: 2</pre>
       </div>
     </section>
 
-    <!-- 16 · Las listas no vuelven -->
+    <!-- 16 · Al código -->
+    <section class="slide" data-chapter="Al código" data-topic="Los tres escenarios en VS Code">
+      <h2 class="slide-title">Al código: los <span class="accent">tres escenarios</span></h2>
+      <p style="margin-top:0"><a class="vsc proyecto" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo">Abrir el proyecto en VS Code</a> <span class="small-note">después, en la terminal: <code>dotnet run</code> → <code>http://localhost:5192</code></span></p>
+      <div class="columns three" style="align-items:start">
+        <div class="card accent-top">
+          <h3>1 · Simplificar un modelo</h3>
+          <p style="margin:0 0 6px"><a class="vsc" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo/ViewModels/TurnoListadoViewModel.cs:3">TurnoListadoViewModel.cs<span class="vsc-linea">:3</span></a> <a class="vsc" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo/Controllers/TurnosController.cs:10">TurnosController.cs<span class="vsc-linea">:10</span></a> <a class="vsc" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo/Views/Turnos/Index.cshtml">Index.cshtml</a></p>
+          <ul style="font-size:16px; margin:0; padding-left:18px">
+            <li>El constructor recibe un <code>Turno</code> y deja <strong>textos listos</strong></li>
+            <li><code>Select</code> convierte cada turno en una fila</li>
+            <li>La vista solo muestra; <code>YaPaso</code> pinta de gris los viejos</li>
+          </ul>
+          <p class="small-note" style="margin:6px 0 0">En la app: <code>/Turnos</code></p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>2 · Dos modelos, una vista</h3>
+          <p style="margin:0 0 6px"><a class="vsc" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo/ViewModels/PacienteDetalleViewModel.cs:2">PacienteDetalleViewModel.cs<span class="vsc-linea">:2</span></a> <a class="vsc" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo/Controllers/PacientesController.cs:17">PacientesController.cs<span class="vsc-linea">:17</span></a> <a class="vsc" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo/Views/Pacientes/Detalle.cshtml:15">Detalle.cshtml<span class="vsc-linea">:15</span></a></p>
+          <ul style="font-size:16px; margin:0; padding-left:18px">
+            <li>Junta un <code>Paciente</code> y su <code>List&lt;Turno&gt;</code></li>
+            <li><code>DateTime.Now</code> separa próximos y anteriores: cambia según el día</li>
+            <li><code>View()</code> recibe <strong>un solo</strong> objeto</li>
+          </ul>
+          <p class="small-note" style="margin:6px 0 0">En la app: <code>/Pacientes/Detalle/3</code></p>
+        </div>
+        <div class="card accent-top">
+          <h3>3 · La vista necesita más</h3>
+          <p style="margin:0 0 6px"><a class="vsc" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo/ViewModels/TurnoCrearViewModel.cs:7">TurnoCrearViewModel.cs<span class="vsc-linea">:7</span></a> <a class="vsc" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo/Views/Turnos/Crear.cshtml:11">Crear.cshtml<span class="vsc-linea">:11</span></a></p>
+          <ul style="font-size:16px; margin:0; padding-left:18px">
+            <li>Lo que carga el usuario <strong>y</strong> las listas de los desplegables</li>
+            <li><code>asp-items</code> arma los <code>&lt;option&gt;</code></li>
+            <li><code>[Display]</code> pone el texto de la etiqueta</li>
+          </ul>
+          <p class="small-note" style="margin:6px 0 0">En la app: <code>/Turnos/Crear</code></p>
+        </div>
+      </div>
+      <p class="small-note">Primero abrir el proyecto; los archivos se abren en esa ventana. La primera vez el navegador pide permiso para abrir VS Code (y, fuera de <code>file://</code>, la carpeta del repo: Alt + clic para cambiarla).</p>
+    </section>
+
+    <!-- 17 · Las listas no vuelven -->
     <section class="slide" data-chapter="Escenarios" data-topic="Las listas no vuelven en el POST">
       <h2 class="slide-title">Las listas <span class="accent">no vuelven</span> en el POST</h2>
       <div class="columns wide-left" style="align-items:start">
@@ -460,7 +499,7 @@ Turnos anteriores: 2</pre>
       </div>
     </section>
 
-    <!-- 17 · Del ViewModel a la entidad -->
+    <!-- 18 · Del ViewModel a la entidad -->
     <section class="slide" data-chapter="Escenarios" data-topic="Del ViewModel a la entidad">
       <h2 class="slide-title">Del ViewModel a la <span class="accent">entidad</span></h2>
       <div class="flow" style="margin-top:14px">
@@ -482,7 +521,7 @@ turnos.Insertar(turno);
       <p class="small-note">El repositorio sigue trabajando con <strong>entidades</strong>: no conoce los ViewModels. La traducción la hace el controlador.</p>
     </section>
 
-    <!-- 18 · Overposting -->
+    <!-- 19 · Overposting -->
     <section class="slide" data-chapter="Escenarios" data-topic="Solo los campos que corresponden">
       <h2 class="slide-title">Solo los campos que <span class="accent">corresponden</span></h2>
       <div class="columns" style="align-items:start">
@@ -506,7 +545,44 @@ turnos.Insertar(turno);
       <p class="small-note" style="text-align:center">A esto se le llama <em>overposting</em> (o <em>mass assignment</em>).</p>
     </section>
 
-    <!-- 19 · Puntos importantes -->
+    <!-- 20 · Al código -->
+    <section class="slide" data-chapter="Al código" data-topic="El POST en VS Code">
+      <h2 class="slide-title">Al código: el <span class="accent">POST</span></h2>
+      <p style="margin-top:0"><a class="vsc proyecto" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo">Abrir el proyecto en VS Code</a> <span class="small-note">después, en la terminal: <code>dotnet run</code> → <code>http://localhost:5192</code></span></p>
+      <div class="columns three" style="align-items:start">
+        <div class="card accent-top">
+          <h3>1 · Las listas no vuelven</h3>
+          <p style="margin:0 0 6px"><a class="vsc" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo/Controllers/TurnosController.cs:29">TurnosController.cs<span class="vsc-linea">:29</span></a> <a class="vsc" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo/Controllers/TurnosController.cs:54">TurnosController.cs<span class="vsc-linea">:54</span></a></p>
+          <ul style="font-size:16px; margin:0; padding-left:18px">
+            <li><code>CargarListas</code> en el GET y en el POST que <strong>vuelve</strong> a la vista</li>
+            <li>Si sale bien, <code>RedirectToAction</code>: ahí no hacen falta</li>
+            <li>F12 → Red → la petición: el formulario manda solo <code>PacienteId=…</code></li>
+          </ul>
+          <p class="small-note" style="margin:6px 0 0">En la app: <code>/Turnos/Crear</code></p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>2 · Del ViewModel a la entidad</h3>
+          <p style="margin:0 0 6px"><a class="vsc" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo/Controllers/TurnosController.cs:29">TurnosController.cs<span class="vsc-linea">:29</span></a></p>
+          <ul style="font-size:16px; margin:0; padding-left:18px">
+            <li>Con los Id del formulario se buscan el <code>Paciente</code> y el <code>Medico</code></li>
+            <li>El controlador arma el <code>Turno</code> y lo guarda</li>
+            <li>El ViewModel no llega a la base</li>
+          </ul>
+        </div>
+        <div class="card accent-top">
+          <h3>3 · Solo los campos que corresponden</h3>
+          <p style="margin:0 0 6px"><a class="vsc" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo/ViewModels/PacienteCrearViewModel.cs:5">PacienteCrearViewModel.cs<span class="vsc-linea">:5</span></a> <a class="vsc" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo/Controllers/PacientesController.cs:33">PacientesController.cs<span class="vsc-linea">:33</span></a></p>
+          <ul style="font-size:16px; margin:0; padding-left:18px">
+            <li>El ViewModel <strong>no tiene</strong> <code>Id</code></li>
+            <li>Aunque alguien mande <code>Id=99</code>, no hay dónde guardarlo (overposting)</li>
+            <li>La entidad se arma con los campos elegidos, uno por uno</li>
+          </ul>
+          <p class="small-note" style="margin:6px 0 0">En la app: <code>/Pacientes/Crear</code></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 21 · Puntos importantes -->
     <section class="slide" data-chapter="Escenarios" data-topic="Puntos importantes">
       <h2 class="slide-title">Puntos <span class="accent">importantes</span></h2>
       <ol class="steps" style="max-width:980px">
@@ -519,7 +595,7 @@ turnos.Insertar(turno);
       <p class="small-note">Por convención, van en una carpeta <code>ViewModels/</code>, al lado de <code>Models/</code>.</p>
     </section>
 
-    <!-- 20 · Capa anticorrupción -->
+    <!-- 22 · Capa anticorrupción -->
     <section class="slide" data-chapter="Anticorrupción" data-topic="Capa anticorrupción">
       <h2 class="slide-title">Capa <span class="accent">anticorrupción</span></h2>
       <div class="diagram">
@@ -554,7 +630,7 @@ turnos.Insertar(turno);
       <p class="small-note">Viene del Diseño Guiado por el Dominio (DDD). Microsoft la define como una fachada o capa de adaptación entre subsistemas que no comparten la misma semántica.</p>
     </section>
 
-    <!-- 21 · Para qué -->
+    <!-- 23 · Para qué -->
     <section class="slide" data-chapter="Anticorrupción" data-topic="Para qué sirve">
       <h2 class="slide-title">¿Para qué <span class="accent">sirve</span>?</h2>
       <div class="columns" style="grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top:8px">
@@ -566,7 +642,7 @@ turnos.Insertar(turno);
       <div class="callout" style="margin-top:20px">En la clínica ya hay dos: el <strong>repositorio</strong> (tema 09) entre la base y el dominio, y los <strong>ViewModels</strong> entre el dominio y las vistas.</div>
     </section>
 
-    <!-- 22 · Ejemplos y práctica -->
+    <!-- 24 · Ejemplos y práctica -->
     <section class="slide" data-chapter="Cierre" data-topic="Ejemplos y práctica">
       <h2 class="slide-title">Ejemplos y <span class="accent">práctica</span></h2>
       <div class="columns">
@@ -584,7 +660,7 @@ turnos.Insertar(turno);
       </div>
     </section>
 
-    <!-- 23 · Bibliografía -->
+    <!-- 25 · Bibliografía -->
     <section class="slide" data-chapter="Cierre" data-topic="Bibliografía">
       <h2 class="slide-title"><span class="accent">Bibliografía</span></h2>
       <ul class="bullets" style="font-size:17px">
@@ -597,7 +673,7 @@ turnos.Insertar(turno);
       </ul>
     </section>
 
-    <!-- 24 · Cierre -->
+    <!-- 26 · Cierre -->
     <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
       <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
       <p class="subtitle">Próximo: validación — que los datos del formulario tengan sentido.</p>
@@ -606,5 +682,6 @@ turnos.Insertar(turno);
   </div>
   <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
   <script src="../assets/pasos.js?v=6"></script>
+  <script src="../assets/vscode.js?v=1"></script>
 </body>
 </html>

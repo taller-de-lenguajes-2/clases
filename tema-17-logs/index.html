@@ -600,7 +600,43 @@ app.UseExceptionHandler();</pre>
       <div class="callout">Buscando ese número en el archivo aparecen <strong>todas</strong> las líneas de ese request puntual, entre miles. Al usuario no le mostramos el detalle, pero le damos una <strong>referencia</strong> para encontrarlo.</div>
     </section>
 
-    <!-- 24 · Debate -->
+    <!-- 24 · Al código -->
+    <section class="slide" data-chapter="Al código" data-topic="El proyecto de logs en VS Code">
+      <h2 class="slide-title">Al código: el proyecto de <span class="accent">logs</span></h2>
+      <p style="margin-top:0"><a class="vsc proyecto" href="#" data-vsc="tema-17-logs/proyecto-ejemplo">Abrir el proyecto en VS Code</a> <span class="small-note">después, en la terminal: <code>dotnet run</code> → <code>http://localhost:5093</code></span></p>
+      <div class="columns three" style="align-items:start">
+        <div class="card accent-top">
+          <h3>1 · Configuración</h3>
+          <p style="margin:0 0 6px"><a class="vsc" href="#" data-vsc="tema-17-logs/proyecto-ejemplo/Program.cs:6">Program.cs<span class="vsc-linea">:6</span></a> <a class="vsc" href="#" data-vsc="tema-17-logs/proyecto-ejemplo/Program.cs:14">Program.cs<span class="vsc-linea">:14</span></a> <a class="vsc" href="#" data-vsc="tema-17-logs/proyecto-ejemplo/appsettings.json:2">appsettings.json<span class="vsc-linea">:2</span></a> <a class="vsc" href="#" data-vsc="tema-17-logs/proyecto-ejemplo/appsettings.Development.json">appsettings.Development.json</a></p>
+          <ul style="font-size:16px; margin:0; padding-left:18px">
+            <li><code>AddSerilog</code> lee todo de <code>appsettings.json</code></li>
+            <li><code>UseSerilogRequestLogging</code> va <strong>antes</strong> del manejador</li>
+            <li>En Development el mínimo baja a <code>Debug</code></li>
+          </ul>
+        </div>
+        <div class="card accent-top alt">
+          <h3>2 · Escribir los logs</h3>
+          <p style="margin:0 0 6px"><a class="vsc" href="#" data-vsc="tema-17-logs/proyecto-ejemplo/Controllers/ProductosController.cs:12">ProductosController.cs<span class="vsc-linea">:12</span></a> <a class="vsc" href="#" data-vsc="tema-17-logs/proyecto-ejemplo/Controllers/ProductosController.cs:26">ProductosController.cs<span class="vsc-linea">:26</span></a> <a class="vsc" href="#" data-vsc="tema-17-logs/proyecto-ejemplo/ManejadorGlobal.cs:16">ManejadorGlobal.cs<span class="vsc-linea">:16</span></a></p>
+          <ul style="font-size:16px; margin:0; padding-left:18px">
+            <li>Plantillas con marcadores, sin <code>$</code></li>
+            <li><code>{@Producto}</code> guarda el objeto entero</li>
+            <li>El manejador: <code>Error</code> para un 500, <code>Warning</code> para un 4xx</li>
+          </ul>
+        </div>
+        <div class="card accent-top">
+          <h3>3 · Probarlo</h3>
+          <p style="margin:0 0 6px"><a class="vsc" href="#" data-vsc="tema-17-logs/proyecto-ejemplo/EjemploLogs.http:4">EjemploLogs.http<span class="vsc-linea">:4</span></a></p>
+          <ul style="font-size:16px; margin:0; padding-left:18px">
+            <li>Mandar cada request del <code>.http</code> (extensión REST Client)</li>
+            <li>Abrir <code>logs/log-AAAAMMDD.txt</code> y el <code>.json</code></li>
+            <li>Copiar el <code>traceId</code> de una respuesta y buscarlo en el archivo</li>
+          </ul>
+        </div>
+      </div>
+      <p class="small-note">Primero abrir el proyecto; los archivos se abren en esa ventana. La primera vez el navegador pide permiso para abrir VS Code (y, fuera de <code>file://</code>, la carpeta del repo: Alt + clic para cambiarla).</p>
+    </section>
+
+    <!-- 25 · Debate -->
     <section class="slide" data-chapter="¿Qué registrar?" data-topic="Debate">
       <h2 class="slide-title">Debate: ¿qué conviene <span class="accent">registrar</span>?</h2>
       <div class="columns">
@@ -612,7 +648,7 @@ app.UseExceptionHandler();</pre>
       </div>
     </section>
 
-    <!-- 25 · Loguear todo -->
+    <!-- 26 · Loguear todo -->
     <section class="slide" data-chapter="¿Qué registrar?" data-topic="¿Loguear todo?">
       <h2 class="slide-title">“¡Si logueamos todo, no se <span class="accent">escapa nada</span>!”</h2>
       <div class="columns">
@@ -630,7 +666,7 @@ app.UseExceptionHandler();</pre>
       </div>
     </section>
 
-    <!-- 26 · Sí / nunca -->
+    <!-- 27 · Sí / nunca -->
     <section class="slide" data-chapter="¿Qué registrar?" data-topic="Qué sí y qué nunca">
       <h2 class="slide-title">Qué <span class="accent">sí</span> y qué <span class="accent">nunca</span></h2>
       <div class="columns">
@@ -657,7 +693,7 @@ app.UseExceptionHandler();</pre>
       </div>
     </section>
 
-    <!-- 27 · Conclusiones -->
+    <!-- 28 · Conclusiones -->
     <section class="slide" data-chapter="Cierre" data-topic="Conclusiones">
       <h2 class="slide-title"><span class="accent">Conclusiones</span></h2>
       <ol class="steps">
@@ -670,7 +706,7 @@ app.UseExceptionHandler();</pre>
       </ol>
     </section>
 
-    <!-- 28 · Ejemplo y práctica -->
+    <!-- 29 · Ejemplo y práctica -->
     <section class="slide" data-chapter="Cierre" data-topic="Ejemplo y práctica">
       <h2 class="slide-title">Ejemplo y <span class="accent">práctica</span></h2>
       <div class="columns">
@@ -688,7 +724,7 @@ app.UseExceptionHandler();</pre>
       </div>
     </section>
 
-    <!-- 29 · Bibliografía -->
+    <!-- 30 · Bibliografía -->
     <section class="slide" data-chapter="Cierre" data-topic="Bibliografía">
       <h2 class="slide-title"><span class="accent">Bibliografía</span></h2>
       <ul class="bullets" style="font-size:16px">
@@ -701,7 +737,7 @@ app.UseExceptionHandler();</pre>
       </ul>
     </section>
 
-    <!-- 30 · Cierre -->
+    <!-- 31 · Cierre -->
     <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
       <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
       <p class="subtitle">Que el programa cuente qué le pasó, aunque nadie esté mirando.</p>
@@ -710,5 +746,6 @@ app.UseExceptionHandler();</pre>
   </div>
   <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
   <script src="../assets/pasos.js?v=6"></script>
+  <script src="../assets/vscode.js?v=1"></script>
 </body>
 </html>

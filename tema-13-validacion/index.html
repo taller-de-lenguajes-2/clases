@@ -432,7 +432,45 @@
       <p class="small-note">Para probarlo: desactivar JavaScript en el navegador (o borrar los atributos <code>data-val</code> desde las herramientas de desarrollo, F12) y enviar el formulario.</p>
     </section>
 
-    <!-- 17 · Dónde aplicar -->
+    <!-- 17 · Al código -->
+    <section class="slide" data-chapter="Al código" data-topic="Atributos en VS Code">
+      <h2 class="slide-title">Al código: los <span class="accent">atributos</span> (V1 · V2 · V3)</h2>
+      <p style="margin-top:0"><a class="vsc proyecto" href="#" data-vsc="tema-13-validacion/ejemplo-completo">Abrir el proyecto en VS Code</a> <span class="small-note">después, en la terminal: <code>dotnet run</code> → <code>http://localhost:5196</code></span></p>
+      <div class="columns three" style="align-items:start">
+        <div class="card accent-top">
+          <h3>Nuevo paciente · V1 y V2</h3>
+          <p style="margin:0 0 6px"><a class="vsc" href="#" data-vsc="tema-13-validacion/ejemplo-completo/ViewModels/PacienteCrearViewModel.cs:7">PacienteCrearViewModel.cs<span class="vsc-linea">:7</span></a> <a class="vsc" href="#" data-vsc="tema-13-validacion/ejemplo-completo/Views/Pacientes/Crear.cshtml:8">Crear.cshtml<span class="vsc-linea">:8</span></a></p>
+          <ul style="font-size:16px; margin:0; padding-left:18px">
+            <li>Buscar <code>[V1]</code> y <code>[V2]</code>: la regla se escribe <strong>una vez</strong></li>
+            <li>F12 → Elementos: los <code>data-val-*</code> que generó <code>asp-for</code></li>
+            <li><code>[Phone]</code> solo lo controla el servidor: probar <code>abc</code></li>
+          </ul>
+          <p class="small-note" style="margin:6px 0 0">En la app: <code>/Pacientes/Crear</code></p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Sacar un turno · las listas</h3>
+          <p style="margin:0 0 6px"><a class="vsc" href="#" data-vsc="tema-13-validacion/ejemplo-completo/ViewModels/TurnoCrearViewModel.cs:11">TurnoCrearViewModel.cs<span class="vsc-linea">:11</span></a> <a class="vsc" href="#" data-vsc="tema-13-validacion/ejemplo-completo/ViewModels/TurnoCrearViewModel.cs:30">TurnoCrearViewModel.cs<span class="vsc-linea">:30</span></a></p>
+          <ul style="font-size:16px; margin:0; padding-left:18px">
+            <li><code>int?</code> + <code>[Required]</code>: «no eligió nada» llega como <code>null</code></li>
+            <li>Listas con <code>= []</code> y <code>[ValidateNever]</code></li>
+            <li>Sin <code>= []</code>: «The Medicos field is required.», y no se ve en pantalla</li>
+          </ul>
+          <p class="small-note" style="margin:6px 0 0">En la app: <code>/Turnos/Crear</code></p>
+        </div>
+        <div class="card accent-top">
+          <h3>Atributo propio · V3</h3>
+          <p style="margin:0 0 6px"><a class="vsc" href="#" data-vsc="tema-13-validacion/ejemplo-completo/Validaciones/FechaFuturaAttribute.cs:7">FechaFuturaAttribute.cs<span class="vsc-linea">:7</span></a> <a class="vsc" href="#" data-vsc="tema-13-validacion/ejemplo-completo/Views/Shared/_ValidationScriptsPartial.cshtml:1">_ValidationScriptsPartial.cshtml<span class="vsc-linea">:1</span></a></p>
+          <ul style="font-size:16px; margin:0; padding-left:18px">
+            <li><code>IsValid</code>: si es <code>null</code> lo deja para <code>[Required]</code></li>
+            <li>No tiene parte de JavaScript: el navegador deja pasar una fecha vieja</li>
+            <li>La frena el servidor, con el mensaje en <code>ModelState</code></li>
+          </ul>
+        </div>
+      </div>
+      <p class="small-note">Primero abrir el proyecto; los archivos se abren en esa ventana. La primera vez el navegador pide permiso para abrir VS Code (y, fuera de <code>file://</code>, la carpeta del repo: Alt + clic para cambiarla).</p>
+    </section>
+
+    <!-- 18 · Dónde aplicar -->
     <section class="slide" data-chapter="Cierre" data-topic="¿Dónde va cada validación?">
       <h2 class="slide-title">¿Dónde va cada <span class="accent">validación</span>?</h2>
       <table class="tbl" style="margin-top:6px">
@@ -446,7 +484,43 @@
       <p class="small-note" style="margin-top:16px">Una Web API también usa <code>ModelState</code>: con <code>[ApiController]</code>, si no es válido responde <code>400 Bad Request</code> solo, con la lista de errores en JSON.</p>
     </section>
 
-    <!-- 18 · Ejemplos y práctica -->
+    <!-- 19 · Al código -->
+    <section class="slide" data-chapter="Al código" data-topic="Reglas de negocio en VS Code">
+      <h2 class="slide-title">Al código: las <span class="accent">reglas de negocio</span> (V4 · V5 · V6)</h2>
+      <p style="margin-top:0"><a class="vsc proyecto" href="#" data-vsc="tema-13-validacion/ejemplo-completo">Abrir el proyecto en VS Code</a> <span class="small-note">después, en la terminal: <code>dotnet run</code> → <code>http://localhost:5196</code></span></p>
+      <div class="columns three" style="align-items:start">
+        <div class="card accent-top">
+          <h3>La entidad · V4</h3>
+          <p style="margin:0 0 6px"><a class="vsc" href="#" data-vsc="tema-13-validacion/ejemplo-completo/Models/Modelos.cs:29">Modelos.cs<span class="vsc-linea">:29</span></a></p>
+          <ul style="font-size:16px; margin:0; padding-left:18px">
+            <li><code>EnHorarioDeAtencion()</code> usa solo los datos <strong>del propio turno</strong></li>
+            <li>Sirve para cualquier caso de uso que cree o mueva un turno</li>
+            <li>Probar: un turno para un sábado</li>
+          </ul>
+          <p class="small-note" style="margin:6px 0 0">En la app: <code>/Turnos/Crear</code></p>
+        </div>
+        <div class="card accent-top alt">
+          <h3>Los casos de uso · V5</h3>
+          <p style="margin:0 0 6px"><a class="vsc" href="#" data-vsc="tema-13-validacion/ejemplo-completo/CasosDeUso/SacarTurno.cs:9">SacarTurno.cs<span class="vsc-linea">:9</span></a> <a class="vsc" href="#" data-vsc="tema-13-validacion/ejemplo-completo/CasosDeUso/RegistrarPaciente.cs:4">RegistrarPaciente.cs<span class="vsc-linea">:4</span></a> <a class="vsc" href="#" data-vsc="tema-13-validacion/ejemplo-completo/Controllers/TurnosController.cs:28">TurnosController.cs<span class="vsc-linea">:28</span></a></p>
+          <ul style="font-size:16px; margin:0; padding-left:18px">
+            <li>Las reglas que necesitan <strong>la base</strong>: médico ocupado, DNI repetido</li>
+            <li>El caso de uso no sabe de <code>ModelState</code>: devuelve un <code>Resultado</code></li>
+            <li>El controlador lo traduce con <code>AddModelError</code></li>
+          </ul>
+        </div>
+        <div class="card accent-top">
+          <h3>La base · V6</h3>
+          <p style="margin:0 0 6px"><a class="vsc" href="#" data-vsc="tema-13-validacion/ejemplo-completo/Repositorios/PacienteRepository.cs:69">PacienteRepository.cs<span class="vsc-linea">:69</span></a> <a class="vsc" href="#" data-vsc="tema-13-validacion/ejemplo-completo/README.md:16">README.md<span class="vsc-linea">:16</span></a></p>
+          <ul style="font-size:16px; margin:0; padding-left:18px">
+            <li><code>UNIQUE</code>, <code>FOREIGN KEY</code>, <code>NOT NULL</code>: la última red</li>
+            <li>En DB Browser: insertar un DNI repetido a mano y ver el error</li>
+            <li>El README tiene la tabla de V1 a V6 y cómo provocar cada una</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- 20 · Ejemplos y práctica -->
     <section class="slide" data-chapter="Cierre" data-topic="Ejemplos y práctica">
       <h2 class="slide-title">Ejemplos y <span class="accent">práctica</span></h2>
       <div class="columns">
@@ -465,7 +539,7 @@
       </div>
     </section>
 
-    <!-- 19 · Bibliografía -->
+    <!-- 21 · Bibliografía -->
     <section class="slide" data-chapter="Cierre" data-topic="Bibliografía">
       <h2 class="slide-title"><span class="accent">Bibliografía</span></h2>
       <ul class="bullets" style="font-size:17px">
@@ -478,7 +552,7 @@
       </ul>
     </section>
 
-    <!-- 20 · Cierre -->
+    <!-- 22 · Cierre -->
     <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
       <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
       <p class="subtitle">Próximo: logs — que la aplicación cuente qué le pasó.</p>
@@ -487,5 +561,6 @@
   </div>
   <script src="https://cdn.jsdelivr.net/gh/Spktro/slidedeck@v1/deck.js"></script>
   <script src="../assets/pasos.js?v=6"></script>
+  <script src="../assets/vscode.js?v=1"></script>
 </body>
 </html>

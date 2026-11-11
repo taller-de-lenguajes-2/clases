@@ -37,12 +37,12 @@ El material se organiza **por tema** (estable entre años); el orden de dictado 
 | 2 | 03 · 04 |
 | 3 | 05 |
 | 4 | 06 |
-| 5 | 16 _(excepciones se adelanta este año; logs, tema 17, queda para más adelante)_ |
+| 5 | 16 _(excepciones se adelanta este año; logs, tema 17, se da en la clase 9)_ |
 | 6 | 07 |
 | 7 | 08 · 09 |
 | 8 | 10 · 11 |
-| 9 | 12 · 13 · 15 |
-| 10 | 14 |
+| 9 | 12 · 13 · 17 |
+| 10 | 14 · 15 |
 
 ## Framework de presentaciones
 

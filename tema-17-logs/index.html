@@ -28,25 +28,31 @@
     <!-- 2 · Dónde quedamos -->
     <section class="slide" data-chapter="Intro" data-topic="Dónde quedamos">
       <h2 class="slide-title">Dónde <span class="accent">quedamos</span></h2>
-      <div class="columns">
+      <div class="columns three">
+        <div class="card accent-top">
+          <h3>Tema 13 · Validación</h3>
+          <ul>
+            <li>Los errores <strong>del usuario</strong> (DNI repetido, médico ocupado)</li>
+            <li>Se avisan en el formulario con <code>ModelState</code></li>
+          </ul>
+        </div>
         <div class="card accent-top">
           <h3>Tema 16 · Excepciones</h3>
           <ul>
-            <li>Capturamos los errores con <code>try-catch</code></li>
-            <li>La Web API ya <strong>no se cae</strong>: responde un 404 o un 500 prolijo</li>
-            <li>Al usuario, un mensaje amable, <strong>sin</strong> el <code>StackTrace</code></li>
+            <li>Los errores <strong>del programa</strong> se atrapan con <code>try-catch</code></li>
+            <li>En la Web API, un manejador global responde un 404 o un 500 prolijo, <strong>sin</strong> el <code>StackTrace</code></li>
           </ul>
         </div>
         <div class="card accent-top alt">
           <h3>El problema</h3>
           <ul>
-            <li>El error <strong>ocurrió</strong>… y nadie se enteró</li>
-            <li>En .NET 10, si nuestro manejador atrapa la excepción, el framework <strong>no la registra</strong></li>
-            <li>El detalle técnico no se le muestra al usuario: ¿<strong>dónde</strong> queda, entonces?</li>
+            <li>¿Y si falla algo que no es culpa del usuario, como la base que no responde?</li>
+            <li>El detalle técnico no se le muestra a nadie: ¿<strong>dónde</strong> queda, entonces?</li>
           </ul>
         </div>
       </div>
       <div class="callout" style="font-size:20px">Hoy: que el programa <strong>cuente qué le pasó</strong>, aunque nadie esté mirando.</div>
+      <p class="small-note">Para verlo volvemos a la Web API del tema 16, que ya tiene su manejador global. En la práctica lo llevamos a la clínica.</p>
     </section>
 
     <!-- 3 · Definición -->
@@ -135,7 +141,7 @@
     <!-- 7 · Obtener el logger -->
     <section class="slide" data-chapter="ILogger" data-topic="Cómo se obtiene">
       <h2 class="slide-title">¿Cómo llega el <span class="accent">logger</span> a nuestra clase?</h2>
-      <p>Lo pedimos en el <strong>constructor</strong> y el framework nos lo entrega solo: es <strong>inyección de dependencias</strong> (lo vemos a fondo en el tema 14).</p>
+      <p>Lo pedimos en el <strong>constructor</strong> y el framework nos lo entrega solo, igual que <code>TurnosController</code> recibe <code>TurnoRepository</code>. La diferencia: el logger <strong>no hay que registrarlo</strong> con <code>AddScoped</code>, ASP.NET Core ya lo trae. Es <strong>inyección de dependencias</strong> (a fondo en el tema 14).</p>
       <div class="columns">
         <div>
           <h3>Forma clásica</h3>
@@ -158,7 +164,7 @@
 }</pre>
           <ul class="bullets">
             <li>El <code>&lt;T&gt;</code> define la <strong>categoría</strong>: cada línea dirá que la escribió <code>ProductosController</code></li>
-            <li>Funciona igual en controladores, servicios, repositorios…</li>
+            <li>Funciona igual en los controladores y en el manejador global</li>
           </ul>
         </div>
       </div>
@@ -297,9 +303,9 @@ logger.LogInformation(
     _logger.LogError(ex,
         <span class="s">"No se pudo guardar el pedido {PedidoId}"</span>,
         pedido.Id);
-    <span class="k">throw</span>;
+    <span class="c">// … y el error se resuelve acá (ver la siguiente)</span>
 }</pre>
-          <p class="small-note">El logger guarda <strong>solo</strong> el tipo, el <code>Message</code>, las <code>InnerException</code> y el <code>StackTrace</code> completos. El mensaje nuestro agrega el <strong>contexto</strong>: qué estábamos haciendo.</p>
+          <p class="small-note">El logger guarda <strong>por su cuenta</strong> el tipo, el <code>Message</code>, las <code>InnerException</code> y el <code>StackTrace</code> completos. El mensaje nuestro agrega el <strong>contexto</strong>: qué estábamos haciendo.</p>
         </div>
       </div>
     </section>
@@ -430,7 +436,8 @@ app.Run();</pre>
     <!-- 18 · Resultado -->
     <section class="slide" data-chapter="Serilog" data-topic="El resultado">
       <h2 class="slide-title">El <span class="accent">resultado</span>: <code>logs/log-20260922.txt</code></h2>
-<pre class="out" style="font-size:12.5px">2026-09-22 22:25:58 [INF] Microsoft.Hosting.Lifetime: Now listening on: http://localhost:5198 (trace )
+<pre class="out" style="font-size:12.5px">2026-09-22 22:25:58 [INF] Microsoft.Hosting.Lifetime: Now listening on: http://localhost:5093 (trace )
+<span class="dim">2026-09-22 22:25:58 [DBG] ProductosController: Buscando el producto 1 (trace c9a857db59d2ba68834b7b84b17be62b)</span>
 2026-09-22 22:25:58 [INF] ProductosController: Se consultó el producto 1 (Yerba) (trace c9a857db59d2ba68834b7b84b17be62b)
 2026-09-22 22:25:58 [INF] Serilog.AspNetCore.RequestLoggingMiddleware: HTTP GET /productos/1 responded 200 in 39.5703 ms (trace c9a857db…)
 <span class="dim">2026-09-22 22:25:58</span> [WRN] ManejadorGlobal: Pedido inválido en /productos/9: No existe el producto 9 (trace 250eefa86ab310bd0a9070c6aaf0c1c0)
@@ -441,7 +448,7 @@ System.InvalidOperationException: La base de datos no responde
    …</span>
 2026-09-22 22:25:58 [ERR] Serilog.AspNetCore.RequestLoggingMiddleware: HTTP GET /productos/boom responded 500 in 6.9062 ms (trace 7b05a427…)</pre>
       <div class="columns" style="margin-top:12px">
-        <p class="small-note">Salida real del proyecto de ejemplo. Cada request deja: lo que escribimos nosotros (<code>ProductosController</code>, <code>ManejadorGlobal</code>) y la línea de resumen de <code>UseSerilogRequestLogging</code>: verbo, ruta, código de estado y tiempo.</p>
+        <p class="small-note">Salida real del proyecto de ejemplo, en Development (por eso aparece el <code>[DBG]</code>: <code>appsettings.Development.json</code> baja el mínimo a <code>Debug</code>). Cada request deja: lo que escribimos nosotros (<code>ProductosController</code>, <code>ManejadorGlobal</code>) y la línea de resumen de <code>UseSerilogRequestLogging</code>: verbo, ruta, código de estado y tiempo.</p>
         <p class="small-note">El <code>Error</code> trae la excepción <strong>completa</strong> con su <code>StackTrace</code>, que al cliente no le mostramos. El log es el lugar para ese detalle.</p>
       </div>
     </section>
@@ -600,14 +607,14 @@ app.UseExceptionHandler();</pre>
       <div class="columns">
         <div class="card accent-top">
           <h3>Proyecto de ejemplo</h3>
-          <p>Web API .NET 10 con Serilog y el manejador global, en <code>proyecto-ejemplo</code>. El archivo <code>EjemploLogs.http</code> tiene un request para cada caso (200, 404, 400, 500).</p>
+          <p>Web API .NET 10 con Serilog y el manejador global, en <code>proyecto-ejemplo</code>. El archivo <code>EjemploLogs.http</code> tiene un request para cada caso (200, 201, 404, 400, 500).</p>
 <pre class="code sm"><span class="k">cd</span> tema-17-logs/proyecto-ejemplo
 <span class="k">dotnet</span> run
 <span class="c"># los logs quedan en logs/log-AAAAMMDD.txt y .json</span></pre>
         </div>
         <div class="card accent-top alt">
           <h3>Propuesta práctica</h3>
-          <p><span class="todo-placeholder">consigna y link de GitHub Classroom a definir</span></p>
+          <p>Llevar los logs a la clínica del tema 13: instalar Serilog con un archivo por día, registrar con plantilla cada turno creado (<code>{PacienteId}</code>, <code>{MedicoId}</code>, <code>{Fecha}</code>) y cuando un médico está ocupado. Revisar en <code>logs/</code> qué quedó escrito.</p>
         </div>
       </div>
     </section>

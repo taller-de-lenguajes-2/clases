@@ -273,16 +273,16 @@
     <span class="k">public int</span> Id { <span class="k">get</span>; <span class="k">set</span>; }
     <span class="k">public</span> <span class="t">DateTime</span> Fecha { <span class="k">get</span>; <span class="k">set</span>; }
     <span class="k">public string</span>? Observaciones { <span class="k">get</span>; <span class="k">set</span>; }
-    <span class="k">public</span> <span class="t">Paciente</span> Paciente { <span class="k">get</span>; <span class="k">set</span>; }
-    <span class="k">public</span> <span class="t">Medico</span> Medico { <span class="k">get</span>; <span class="k">set</span>; }
+    <span class="k">public</span> <span class="t">Paciente</span> Paciente { <span class="k">get</span>; <span class="k">set</span>; } = <span class="k">new</span>();
+    <span class="k">public</span> <span class="t">Medico</span> Medico { <span class="k">get</span>; <span class="k">set</span>; } = <span class="k">new</span>();
 }</pre>
-          <p class="small-note">Para una fila del listado sobra el DNI, el teléfono, el Id del médico… y falta el texto armado.</p>
+          <p class="small-note">Para una fila del listado sobran el DNI, el teléfono, el Id del médico… y falta el texto armado.</p>
         </div>
         <div>
           <h3>El ViewModel: una fila del listado</h3>
 <pre class="code sm"><span class="k">public class</span> <span class="t">TurnoListadoViewModel</span>
 {
-    <span class="k">public string</span> Dia { <span class="k">get</span>; }       <span class="c">// "lun 20/10"</span>
+    <span class="k">public string</span> Dia { <span class="k">get</span>; }       <span class="c">// "mar 20/10"</span>
     <span class="k">public string</span> Hora { <span class="k">get</span>; }      <span class="c">// "09:00"</span>
     <span class="k">public string</span> Paciente { <span class="k">get</span>; }
     <span class="k">public string</span> Medico { <span class="k">get</span>; }    <span class="c">// "Inés Molina (Cardiología)"</span>
@@ -341,6 +341,7 @@ vie 23/10  08:15  Carla Ruiz   Martín Vera (Pediatría)
 <pre class="code sm"><span class="k">public class</span> <span class="t">PacienteDetalleViewModel</span>
 {
     <span class="k">public string</span> Nombre { <span class="k">get</span>; }
+    <span class="k">public string</span> DNI { <span class="k">get</span>; }
     <span class="k">public string</span> Telefono { <span class="k">get</span>; }
     <span class="k">public</span> <span class="t">List</span>&lt;<span class="t">TurnoListadoViewModel</span>&gt; ProximosTurnos { <span class="k">get</span>; }
     <span class="k">public int</span> TurnosAnteriores { <span class="k">get</span>; }
@@ -348,6 +349,7 @@ vie 23/10  08:15  Carla Ruiz   Martín Vera (Pediatría)
     <span class="k">public</span> PacienteDetalleViewModel(<span class="t">Paciente</span> paciente, <span class="t">List</span>&lt;<span class="t">Turno</span>&gt; turnos)
     {
         Nombre = paciente.Nombre;
+        DNI = paciente.DNI ?? <span class="s">"sin DNI"</span>;
         Telefono = paciente.Telefono ?? <span class="s">"sin teléfono"</span>;
         ProximosTurnos = turnos.Where(t =&gt; t.Fecha &gt;= <span class="t">DateTime</span>.Now)
                                .Select(t =&gt; <span class="k">new</span> <span class="t">TurnoListadoViewModel</span>(t))
@@ -361,13 +363,14 @@ vie 23/10  08:15  Carla Ruiz   Martín Vera (Pediatría)
 <span class="k">return</span> View(modelo);</pre>
         <div>
 <pre class="out">Carla Ruiz
+DNI: 35444555
 Teléfono: 381-5550001
 
 Próximos turnos
-mié 04/11  10:00  Inés Molina (Cardiología)
 vie 13/11  15:00  Laura Sosa (Clínica médica)
 
-Turnos anteriores: 1</pre>
+Turnos anteriores: 2</pre>
+          <p class="small-note">Salida del 11/11: cambia según el día, porque compara con <code>DateTime.Now</code>.</p>
           <p class="small-note"><code>View()</code> recibe <strong>un solo</strong> objeto. Si la página necesita dos cosas, el ViewModel las junta.</p>
         </div>
       </div>
@@ -378,7 +381,10 @@ Turnos anteriores: 1</pre>
       <h2 class="slide-title">Escenario 3: la vista necesita <span class="accent">más</span></h2>
       <div class="columns" style="align-items:start">
         <div>
-<pre class="code sm"><span class="k">public class</span> <span class="t">TurnoCrearViewModel</span>
+<pre class="code sm"><span class="k">using</span> System.ComponentModel.DataAnnotations;     <span class="c">// [Display]</span>
+<span class="k">using</span> Microsoft.AspNetCore.Mvc.Rendering;       <span class="c">// SelectListItem</span>
+
+<span class="k">public class</span> <span class="t">TurnoCrearViewModel</span>
 {
     <span class="c">// lo que carga el usuario</span>
     [<span class="t">Display</span>(Name = <span class="s">"Paciente"</span>)]
@@ -575,7 +581,6 @@ turnos.Insertar(turno);
         <div class="card accent-top alt">
           <h3>Propuesta práctica</h3>
           <p>Agregar <code>/Medicos/Detalle/{id}</code> con un <code>MedicoAgendaViewModel</code>: el médico, sus turnos de la semana agrupados por día y cuántos pacientes distintos atiende.</p>
-          <p><span class="todo-placeholder">link de GitHub Classroom 2026</span></p>
         </div>
       </div>
     </section>

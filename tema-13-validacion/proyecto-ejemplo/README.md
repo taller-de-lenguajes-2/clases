@@ -28,5 +28,5 @@ Se abre en `http://localhost:5193`. La primera vez crea `clinica.db` con el scri
 - Dejar el nombre vacío o poner `12.345` en el DNI: el navegador avisa sin enviar.
 - Teléfono `abc` o un turno para ayer: el navegador lo deja pasar y lo frena el servidor.
 - DNI `30111222` (Ana Gómez): «Ya hay un paciente con ese DNI».
-- Turno con Laura Sosa el 10/11/2026 a las 09:00: «Laura Sosa ya tiene un turno a esa hora».
+- Turno con Laura Sosa el 13/11/2026 a las 15:00 (un horario futuro en el que ya tiene turno): «Laura Sosa ya tiene un turno a esa hora».
 - Con JavaScript desactivado en el navegador, todo sigue validándose en el servidor.

@@ -202,7 +202,73 @@
 }</pre>
     </section>
 
-    <!-- 9 · Modelos para transportar -->
+    <!-- 9 · Dos tipos de reglas (capas) -->
+    <section class="slide capas-reglas" data-pasos data-chapter="El dominio" data-topic="Reglas del negocio y de la aplicación">
+      <style>
+        .capas-reglas .capas-svg { width: 100%; max-height: 400px; }
+        .capas-reglas .capas-svg g.plano { transition: opacity .45s ease, transform .7s cubic-bezier(.2,.9,.25,1.15); }
+        .capas-reglas .capas-svg g.plano:not(.visto) { transform: translateY(-80px); }
+        .capas-reglas .pila { display: grid; gap: 7px; }
+        .capas-reglas .pila > [data-paso] { transition: opacity .45s ease, transform .55s ease; }
+        .capas-reglas .pila > [data-paso]:not(.visto) { transform: translateX(30px); }
+        .capas-reglas .capa-card { border-left: 4px solid var(--c); padding: 6px 12px; background: color-mix(in srgb, var(--c) 7%, var(--panel)); border-radius: 10px; }
+        .capas-reglas .capa-card.afuera { border-left-style: dashed; background: transparent; }
+        .capas-reglas .capa-card h3 { margin: 0 0 2px; font-size: 17px; color: var(--c); }
+        .capas-reglas .capa-card p { margin: 0 0 4px; font-size: 14.5px; line-height: 1.35; }
+        .capas-reglas .capa-card pre { margin: 0; font-size: 12.5px; padding: 7px 10px; }
+      </style>
+      <h2 class="slide-title">Dos tipos de <span class="accent">reglas</span></h2>
+      <div class="columns" style="grid-template-columns: 0.72fr 1.28fr; align-items:center; margin-top:2px">
+        <svg class="capas-svg" viewBox="0 0 400 420" role="img" aria-label="Tres planos apilados: abajo las entidades con las reglas del negocio, en el medio los casos de uso con las reglas de la aplicación, arriba, punteado, el controlador con la forma del dato, que no es regla de negocio">
+          <g class="plano" data-paso="1">
+            <polygon points="10.0,330 200,392.0 200,406.0 10.0,344" fill="color-mix(in srgb, var(--accent) 55%, var(--text))" opacity="0.55"/>
+            <polygon points="390.0,330 200,392.0 200,406.0 390.0,344" fill="color-mix(in srgb, var(--accent) 40%, var(--text))" opacity="0.55"/>
+            <polygon points="200,268.0 390.0,330 200,392.0 10.0,330" fill="color-mix(in srgb, var(--accent) 22%, var(--panel))" stroke="var(--accent)" stroke-width="2" opacity="0.94"/>
+            <text x="200" y="327" text-anchor="middle" font-size="20" font-weight="700" fill="var(--accent)">Entidades</text>
+            <text x="200" y="349" text-anchor="middle" font-size="13.5" fill="var(--muted)">reglas del negocio</text>
+          </g>
+          <g class="plano" data-paso="2">
+            <polygon points="10.0,220 200,282.0 200,296.0 10.0,234" fill="color-mix(in srgb, var(--accent-2) 55%, var(--text))" opacity="0.55"/>
+            <polygon points="390.0,220 200,282.0 200,296.0 390.0,234" fill="color-mix(in srgb, var(--accent-2) 40%, var(--text))" opacity="0.55"/>
+            <polygon points="200,158.0 390.0,220 200,282.0 10.0,220" fill="color-mix(in srgb, var(--accent-2) 22%, var(--panel))" stroke="var(--accent-2)" stroke-width="2" opacity="0.94"/>
+            <text x="200" y="217" text-anchor="middle" font-size="20" font-weight="700" fill="var(--accent-2)">Casos de uso</text>
+            <text x="200" y="239" text-anchor="middle" font-size="13.5" fill="var(--muted)">reglas de la aplicación</text>
+          </g>
+          <g class="plano" data-paso="3">
+            <polygon points="200,48.0 390.0,110 200,172.0 10.0,110" fill="color-mix(in srgb, var(--muted) 10%, var(--panel))" stroke="var(--muted)" stroke-width="2" stroke-dasharray="8 6" opacity="0.94"/>
+            <text x="200" y="107" text-anchor="middle" font-size="20" font-weight="700" fill="var(--muted)">Controlador + ViewModel</text>
+            <text x="200" y="129" text-anchor="middle" font-size="13.5" fill="var(--muted)">no es regla de negocio · tema 13</text>
+          </g>
+        </svg>
+        <div class="pila">
+          <div class="capa-card afuera" data-paso="3" style="--c: var(--muted)">
+            <h3>Afuera · no es regla de negocio</h3>
+            <p>¿Eligió un socio? ¿El Id es un número? La <strong>forma</strong> del dato se controla antes de llamar al caso de uso.</p>
+          </div>
+          <div class="capa-card" data-paso="2" style="--c: var(--accent-2)">
+            <h3>Reglas de la aplicación · <code>RegistrarPrestamo</code></h3>
+            <p>El <strong>flujo</strong> del sistema: qué buscar, en qué orden, qué hacer si falla. Consigue los datos y <strong>le pregunta</strong> a la entidad.</p>
+<pre class="code sm"><span class="t">Socio</span> socio = socios.Obtener(socioId);
+<span class="k">int</span> activos = prestamos.ActivosDelSocio(socioId);   <span class="c">// ← la base</span>
+<span class="k">if</span> (!socio.PuedeLlevarOtro(activos))                <span class="c">// ← le pregunta</span>
+    <span class="k">return</span> <span class="t">Resultado</span>.Error(<span class="s">"Ya tiene 5 libros"</span>);
+<span class="k">if</span> (prestamos.EstaPrestado(libroId))
+    <span class="k">return</span> <span class="t">Resultado</span>.Error(<span class="s">"El libro está prestado"</span>);
+prestamos.Guardar(<span class="k">new</span> <span class="t">Prestamo</span> { Retiro = <span class="t">DateTime</span>.Today, … });</pre>
+          </div>
+          <div class="capa-card" data-paso="1" style="--c: var(--accent)">
+            <h3>Reglas del negocio · <code>Prestamo</code> y <code>Socio</code></h3>
+            <p>Existirían aunque la biblioteca funcionara con <strong>fichas de papel</strong>. <strong>Deciden</strong> con los datos que tienen o que les pasan.</p>
+<pre class="code sm"><span class="k">public</span> <span class="t">DateTime</span> Vencimiento =&gt; Retiro.AddDays(<span class="n">14</span>);            <span class="c">// Prestamo</span>
+<span class="k">public bool</span> PuedeLlevarOtro(<span class="k">int</span> activos) =&gt; activos &lt; <span class="n">5</span>;    <span class="c">// Socio</span></pre>
+          </div>
+        </div>
+      </div>
+      <div class="callout" data-paso="4" style="margin-top:6px; font-size:17px">¿Existiría con fichas de papel? → <strong>la entidad</strong>. ¿Es parte de cómo funciona el sistema? → <strong>el caso de uso</strong>. La entidad <strong>decide</strong>; el caso de uso <strong>busca los datos y le pregunta</strong>.</div>
+      <p class="small-note" data-paso="4" style="margin:2px 0 0">Son los círculos del slide 3 vistos como capas: cada una depende de la de abajo. Robert C. Martin, <em>Clean Architecture</em> (2017), cap. 20: <em>Critical Business Rules</em> y <em>Application-specific Business Rules</em>.</p>
+    </section>
+
+    <!-- 10 · Modelos para transportar -->
     <section class="slide" data-chapter="Modelos" data-topic="Modelos para cada tarea">
       <h2 class="slide-title">Un modelo para cada <span class="accent">tarea</span></h2>
       <p class="small-note" style="margin-top:0">Pueden tener los mismos datos que la entidad, pero en una versión <strong>plana</strong> y sin lógica, pensada para una tarea.</p>
@@ -215,7 +281,7 @@
       <div class="callout" style="margin-top:20px">Hoy: los <strong>ViewModels</strong>, el modelo hecho a medida de una vista.</div>
     </section>
 
-    <!-- 10 · Qué es un ViewModel -->
+    <!-- 11 · Qué es un ViewModel -->
     <section class="slide" data-chapter="ViewModels" data-topic="¿Qué es un ViewModel?">
       <h2 class="slide-title">¿Qué es un <span class="accent">ViewModel</span>?</h2>
       <div class="columns" style="grid-template-columns: 1fr 1fr; align-items:center">
@@ -248,7 +314,7 @@
       </div>
     </section>
 
-    <!-- 11 · Model vs ViewModel -->
+    <!-- 12 · Model vs ViewModel -->
     <section class="slide" data-chapter="ViewModels" data-topic="Model vs ViewModel">
       <h2 class="slide-title">Model <span class="accent">vs</span> ViewModel</h2>
       <table class="tbl" style="margin-top:6px">
@@ -262,7 +328,7 @@
       <p class="small-note" style="margin-top:18px">En las vistas de los temas 10 y 11 usábamos directamente las entidades (<code>@model Paciente</code>). Para pantallas simples alcanza; cuando la pantalla pide algo distinto del modelo, va un ViewModel.</p>
     </section>
 
-    <!-- 12 · Escenario 1 -->
+    <!-- 13 · Escenario 1 -->
     <section class="slide" data-chapter="Escenarios" data-topic="1 · Simplificar un modelo">
       <h2 class="slide-title">Escenario 1: <span class="accent">simplificar</span> un modelo</h2>
       <div class="columns" style="align-items:start">
@@ -299,7 +365,7 @@
       </div>
     </section>
 
-    <!-- 13 · Escenario 1 en uso -->
+    <!-- 14 · Escenario 1 en uso -->
     <section class="slide" data-chapter="Escenarios" data-topic="1 · Controlador y vista">
       <h2 class="slide-title">Escenario 1: en el controlador y la <span class="accent">vista</span></h2>
       <div class="columns" style="align-items:start">
@@ -334,7 +400,7 @@ vie 23/10  08:15  Carla Ruiz   Martín Vera (Pediatría)
       </div>
     </section>
 
-    <!-- 14 · Escenario 2 -->
+    <!-- 15 · Escenario 2 -->
     <section class="slide" data-chapter="Escenarios" data-topic="2 · Dos modelos, una vista">
       <h2 class="slide-title">Escenario 2: dos modelos, <span class="accent">una vista</span></h2>
       <div class="columns wide-left" style="align-items:start">
@@ -376,7 +442,7 @@ Turnos anteriores: 2</pre>
       </div>
     </section>
 
-    <!-- 15 · Escenario 3 -->
+    <!-- 16 · Escenario 3 -->
     <section class="slide" data-chapter="Escenarios" data-topic="3 · Más datos que el modelo">
       <h2 class="slide-title">Escenario 3: la vista necesita <span class="accent">más</span></h2>
       <div class="columns" style="align-items:start">
@@ -417,7 +483,7 @@ Turnos anteriores: 2</pre>
       </div>
     </section>
 
-    <!-- 16 · Al código -->
+    <!-- 17 · Al código -->
     <section class="slide" data-chapter="Al código" data-topic="Los tres escenarios en VS Code">
       <h2 class="slide-title">Al código: los <span class="accent">tres escenarios</span></h2>
       <p style="margin-top:0"><a class="vsc proyecto" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo">Abrir el proyecto en VS Code</a> <span class="small-note">después, en la terminal: <code>dotnet run</code> → <code>http://localhost:5192</code></span></p>
@@ -456,7 +522,7 @@ Turnos anteriores: 2</pre>
       <p class="small-note">Primero abrir el proyecto; los archivos se abren en esa ventana. La primera vez el navegador pide permiso para abrir VS Code (y, fuera de <code>file://</code>, la carpeta del repo: Alt + clic para cambiarla).</p>
     </section>
 
-    <!-- 17 · Las listas no vuelven -->
+    <!-- 18 · Las listas no vuelven -->
     <section class="slide" data-chapter="Escenarios" data-topic="Las listas no vuelven en el POST">
       <h2 class="slide-title">Las listas <span class="accent">no vuelven</span> en el POST</h2>
       <div class="columns wide-left" style="align-items:start">
@@ -499,7 +565,7 @@ Turnos anteriores: 2</pre>
       </div>
     </section>
 
-    <!-- 18 · Del ViewModel a la entidad -->
+    <!-- 19 · Del ViewModel a la entidad -->
     <section class="slide" data-chapter="Escenarios" data-topic="Del ViewModel a la entidad">
       <h2 class="slide-title">Del ViewModel a la <span class="accent">entidad</span></h2>
       <div class="flow" style="margin-top:14px">
@@ -521,7 +587,7 @@ turnos.Insertar(turno);
       <p class="small-note">El repositorio sigue trabajando con <strong>entidades</strong>: no conoce los ViewModels. La traducción la hace el controlador.</p>
     </section>
 
-    <!-- 19 · Overposting -->
+    <!-- 20 · Overposting -->
     <section class="slide" data-chapter="Escenarios" data-topic="Solo los campos que corresponden">
       <h2 class="slide-title">Solo los campos que <span class="accent">corresponden</span></h2>
       <div class="columns" style="align-items:start">
@@ -545,7 +611,7 @@ turnos.Insertar(turno);
       <p class="small-note" style="text-align:center">A esto se le llama <em>overposting</em> (o <em>mass assignment</em>).</p>
     </section>
 
-    <!-- 20 · Al código -->
+    <!-- 21 · Al código -->
     <section class="slide" data-chapter="Al código" data-topic="El POST en VS Code">
       <h2 class="slide-title">Al código: el <span class="accent">POST</span></h2>
       <p style="margin-top:0"><a class="vsc proyecto" href="#" data-vsc="tema-12-viewmodels/proyecto-ejemplo">Abrir el proyecto en VS Code</a> <span class="small-note">después, en la terminal: <code>dotnet run</code> → <code>http://localhost:5192</code></span></p>
@@ -582,7 +648,7 @@ turnos.Insertar(turno);
       </div>
     </section>
 
-    <!-- 21 · Puntos importantes -->
+    <!-- 22 · Puntos importantes -->
     <section class="slide" data-chapter="Escenarios" data-topic="Puntos importantes">
       <h2 class="slide-title">Puntos <span class="accent">importantes</span></h2>
       <ol class="steps" style="max-width:980px">
@@ -595,7 +661,7 @@ turnos.Insertar(turno);
       <p class="small-note">Por convención, van en una carpeta <code>ViewModels/</code>, al lado de <code>Models/</code>.</p>
     </section>
 
-    <!-- 22 · Capa anticorrupción -->
+    <!-- 23 · Capa anticorrupción -->
     <section class="slide" data-chapter="Anticorrupción" data-topic="Capa anticorrupción">
       <h2 class="slide-title">Capa <span class="accent">anticorrupción</span></h2>
       <div class="diagram">
@@ -630,7 +696,7 @@ turnos.Insertar(turno);
       <p class="small-note">Viene del Diseño Guiado por el Dominio (DDD). Microsoft la define como una fachada o capa de adaptación entre subsistemas que no comparten la misma semántica.</p>
     </section>
 
-    <!-- 23 · Para qué -->
+    <!-- 24 · Para qué -->
     <section class="slide" data-chapter="Anticorrupción" data-topic="Para qué sirve">
       <h2 class="slide-title">¿Para qué <span class="accent">sirve</span>?</h2>
       <div class="columns" style="grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top:8px">
@@ -642,7 +708,7 @@ turnos.Insertar(turno);
       <div class="callout" style="margin-top:20px">En la clínica ya hay dos: el <strong>repositorio</strong> (tema 09) entre la base y el dominio, y los <strong>ViewModels</strong> entre el dominio y las vistas.</div>
     </section>
 
-    <!-- 24 · Ejemplos y práctica -->
+    <!-- 25 · Ejemplos y práctica -->
     <section class="slide" data-chapter="Cierre" data-topic="Ejemplos y práctica">
       <h2 class="slide-title">Ejemplos y <span class="accent">práctica</span></h2>
       <div class="columns">
@@ -660,7 +726,7 @@ turnos.Insertar(turno);
       </div>
     </section>
 
-    <!-- 25 · Bibliografía -->
+    <!-- 26 · Bibliografía -->
     <section class="slide" data-chapter="Cierre" data-topic="Bibliografía">
       <h2 class="slide-title"><span class="accent">Bibliografía</span></h2>
       <ul class="bullets" style="font-size:17px">
@@ -673,7 +739,7 @@ turnos.Insertar(turno);
       </ul>
     </section>
 
-    <!-- 26 · Cierre -->
+    <!-- 27 · Cierre -->
     <section class="slide title-slide hero" data-chapter="Cierre" data-topic="Próximo tema">
       <h1 class="title">¿<span class="accent">Preguntas</span>?</h1>
       <p class="subtitle">Próximo: validación — que los datos del formulario tengan sentido.</p>
